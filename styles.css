@@ -1,0 +1,85 @@
+@media screen and (max-width: 700px) {
+  body {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+.header {
+  margin: 0 auto;
+  text-align: center;
+}
+
+.header h1 {
+  display: inline-block;
+  padding: 25px;
+}
+
+a {
+  text-decoration: none;
+  color: #555555;
+}
+
+a:hover {
+  color: #2685A2;
+}
+
+a:active {
+  color: #2685A2;
+}
+
+a:visited {
+  color: #555555;
+}
+
+body {
+  font-family: "Open Sans", sans-serif;
+  /* margin-left: 10%;
+  margin-right: 10%; */
+  max-width: 850px;
+  margin: 0 auto;
+  color: #555555;
+}
+
+p {
+  font-size: 15px;
+}
+
+h1 {
+  font-size: 30px;
+  font-weight: 600;
+}
+
+h2 {
+  font-size: 25px;
+}
+
+h3 {
+  font-size: 20px;
+}
+
+#me {
+  color: #2685A2;
+  margin: 0%;
+}
+
+#contact {
+  margin: 0%;
+}
+
+.column-list {
+  display: flex;
+  justify-content: space-between;
+}
+
+.column {
+  padding: 0 1em;
+}
+
+.column:first-child {
+  padding-left: 0;
+}
+
+.column:last-child {
+  padding-right: 0;
+}
