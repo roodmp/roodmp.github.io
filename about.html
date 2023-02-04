@@ -25,6 +25,10 @@
                 <a href="index.html"><button
                         class="px-7 py-3 md:px-9 md:py-4 bg-white font-medium md:font-semibold text-gray-700 text-md 
                         rounded-md hover:bg-gray-700 hover:text-white transition ease-linear duration-500">Resumé</button></a>
+                <a href="https://markrood.notion.site/" target="_blank"><button
+                        class="px-7 py-3 md:px-9 md:py-4 bg-white font-medium md:font-semibold text-gray-700 text-md rounded-md hover:bg-gray-700 hover:text-white transition ease-linear duration-500">
+                        My Notion
+                    </button></a>
             </nav>
 
             <div class="text-center">
@@ -33,7 +37,7 @@
                 </div>
                 <h6 class="font-medium text-gray-600 dark:text-white text-lg md:text-2xl uppercase mb-8">Mark Rood</h6>
                 <h1 class="font-normal text-gray-900 text-4xl md:text-7xl leading-none mb-8">System Administrator</h1>
-                <p class="font-normal text-gray-600 text-md md:text-xl mb-16">I’m passionate about automation and 
+                <p class="font-normal text-gray-600 text-md md:text-xl mb-16">I’m passionate about automation and
                     leveraging it to make people’s days easier and more efficient</p>
                 <a href="#Me" class="px-7 py-3 md:px-9 md:py-4 font-medium md:font-semibold bg-gray-700 text-gray-50 text-sm 
                     rounded-md hover:bg-gray-50 hover:text-gray-700 transition ease-linear duration-500">More About
@@ -98,7 +102,8 @@
                         <span class="w-28 h-0.5 bg-gray-300 mt-5"></span>
 
                         <div>
-                            <h1 class="font-normal text-gray-700 text-3xl md:text-4xl mb-5">Recreated Resumé in HTML</h1>
+                            <h1 class="font-normal text-gray-700 text-3xl md:text-4xl mb-5">Recreated Resumé in HTML
+                            </h1>
 
                             <p class="font-normal text-gray-500 text-sm md:text-base">Initially tried exporting my
                                 resumé from Notion but their minified HTML <br> export caused issues when trying to
@@ -132,7 +137,8 @@
                             <p class="font-normal text-gray-500 text-sm md:text-base">I first transfered my custom
                                 domain name (MarkRood.io) from Google Domains <br> to Cloudflare for a better management
                                 experience (IMO). Next using the primary <br> endpoint noted in the previous step, I
-                                create a CNAME record in Cloudflare so <br> that www.MarkRood.io would point to the Azure
+                                create a CNAME record in Cloudflare so <br> that www.MarkRood.io would point to the
+                                Azure
                                 endpoint.</p>
                         </div>
                     </div>
@@ -163,7 +169,7 @@
                             <p class="font-normal text-gray-500 text-sm md:text-base">Up to this point any changes
                                 to the code had to be manually uploaded <br> to the Azure storage account.
                                 To make it easier to deploy changes, <br> I configured the Github resume repo to use
-                                GitHub Actions and on every <br> commit, it authenticates with Azure (RBAC), uploads the 
+                                GitHub Actions and on every <br> commit, it authenticates with Azure (RBAC), uploads the
                                 repo, purges CDN <br> (of cached items) and finally logs out of Azure.</p>
                         </div>
                     </div>
@@ -179,7 +185,7 @@
                             <p class="font-normal text-gray-500 text-sm md:text-base">With the infrastructure relatively
                                 where I wanted it, I decided to change gears <br> and switch to design. This being my
                                 first time using Tailwind was happy to find <br> out it's relatively similar to
-                                Bootstrap and how they handle the styling via classes. <br> Would have loved to not 
+                                Bootstrap and how they handle the styling via classes. <br> Would have loved to not
                                 reformat my code..again but c'est la vie. A good learning <br> experience!</p>
                             </p>
                         </div>
