@@ -109,8 +109,8 @@
                             </h1>
 
                             <p class="font-normal text-gray-500 text-sm md:text-base">Initially tried exporting my
-                                resumé from Notion but their minified HTML <br> export caused issues when trying to
-                                adjust values so for manageability and <br> maintencence sake, opted to recreate it from
+                                resumé from Notion but their minified HTML export caused issues when trying to
+                                adjust values so for manageability and maintencence sake, opted to recreate it from
                                 scratch.</p>
                         </div>
                     </div>
@@ -124,7 +124,7 @@
                             <h1 class="font-normal text-gray-700 text-3xl md:text-4xl mb-5">Azure Static Website</h1>
 
                             <p class="font-normal text-gray-500 text-sm md:text-base">Created a new storage account,
-                                set it for static website (vs. blob storage) <br> and made note of the primary
+                                set it for static website (vs. blob storage) and made note of the primary
                                 endpoint.</p>
                         </div>
                     </div>
@@ -138,9 +138,9 @@
                             <h1 class="font-normal text-gray-700 text-3xl md:text-4xl mb-5">Custom Domain Name</h1>
 
                             <p class="font-normal text-gray-500 text-sm md:text-base">I first transfered my custom
-                                domain name (MarkRood.io) from Google Domains <br> to Cloudflare for a better management
-                                experience (IMO). Next using the primary <br> endpoint noted in the previous step, I
-                                create a CNAME record in Cloudflare so <br> that www.MarkRood.io would point to the
+                                domain name (MarkRood.io) from Google Domains to Cloudflare for a better management
+                                experience (IMO). Next using the primary endpoint noted in the previous step, I
+                                create a CNAME record in Cloudflare so that www.MarkRood.io would point to the
                                 Azure
                                 endpoint.</p>
                         </div>
@@ -155,8 +155,8 @@
                             <h1 class="font-normal text-gray-700 text-3xl md:text-4xl mb-5">HTTPS</h1>
 
                             <p class="font-normal text-gray-500 text-sm md:text-base">By leveraging Azure's CDN, I
-                                was able to create a CDN profile with a new <br> secure endpoint. Then edited my
-                                Cloudflare DNS and replaced the old <br> endpoint with the new CDN provided one.</p>
+                                was able to create a CDN profile with a new secure endpoint. Then edited my
+                                Cloudflare DNS and replaced the old endpoint with the new CDN provided one.</p>
                         </div>
                     </div>
 
@@ -170,10 +170,10 @@
                             </h1>
 
                             <p class="font-normal text-gray-500 text-sm md:text-base">Up to this point any changes
-                                to the code had to be manually uploaded <br> to the Azure storage account.
-                                To make it easier to deploy changes, <br> I configured the Github resume repo to use
-                                GitHub Actions and on every <br> commit, it authenticates with Azure (RBAC), uploads the
-                                repo, purges CDN <br> (of cached items) and finally logs out of Azure.</p>
+                                to the code had to be manually uploaded to the Azure storage account.
+                                To make it easier to deploy changes, I configured the Github resume repo to use
+                                GitHub Actions and on every  commit, it authenticates with Azure (RBAC), uploads the
+                                repo, purges CDN (of cached items) and finally logs out of Azure.</p>
                         </div>
                     </div>
 
@@ -186,10 +186,10 @@
                             <h1 class="font-normal text-gray-700 text-3xl md:text-4xl mb-5">Tailwind CSS</h1>
 
                             <p class="font-normal text-gray-500 text-sm md:text-base">With the infrastructure relatively
-                                where I wanted it, I decided to change gears <br> and switch to design. This being my
-                                first time using Tailwind was happy to find <br> out it's relatively similar to
-                                Bootstrap and how they handle the styling via classes. <br> Would have loved to not
-                                reformat my code..again but c'est la vie. A good learning <br> experience!</p>
+                                where I wanted it, I decided to change gears and switch to design. This being my
+                                first time using Tailwind was happy to find out it's relatively similar to
+                                Bootstrap and how they handle the styling via classes. Would have loved to not
+                                reformat my code..again but c'est la vie. A good learning experience!</p>
                             </p>
                         </div>
                     </div>
@@ -203,8 +203,8 @@
                             <h1 class="font-normal text-gray-700 text-3xl md:text-4xl mb-5">Up Next</h1>
 
                             <p class="font-normal text-gray-500 text-sm md:text-base">I think I'd like to tackle
-                                adding resources tied to Azure CosmosDB. <br> I'm not too sure what I'll do, whether
-                                it's a visitor counter or something else <br> but seems like a fun next step.</p>
+                                adding resources tied to Azure CosmosDB. I'm not too sure what I'll do, whether
+                                it's a visitor counter or something else but seems like a fun next step.</p>
                             </p>
                         </div>
                     </div>
