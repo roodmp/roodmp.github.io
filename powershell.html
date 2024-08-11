@@ -18,11 +18,11 @@
         }
     </style>
 </head>
-<body class="bg-[#F7F8FA] min-h-screen flex items-center justify-center font-['Inter',sans-serif] text-[#1C1C1C]">
-    <div class="bg-white p-8 rounded-lg shadow-sm max-w-2xl w-full">
-        <h1 class="text-2xl font-semibold mb-6 text-center">PowerShell Command Challenge</h1>
+<body class="bg-[#1E1E1E] min-h-screen flex items-center justify-center font-['Inter',sans-serif] text-[#E0E0E0]">
+    <div class="bg-[#2D2D2D] p-8 rounded-lg shadow-lg max-w-2xl w-full">
+        <h1 class="text-2xl font-semibold mb-6 text-center text-[#FFFFFF]">PowerShell Challenge</h1>
         
-        <div id="scenario" class="p-4 bg-[#F7F8FA] rounded-md mb-4 text-sm">
+        <div id="scenario" class="p-4 bg-[#3A3A3A] rounded-md mb-4 text-sm">
             <!-- Scenario will be inserted here -->
         </div>
 
@@ -30,7 +30,7 @@
           <!-- Clickable options will be inserted here -->
         </div>
         
-        <div id="commandArea" class="mb-6 p-4 bg-[#F7F8FA] rounded-md flex items-center justify-center text-sm font-mono">
+        <div id="commandArea" class="mb-6 p-4 bg-[#3A3A3A] rounded-md flex items-center justify-center text-sm font-mono">
             <!-- Partial command will be inserted here -->
         </div>
         
@@ -38,9 +38,9 @@
             <!-- Feedback will be inserted here -->
         </div>
 
-        <button id="submitBtn" class="bg-[#007AFF] text-white px-4 py-2 rounded-md hover:bg-[#0056B3] transition w-full text-sm font-medium">Submit</button>
+        <button id="submitBtn" class="bg-[#0050A6] text-white px-4 py-2 rounded-md hover:bg-[#0066CC] transition w-full text-sm font-medium">Submit</button>
         
-        <button id="nextBtn" class="bg-[#34C759] text-white px-4 py-2 rounded-md hover:bg-[#2AB350] transition hidden w-full text-sm font-medium">Next Challenge</button>
+        <button id="nextBtn" class="bg-[#2A9D4E] text-white px-4 py-2 rounded-md hover:bg-[#34C759] transition hidden w-full text-sm font-medium">Next Challenge</button>
     </div>
 
     <script>
@@ -70,6 +70,7 @@
         let selectedOption = null;
         const submitBtn = document.getElementById('submitBtn');
         const feedback = document.getElementById('feedback');
+        const optionsArea = document.getElementById('optionsArea');
 
         function loadScenario() {
             const scenario = scenarios[currentScenario];
@@ -78,26 +79,26 @@
             
             const commandArea = document.getElementById('commandArea');
             commandArea.innerHTML = '';
-            commandArea.classList.remove('bg-[#D4EDDA]');
-            commandArea.classList.add('bg-[#F7F8FA]');
+            commandArea.classList.remove('bg-[#1E4D2B]');
+            commandArea.classList.add('bg-[#3A3A3A]');
             scenario.partialCommand.forEach(part => {
                 const span = document.createElement('span');
                 if (part === '__') {
                     span.id = 'blankSpace';
                     span.textContent = '__';
-                    span.classList.add('bg-white', 'py-1', 'px-2', 'rounded-md', 'mr-1', 'min-w-min', 'inline-block', 'text-center', 'border', 'border-[#E5E5EA]');
+                    span.classList.add('bg-[#4A4A4A]', 'py-1', 'px-2', 'rounded-md', 'mr-1', 'min-w-min', 'inline-block', 'text-center', 'border', 'border-[#5A5A5A]');
                 } else {
                     span.textContent = part;
                 }
                 commandArea.appendChild(span);
             });
 
-            const optionsArea = document.getElementById('optionsArea');
             optionsArea.innerHTML = '';
+            optionsArea.classList.remove('hidden');
             scenario.options.forEach(option => {
                 const button = document.createElement('button');
                 button.textContent = option;
-                button.classList.add('bg-white', 'p-2', 'rounded-md', 'm-1', 'hover:bg-[#F7F8FA]', 'transition', 'border', 'border-[#E5E5EA]', 'text-sm');
+                button.classList.add('bg-[#4A4A4A]', 'p-2', 'rounded-md', 'm-1', 'hover:bg-[#5A5A5A]', 'transition', 'border', 'border-[#5A5A5A]', 'text-sm');
                 button.addEventListener('click', () => selectOption(option));
                 optionsArea.appendChild(button);
             });
@@ -130,17 +131,18 @@
 
             if (userCommand === solution) {
                 feedback.textContent = "Correct! Well done!";
-                feedback.classList.remove('bg-[#FFD7D7]', 'text-[#721C24]');
-                feedback.classList.add('bg-[#D4EDDA]', 'text-[#155724]');
-                commandArea.classList.remove('bg-[#F7F8FA]');
-                commandArea.classList.add('bg-[#D4EDDA]');
-                blankSpace.classList.remove('py-1', 'px-2', 'mr-1', 'bg-white', 'border');
+                feedback.classList.remove('bg-[#4D1F1F]', 'text-[#FF6362]');
+                feedback.classList.add( 'text-[#B3FFB3]');
+                commandArea.classList.remove('bg-[#3A3A3A]');
+                commandArea.classList.add('bg-[#1E4D2B]');
+                blankSpace.classList.remove('py-1', 'px-2', 'mr-1', 'bg-[#4A4A4A]', 'border');
                 submitBtn.classList.add('hidden');
                 document.getElementById('nextBtn').classList.remove('hidden');
+                optionsArea.classList.add('hidden');
             } else {
                 feedback.textContent = "Not quite. Try again!";
-                feedback.classList.remove('bg-[#D4EDDA]', 'text-[#155724]');
-                feedback.classList.add('bg-[#FFD7D7]', 'text-[#721C24]');
+                feedback.classList.remove('bg-[#1E4D2B]', 'text-[#B3FFB3]');
+                feedback.classList.add('text-[#FF6362]');
             }
             feedback.classList.remove('hidden');
             feedback.classList.add('fade-out');
