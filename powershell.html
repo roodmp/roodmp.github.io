@@ -1,167 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PowerShell Command Challenge</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PowerShell Verb Challenge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
 
-        .fade-out {
-            animation: fadeOut 0.5s ease-out 4.5s forwards;
-        }
-    </style>
+      to {
+        opacity: 0;
+      }
+    }
+
+    .fade-out {
+      animation: fadeOut 0.5s ease-out 4.5s forwards;
+    }
+  </style>
 </head>
+
 <body class="bg-gray-900 min-h-screen flex items-center justify-center font-['Inter',sans-serif] text-[#E0E0E0]">
-    <div class="bg-gray-800 p-8 mx-3 rounded-lg shadow-lg max-w-2xl w-full">
-        <h1 class="text-2xl font-semibold mb-6 text-center text-white">PowerShell Challenge</h1>
-        
-        <div id="scenario" class="p-4 bg-gray-700 rounded-md mb-4 text-sm">
-            <!-- Scenario will be inserted here -->
-        </div>
+  <div class="bg-gray-800 p-8 mx-3 rounded-lg shadow-lg max-w-2xl w-full">
+    <h1 class="text-2xl font-semibold mb-6 text-center text-white">PowerShell Verb Challenge</h1>
 
-        <div id="optionsArea" class="p-4 rounded-md flex flex-wrap justify-center mb-4">
-          <!-- Clickable options will be inserted here -->
-        </div>
-        
-        <div id="commandArea" class="mb-6 p-4 rounded-md flex items-center justify-center text-sm font-mono">
-            <!-- Partial command will be inserted here -->
-        </div>
-        
-        <div id="feedback" class="mb-4 p-1 rounded-md hidden text-sm text-center transition-opacity duration-500">
-            <!-- Feedback will be inserted here -->
-        </div>
-
-        <button id="submitBtn" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-[#0066CC] transition w-full text-sm font-medium">Submit</button>
-        
-        <button id="nextBtn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-[#34C759] transition hidden w-full text-sm font-medium">Next Challenge</button>
+    <div id="scenario" class="p-4 bg-gray-700 rounded-md mb-4 text-sm">
+      <!-- Scenario will be inserted here -->
     </div>
 
-    <script>
-        const scenarios = [
-            {
-                description: "List all files in the current directory",
-                partialCommand: ["__", "-ChildItem"],
-                options: ["Get", "New", "Set", "Show"],
-                solution: "Get-ChildItem"
-            },
-            {
-                description: "Create a new directory named 'PowerShellTest'",
-                partialCommand: ["__", "-Item -ItemType Directory -Name PowerShellTest"],
-                options: ["Create", "Get", "New", "Set"],
-                solution: "New-Item -ItemType Directory -Name PowerShellTest"
-            },
-            {
-                description: "Display the content of a file named 'example.txt'",
-                partialCommand: ["__", "-Content example.txt"],
-                options: ["Get", "Show", "List", "Remove"],
-                solution: "Get-Content example.txt"
-            }
-            // Add more scenarios here
-        ];
+    <div id="optionsArea" class="p-4 rounded-md flex flex-wrap justify-center mb-4">
+      <!-- Clickable options will be inserted here -->
+    </div>
 
-        let currentScenario = 0;
-        let selectedOption = null;
-        const submitBtn = document.getElementById('submitBtn');
-        const feedback = document.getElementById('feedback');
-        const optionsArea = document.getElementById('optionsArea');
+    <div id="commandArea" class="mb-6 p-4 rounded-md flex items-center justify-center text-sm font-mono">
+      <!-- Partial command will be inserted here -->
+    </div>
 
-        function loadScenario() {
-            const scenario = scenarios[currentScenario];
-            document.getElementById('scenario').textContent = `Challenge: ${scenario.description}`;
-            document.getElementById('scenario').classList.add('text-center')
-            
-            const commandArea = document.getElementById('commandArea');
-            commandArea.innerHTML = '';
-            commandArea.classList.remove('bg-[#1E4D2B]');
-            commandArea.classList.add('bg-black');
-            scenario.partialCommand.forEach(part => {
-                const span = document.createElement('span');
-                if (part === '__') {
-                    span.id = 'blankSpace';
-                    span.textContent = '__';
-                    span.classList.add('py-1', 'px-2', 'rounded-md', 'min-w-min', 'inline-block', 'text-center', 'border', 'border-[#5A5A5A]');
-                } else {
-                    span.textContent = part;
-                }
-                commandArea.appendChild(span);
-            });
+    <div id="feedback" class="mb-4 p-1 rounded-md hidden text-sm text-center transition-opacity duration-500">
+      <!-- Feedback will be inserted here -->
+    </div>
 
-            optionsArea.innerHTML = '';
-            optionsArea.classList.remove('hidden');
-            scenario.options.forEach(option => {
-                const button = document.createElement('button');
-                button.textContent = option;
-                button.classList.add('bg-[#4A4A4A]', 'p-2', 'rounded-md', 'm-1', 'hover:bg-[#5A5A5A]', 'transition', 'border', 'border-[#5A5A5A]', 'text-sm');
-                button.addEventListener('click', () => selectOption(option));
-                optionsArea.appendChild(button);
-            });
+    <button id="submitBtn"
+      class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-[#0066CC] transition w-full text-sm font-medium">Submit</button>
 
-            selectedOption = null;
-            feedback.classList.add('hidden');
-            feedback.classList.remove('fade-out');
-            document.getElementById('nextBtn').classList.add('hidden');
-            submitBtn.classList.remove('hidden');
+    <button id="nextBtn"
+      class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-[#34C759] transition hidden w-full text-sm font-medium">Next
+      Challenge</button>
+  </div>
+
+  <script>
+    const scenarios = [
+      {
+        description: "List all files in the current directory",
+        partialCommand: ["__", "-ChildItem"],
+        options: ["Get", "New", "Set", "Show"],
+        solution: "Get-ChildItem"
+      },
+      {
+        description: "Create a new directory named 'PowerShellTest'",
+        partialCommand: ["__", "-Item -ItemType Directory -Name PowerShellTest"],
+        options: ["Create", "Get", "New", "Set"],
+        solution: "New-Item -ItemType Directory -Name PowerShellTest"
+      },
+      {
+        description: "Display the content of a file named 'example.txt'",
+        partialCommand: ["__", "-Content example.txt"],
+        options: ["Get", "Show", "List", "Remove"],
+        solution: "Get-Content example.txt"
+      }
+      // Add more scenarios here
+    ];
+
+    let currentScenario = 0;
+    let selectedOption = null;
+    const submitBtn = document.getElementById('submitBtn');
+    const feedback = document.getElementById('feedback');
+    const optionsArea = document.getElementById('optionsArea');
+
+    function loadScenario() {
+      const scenario = scenarios[currentScenario];
+      const scenarioElement = document.getElementById('scenario');
+      scenarioElement.innerHTML = `
+      <div class="text-center text-lg font-bold mb-2 text-yellow-500">Fill in the missing verb for the following command:</div>
+      <div class="text-center text-base leading-relaxed">${scenario.description}</div>`;
+
+      const commandArea = document.getElementById('commandArea');
+      commandArea.innerHTML = '';
+      // Reset the background color to black
+      commandArea.classList.remove('bg-green-900');
+      commandArea.classList.add('bg-black');
+      scenario.partialCommand.forEach(part => {
+        const span = document.createElement('span');
+        if (part === '__') {
+          span.id = 'blankSpace';
+          span.textContent = '__';
+          span.classList.add('py-1', 'px-2', 'rounded-md', 'min-w-min', 'inline-block', 'text-center', 'border', 'border-[#5A5A5A]');
+        } else {
+          span.textContent = part;
         }
+        commandArea.appendChild(span);
+      });
 
-        function selectOption(option) {
-            selectedOption = option;
-            const blankSpace = document.getElementById('blankSpace');
-            blankSpace.textContent = option;
-        }
+      optionsArea.innerHTML = '';
+      optionsArea.classList.remove('hidden');
+      scenario.options.forEach(option => {
+        const button = document.createElement('button');
+        button.textContent = option;
+        button.classList.add('bg-[#4A4A4A]', 'p-2', 'rounded-md', 'm-1', 'hover:bg-[#5A5A5A]', 'transition', 'border', 'border-[#5A5A5A]', 'text-sm');
+        button.addEventListener('click', () => selectOption(option));
+        optionsArea.appendChild(button);
+      });
 
-        function checkSolution() {
-            if (!selectedOption) {
-                alert("Please select an option first!");
-                return;
-            }
+      selectedOption = null;
+      feedback.classList.add('hidden');
+      feedback.classList.remove('fade-out');
+      document.getElementById('nextBtn').classList.add('hidden');
+      submitBtn.classList.remove('hidden');
+    }
 
-            const userCommand = scenarios[currentScenario].partialCommand.map(part => 
-                part === '__' ? selectedOption : part
-            ).join('');
-            const solution = scenarios[currentScenario].solution;
-            const commandArea = document.getElementById('commandArea');
-            const blankSpace = document.getElementById('blankSpace');
 
-            if (userCommand === solution) {
-                feedback.textContent = "Correct! Well done!";
-                feedback.classList.remove('bg-[#4D1F1F]', 'text-[#FF6362]');
-                feedback.classList.add( 'text-[#B3FFB3]');
-                commandArea.classList.remove('bg-black');
-                commandArea.classList.add('bg-green-900');
-                blankSpace.classList.remove('py-1', 'px-2', 'mr-1', 'bg-[#4A4A4A]', 'border');
-                submitBtn.classList.add('hidden');
-                document.getElementById('nextBtn').classList.remove('hidden');
-                optionsArea.classList.add('hidden');
-            } else {
-                feedback.textContent = "Not quite. Try again!";
-                feedback.classList.remove('bg-green-900', 'text-[#B3FFB3]');
-                feedback.classList.add('text-[#FF6362]');
-            }
-            feedback.classList.remove('hidden');
-            feedback.classList.add('fade-out');
-            
-            setTimeout(() => {
-                feedback.classList.add('hidden');
-                feedback.classList.remove('fade-out');
-            }, 2000);
-        }
+    function selectOption(option) {
+      selectedOption = option;
+      const blankSpace = document.getElementById('blankSpace');
+      blankSpace.textContent = option;
+    }
 
-        document.getElementById('submitBtn').addEventListener('click', checkSolution);
+    function checkSolution() {
+      if (!selectedOption) {
+        alert("Please select an option first!");
+        return;
+      }
 
-        document.getElementById('nextBtn').addEventListener('click', () => {
-            currentScenario = (currentScenario + 1) % scenarios.length;
-            loadScenario();
-        });
+      const userCommand = scenarios[currentScenario].partialCommand.map(part =>
+        part === '__' ? selectedOption : part
+      ).join('');
+      const solution = scenarios[currentScenario].solution;
+      const commandArea = document.getElementById('commandArea');
+      const blankSpace = document.getElementById('blankSpace');
 
-        // Initial load
-        loadScenario();
-    </script>
+      if (userCommand === solution) {
+        feedback.textContent = "Correct! Well done!";
+        feedback.classList.remove('bg-[#4D1F1F]', 'text-[#FF6362]');
+        feedback.classList.add('text-[#B3FFB3]');
+        commandArea.classList.remove('bg-black');
+        commandArea.classList.add('bg-green-900');
+        blankSpace.classList.remove('py-1', 'px-2', 'mr-1', 'bg-[#4A4A4A]', 'border');
+        submitBtn.classList.add('hidden');
+        document.getElementById('nextBtn').classList.remove('hidden');
+        optionsArea.classList.add('hidden');
+      } else {
+        feedback.textContent = "Not quite. Try again!";
+        feedback.classList.remove('bg-green-900', 'text-[#B3FFB3]');
+        feedback.classList.add('text-[#FF6362]');
+      }
+      feedback.classList.remove('hidden');
+      feedback.classList.add('fade-out');
+
+      setTimeout(() => {
+        feedback.classList.add('hidden');
+        feedback.classList.remove('fade-out');
+      }, 2000);
+    }
+
+    document.getElementById('submitBtn').addEventListener('click', checkSolution);
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      currentScenario = (currentScenario + 1) % scenarios.length;
+      loadScenario();
+    });
+
+    // Initial load
+    loadScenario();
+  </script>
 </body>
+
 </html>
