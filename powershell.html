@@ -22,7 +22,7 @@
     <div class="bg-gray-800 p-8 mx-3 rounded-lg shadow-lg max-w-2xl w-full">
         <h1 class="text-2xl font-semibold mb-6 text-center text-white">PowerShell Challenge</h1>
         
-        <div id="scenario" class="p-4 bg-[#3A3A3A] rounded-md mb-4 text-sm">
+        <div id="scenario" class="p-4 bg-gray-700 rounded-md mb-4 text-sm">
             <!-- Scenario will be inserted here -->
         </div>
 
@@ -30,7 +30,7 @@
           <!-- Clickable options will be inserted here -->
         </div>
         
-        <div id="commandArea" class="mb-6 p-4 bg-black rounded-md flex items-center justify-center text-sm font-mono">
+        <div id="commandArea" class="mb-6 p-4 rounded-md flex items-center justify-center text-sm font-mono">
             <!-- Partial command will be inserted here -->
         </div>
         
@@ -38,9 +38,9 @@
             <!-- Feedback will be inserted here -->
         </div>
 
-        <button id="submitBtn" class="bg-[#0050A6] text-white px-4 py-2 rounded-md hover:bg-[#0066CC] transition w-full text-sm font-medium">Submit</button>
+        <button id="submitBtn" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-[#0066CC] transition w-full text-sm font-medium">Submit</button>
         
-        <button id="nextBtn" class="bg-[#2A9D4E] text-white px-4 py-2 rounded-md hover:bg-[#34C759] transition hidden w-full text-sm font-medium">Next Challenge</button>
+        <button id="nextBtn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-[#34C759] transition hidden w-full text-sm font-medium">Next Challenge</button>
     </div>
 
     <script>
@@ -80,13 +80,13 @@
             const commandArea = document.getElementById('commandArea');
             commandArea.innerHTML = '';
             commandArea.classList.remove('bg-[#1E4D2B]');
-            commandArea.classList.add('bg-[#3A3A3A]');
+            commandArea.classList.add('bg-black');
             scenario.partialCommand.forEach(part => {
                 const span = document.createElement('span');
                 if (part === '__') {
                     span.id = 'blankSpace';
                     span.textContent = '__';
-                    span.classList.add('bg-[#4A4A4A]', 'py-1', 'px-2', 'rounded-md', 'min-w-min', 'inline-block', 'text-center', 'border', 'border-[#5A5A5A]');
+                    span.classList.add('py-1', 'px-2', 'rounded-md', 'min-w-min', 'inline-block', 'text-center', 'border', 'border-[#5A5A5A]');
                 } else {
                     span.textContent = part;
                 }
@@ -133,15 +133,15 @@
                 feedback.textContent = "Correct! Well done!";
                 feedback.classList.remove('bg-[#4D1F1F]', 'text-[#FF6362]');
                 feedback.classList.add( 'text-[#B3FFB3]');
-                commandArea.classList.remove('bg-[#3A3A3A]');
-                commandArea.classList.add('bg-[#1E4D2B]');
+                commandArea.classList.remove('bg-black');
+                commandArea.classList.add('bg-green-900');
                 blankSpace.classList.remove('py-1', 'px-2', 'mr-1', 'bg-[#4A4A4A]', 'border');
                 submitBtn.classList.add('hidden');
                 document.getElementById('nextBtn').classList.remove('hidden');
                 optionsArea.classList.add('hidden');
             } else {
                 feedback.textContent = "Not quite. Try again!";
-                feedback.classList.remove('bg-[#1E4D2B]', 'text-[#B3FFB3]');
+                feedback.classList.remove('bg-green-900', 'text-[#B3FFB3]');
                 feedback.classList.add('text-[#FF6362]');
             }
             feedback.classList.remove('hidden');
