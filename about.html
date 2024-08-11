@@ -24,8 +24,8 @@
             <nav class="flex items-center justify-between mb-10">
                 <img src="assets/image/navbar-logo.png" alt="Logo">
                 <div>
-                    <a href="about.html"><button class="px-7 py-3 md:px-9 md:py-4 bg-white font-medium md:font-semibold text-gray-700 text-md 
-                            rounded-md hover:bg-gray-700 hover:text-white active:bg-gray-700 active:text-white">
+                    <a href="about.html"><button class="px-7 py-3 md:px-9 md:py-4 bg-gray-700 text-white font-medium md:font-semibold text-md 
+                            rounded-md hover:bg-gray-800 hover:text-whited">
                             About Me
                         </button></a>
                     <a href="index.html"><button
@@ -101,7 +101,8 @@
                         <span class="w-28 h-0.5 bg-gray-300 mt-5"></span>
 
                         <div>
-                            <h1 class="font-normal text-gray-700 text-3xl md:text-4xl mb-5">Recreated Resumé in HTML</h1>
+                            <h1 class="font-normal text-gray-700 text-3xl md:text-4xl mb-5">Recreated Resumé in HTML
+                            </h1>
                             <p class="font-normal text-gray-500 text-sm md:text-base">Initially tried exporting my
                                 resumé from Notion but their minified HTML export caused issues when trying to
                                 adjust values so for manageability and maintencence sake, opted to recreate it from
@@ -166,7 +167,7 @@
                             <p class="font-normal text-gray-500 text-sm md:text-base">Up to this point any changes
                                 to the code had to be manually uploaded to the Azure storage account.
                                 To make it easier to deploy changes, I configured the Github resume repo to use
-                                GitHub Actions and on every  commit, it authenticates with Azure (RBAC), uploads the
+                                GitHub Actions and on every commit, it authenticates with Azure (RBAC), uploads the
                                 repo, purges CDN (of cached items) and finally logs out of Azure.</p>
                         </div>
                     </div>
