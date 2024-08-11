@@ -48,19 +48,19 @@
             {
                 description: "List all files in the current directory",
                 partialCommand: ["__", "-ChildItem"],
-                options: ["Get", "New", "Set", "Remove"],
+                options: ["Get", "New", "Set", "Show"],
                 solution: "Get-ChildItem"
             },
             {
                 description: "Create a new directory named 'PowerShellTest'",
                 partialCommand: ["__", "-Item -ItemType Directory -Name PowerShellTest"],
-                options: ["Get", "New", "Set", "Remove"],
+                options: ["Create", "Get", "New", "Set"],
                 solution: "New-Item -ItemType Directory -Name PowerShellTest"
             },
             {
                 description: "Display the content of a file named 'example.txt'",
                 partialCommand: ["__", "-Content example.txt"],
-                options: ["Get", "New", "Set", "Remove"],
+                options: ["Get", "Show", "List", "Remove"],
                 solution: "Get-Content example.txt"
             }
             // Add more scenarios here
