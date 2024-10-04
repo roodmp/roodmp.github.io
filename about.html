@@ -15,7 +15,7 @@
         integrity="sha512-7x3zila4t2qNycrtZ31HO0NnJr8kg2VI67YLoRSyi9hGhRN66FHYWr7Axa9Y1J9tGYHVBPqIjSE1ogHrJTz51g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="index.js"></script>
+    <script src="main.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -152,24 +152,6 @@
         </div>
     </footer>
 
-    <script>
-        feather.replace()
-
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const html = document.documentElement;
-
-        darkModeToggle.addEventListener('click', () => {
-            html.classList.toggle('dark');
-        });
-
-        // Add this to highlight the current page in the navigation
-        const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
-            if (link.getAttribute('href') === location.pathname.split('/').pop()) {
-                link.classList.add('bg-gray-200', 'dark:bg-gray-700', 'text-gray-900', 'dark:text-white');
-            }
-        });
-    </script>
 </body>
 
 </html>
