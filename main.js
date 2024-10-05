@@ -16,12 +16,22 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const html = document.documentElement;
 
   function setTheme(theme) {
-    if (theme === "dark" || theme === "system") {
+    if (theme === "dark") {
       html.classList.add("dark");
       updateThemeIcon("dark");
     } else if (theme === "light") {
       html.classList.remove("dark");
       updateThemeIcon("light");
+    } else if (theme === "system") {
+      if (
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+      ) {
+        html.classList.add("dark");
+      } else {
+        html.classList.remove("dark");
+      }
+      updateThemeIcon("system");
     }
     localStorage.setItem("theme", theme);
   }
@@ -37,14 +47,21 @@ document.addEventListener("DOMContentLoaded", (event) => {
     themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="${iconPaths[theme]}" />`;
   }
 
-  // Check for saved theme preference or default to 'dark'
-  const savedTheme = localStorage.getItem("theme") || "dark";
-  setTheme(savedTheme);
-
-  // Ensure dark mode is set initially
-  if (!html.classList.contains("dark")) {
-    html.classList.add("dark");
+  // Function to apply system theme without changing the icon
+  function applySystemTheme() {
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+    ) {
+      html.classList.add("dark");
+    } else {
+      html.classList.remove("dark");
+    }
   }
+
+  // Check for saved theme preference or default to 'system'
+  const savedTheme = localStorage.getItem("theme") || "system";
+  setTheme(savedTheme);
 
   darkModeToggle.addEventListener("click", () => {
     themeDropdown.classList.toggle("hidden");
@@ -72,11 +89,16 @@ document.addEventListener("DOMContentLoaded", (event) => {
   if (window.matchMedia) {
     window.matchMedia("(prefers-color-scheme: dark)").addListener((e) => {
       if (localStorage.getItem("theme") === "system") {
-        setTheme("system");
+        applySystemTheme();
       }
     });
   }
 
-  // Set initial icon
-  updateThemeIcon("dark");
+  // Initial setup
+  if (savedTheme === "system") {
+    applySystemTheme();
+    updateThemeIcon("system");
+  } else {
+    setTheme(savedTheme);
+  }
 });
