@@ -35,28 +35,28 @@ document.addEventListener("DOMContentLoaded", (event) => {
       link.classList.add("underline", "decoration-wavy", "underline-offset-2");
     }
   });
-});
 
-// Function to fetch weather data
-async function fetchWeather() {
-  const city = "Denver";
-  const url = `https://wttr.in/${city}?format=j1`;
+  // Function to fetch weather data
+  async function fetchWeather() {
+    const city = "Denver";
+    const url = `https://wttr.in/${city}?format=j1`;
 
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    const temp = data.current_condition[0].temp_F;
-    const description = data.current_condition[0].weatherDesc[0].value;
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      const temp = data.current_condition[0].temp_F;
+      const description = data.current_condition[0].weatherDesc[0].value;
 
-    document.getElementById("temperature").textContent = `${temp}°F`;
-    document.getElementById("weatherDescription").textContent = description;
-  } catch (error) {
-    console.error("Error fetching weather data:", error);
+      document.getElementById("temperature").textContent = `${temp}°F`;
+      document.getElementById("weatherDescription").textContent = description;
+    } catch (error) {
+      console.error("Error fetching weather data:", error);
+    }
   }
-}
 
-// Fetch weather data on page load
-fetchWeather();
+  // Fetch weather data on page load
+  fetchWeather();
 
-// Optionally, update weather data every 30 minutes
-setInterval(fetchWeather, 30 * 60 * 1000);
+  // Optionally, update weather data every 30 minutes
+  setInterval(fetchWeather, 30 * 60 * 1000);
+});
