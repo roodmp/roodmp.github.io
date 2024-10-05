@@ -2,32 +2,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
   // Initialize Feather icons
   feather.replace();
 
-  // // Dark mode toggle functionality
-  // const darkModeToggle = document.getElementById("darkModeToggle");
-  // const html = document.documentElement;
-
-  // // Function to set the dark mode
-  // function setDarkMode(isDark) {
-  //   if (isDark) {
-  //     html.classList.add("dark");
-  //   } else {
-  //     html.classList.remove("dark");
-  //   }
-  //   localStorage.setItem("darkMode", isDark);
-  // }
-
-  // // Check for saved dark mode preference
-  // const savedDarkMode = localStorage.getItem("darkMode");
-  // if (savedDarkMode !== null) {
-  //   setDarkMode(savedDarkMode === "true");
-  // }
-
-  // // Toggle dark mode on button click
-  // darkModeToggle.addEventListener("click", () => {
-  //   const isDark = !html.classList.contains("dark");
-  //   setDarkMode(isDark);
-  // });
-
   // Highlight current page in navigation
   const navLinks = document.querySelectorAll(".nav-link");
   navLinks.forEach((link) => {
@@ -42,22 +16,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const html = document.documentElement;
 
   function setTheme(theme) {
-    if (theme === "dark") {
+    if (theme === "dark" || theme === "system") {
       html.classList.add("dark");
       updateThemeIcon("dark");
     } else if (theme === "light") {
       html.classList.remove("dark");
       updateThemeIcon("light");
-    } else if (theme === "system") {
-      if (
-        window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches
-      ) {
-        html.classList.add("dark");
-      } else {
-        html.classList.remove("dark");
-      }
-      updateThemeIcon("system");
     }
     localStorage.setItem("theme", theme);
   }
@@ -73,9 +37,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
     themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="${iconPaths[theme]}" />`;
   }
 
-  // Check for saved theme preference or default to 'system'
-  const savedTheme = localStorage.getItem("theme") || "system";
+  // Check for saved theme preference or default to 'dark'
+  const savedTheme = localStorage.getItem("theme") || "dark";
   setTheme(savedTheme);
+
+  // Ensure dark mode is set initially
+  if (!html.classList.contains("dark")) {
+    html.classList.add("dark");
+  }
 
   darkModeToggle.addEventListener("click", () => {
     themeDropdown.classList.toggle("hidden");
@@ -107,4 +76,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       }
     });
   }
+
+  // Set initial icon
+  updateThemeIcon("dark");
 });
