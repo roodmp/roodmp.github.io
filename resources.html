@@ -2,271 +2,417 @@
 <html lang="en" class="light">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mark Rood - SysAdmin Resources</title>
-    <link rel="icon" type="image/x-icon" href="favicon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/feather-icons"></script>
-    <script src="main.js"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            light: '#3B82F6',
-                            dark: '#60A5FA',
-                        }
-                    },
-                    maxWidth: {
-                        '8xl': '88rem',
-                        '9xl': '96rem',
-                    }
-                }
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mark Rood - Resources</title>
+  <link rel="icon" type="image/x-icon" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              light: '#3B82F6',
+              dark: '#60A5FA',
             }
+          },
+          maxWidth: {
+            '8xl': '88rem',
+            '9xl': '96rem',
+          }
+        },
+        fontFamily: {
+          sans: ['Poppins', 'sans-serif'],
         }
-    </script>
-    <style type="text/tailwindcss">
-        @layer components {
-            .nav-link {
-                @apply px-2 py-1 text-lg font-medium text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-300;
-            }
-            .resource-card {
-                @apply relative p-6 rounded-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer;
-                background-size: 200% 200%;
-                animation: gradient 15s ease infinite;
-            }
-            .resource-card::before {
-                @apply absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300;
-                content: '';
-                background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
-            }
-            .resource-card:hover::before {
-                @apply opacity-100;
-            }
-            .sidebar-link {
-                @apply flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200;
-            }
-            .sidebar-link.active {
-                @apply bg-gray-100 dark:bg-gray-700;
-            }
-            .category-count {
-                @apply ml-auto bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm px-2 py-0.5 rounded-full;
-            }
-            .mobile-nav-button {
-                @apply lg:hidden fixed bottom-6 right-6 z-50 bg-primary-light dark:bg-primary-dark text-white p-4 rounded-full shadow-lg;
-            }
-        }
-    </style>
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer components {
+      .nav-link {
+        @apply px-2 py-1 text-lg font-medium text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-300;
+      }
+      .resource-card {
+        @apply bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden;
+      }
+      .resource-card:hover {
+        @apply transform translate-y-[-4px];
+      }
+      .sidebar-link {
+        @apply flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200;
+      }
+      .sidebar-link.active {
+        @apply bg-gray-100 dark:bg-gray-700;
+      }
+      .badge {
+        @apply px-3 py-1 text-sm rounded-full;
+      }
+      .badge-blue {
+        @apply bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100;
+      }
+      .badge-green {
+        @apply bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100;
+      }
+      .badge-purple {
+        @apply bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100;
+      }
+    }
+  </style>
 </head>
 
 <body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
-    <!-- Keep your existing header -->
-    <header class="fixed top-6 left-0 right-0 z-10 px-4">
-        <nav class="bg-white/90 dark:bg-gray-800 backdrop-blur-md rounded-full shadow-lg max-w-fit mx-auto">
-            <div class="flex items-center space-x-2 px-4 py-2">
-                <a href="index.html" class="flex-shrink-0 mr-3">
-                    <img src="favicon.png" alt="Logo" class="h-8 w-auto" />
-                </a>
-                <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
-                <a href="about.html" class="nav-link">About</a>
-                <a href="index.html" class="nav-link">Resumé</a>
-                <a href="resources.html" class="nav-link">Resources</a>
-                <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
-                <!-- Your theme toggle -->
-            </div>
-        </nav>
-    </header>
+  <!-- Keep your existing header -->
 
-    <!-- Mobile Navigation Button -->
-    <button id="mobileNavToggle" class="mobile-nav-button">
-        <i data-feather="menu" class="w-6 h-6"></i>
-    </button>
+  <div class="h-24"></div>
 
-    <div class="h-24"></div>
+  <div class="container mx-auto px-4 py-8 max-w-9xl">
+    <h1 class="text-3xl sm:text-4xl text-sky-800 dark:text-sky-300 mb-8">Resources</h1>
 
-    <div class="container mx-auto px-4 py-8 max-w-9xl">
-        <h1 class="text-3xl sm:text-4xl text-sky-800 dark:text-sky-300 mb-8">SysAdmin Resources</h1>
-
-        <div class="flex flex-col lg:flex-row gap-8">
-            <!-- Sidebar -->
-            <div id="sidebar" class="lg:w-64 flex-shrink-0 fixed lg:sticky inset-0 lg:inset-auto z-40 transform lg:transform-none -translate-x-full lg:translate-x-0 transition-transform duration-300">
-                <div class="h-full lg:h-auto bg-white dark:bg-gray-800 rounded-xl p-4 lg:sticky lg:top-28 shadow-lg lg:shadow-none">
-                    <div class="flex justify-between items-center lg:hidden mb-4">
-                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Categories</h2>
-                        <button id="closeSidebar" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
-                            <i data-feather="x" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                    <nav class="space-y-2">
-                        <a href="#windows" class="sidebar-link active">
-                            <i data-feather="monitor" class="w-5 h-5 mr-3"></i>
-                            Windows
-                            <span class="category-count">3</span>
-                        </a>
-                        <a href="#linux" class="sidebar-link">
-                            <i data-feather="terminal" class="w-5 h-5 mr-3"></i>
-                            Linux
-                            <span class="category-count">3</span>
-                        </a>
-                        <a href="#monitoring" class="sidebar-link">
-                            <i data-feather="activity" class="w-5 h-5 mr-3"></i>
-                            Monitoring
-                            <span class="category-count">3</span>
-                        </a>
-                        <a href="#security" class="sidebar-link">
-                            <i data-feather="shield" class="w-5 h-5 mr-3"></i>
-                            Security
-                            <span class="category-count">3</span>
-                        </a>
-                        <a href="#automation" class="sidebar-link">
-                            <i data-feather="cpu" class="w-5 h-5 mr-3"></i>
-                            Automation
-                            <span class="category-count">3</span>
-                        </a>
-                        <a href="#cloud" class="sidebar-link">
-                            <i data-feather="cloud" class="w-5 h-5 mr-3"></i>
-                            Cloud
-                            <span class="category-count">3</span>
-                        </a>
-                    </nav>
-                </div>
-            </div>
-            <!-- Main Content -->
-            <div class="flex-1">
-              <div class="grid grid-cols-1 gap-6">
-                  <!-- Windows Section -->
-                  <section id="windows" class="col-span-full">
-                      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Windows Resources</h2>
-                      <div class="grid grid-cols-1 xl:grid-cols-3 md:grid-cols-2 gap-6">
-                          <div class="resource-card" style="background: linear-gradient(135deg, #0078D4, #00A4EF)">
-                              <h3 class="text-xl font-bold text-white mb-3">Server Documentation</h3>
-                              <ul class="space-y-2 text-white/90">
-                                  <li class="hover:text-white transition-colors">
-                                      <a href="https://docs.microsoft.com/en-us/windows-server/">Windows Server Docs</a>
-                                  </li>
-                                  <li class="hover:text-white transition-colors">
-                                      <a href="https://docs.microsoft.com/en-us/powershell/">PowerShell Documentation</a>
-                                  </li>
-                              </ul>
-                          </div>
-                          <!-- Add more Windows cards here -->
-                      </div>
-                  </section>
-
-                  <!-- Linux Section -->
-                  <section id="linux" class="col-span-full">
-                      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Linux Resources</h2>
-                      <div class="grid grid-cols-1 xl:grid-cols-3 md:grid-cols-2 gap-6">
-                          <div class="resource-card" style="background: linear-gradient(135deg, #E95420, #FF8C44)">
-                              <h3 class="text-xl font-bold text-white mb-3">Linux Documentation</h3>
-                              <ul class="space-y-2 text-white/90">
-                                  <li class="hover:text-white transition-colors">
-                                      <a href="https://www.kernel.org/doc/">Kernel Documentation</a>
-                                  </li>
-                                  <li class="hover:text-white transition-colors">
-                                      <a href="https://ubuntu.com/server/docs">Ubuntu Server Guide</a>
-                                  </li>
-                              </ul>
-                          </div>
-                          <!-- Add more Linux cards here -->
-                      </div>
-                  </section>
-
-                  <!-- Add more sections following the same pattern -->
-
-              </div>
-          </div>
+    <div class="flex flex-col lg:flex-row gap-8">
+      <!-- Sidebar -->
+      <div id="sidebar"
+        class="lg:w-64 flex-shrink-0 fixed lg:sticky inset-0 lg:inset-auto z-40 transform lg:transform-none -translate-x-full lg:translate-x-0 transition-transform duration-300">
+        <div class="h-full lg:h-auto bg-white dark:bg-gray-800 rounded-xl p-4 lg:sticky lg:top-28 shadow-lg lg:shadow-none">
+          <nav class="space-y-2">
+            <a href="#docs" class="sidebar-link">
+              <i data-feather="book-open" class="w-5 h-5 mr-3"></i>
+              Documentation
+            </a>
+            <a href="#windows" class="sidebar-link">
+              <i data-feather="monitor" class="w-5 h-5 mr-3"></i>
+              Windows
+            </a>
+            <a href="#macos" class="sidebar-link">
+              <i data-feather="command" class="w-5 h-5 mr-3"></i>
+              macOS
+            </a>
+            <a href="#cross-platform" class="sidebar-link">
+              <i data-feather="layers" class="w-5 h-5 mr-3"></i>
+              Cross-Platform
+            </a>
+            <a href="#mobile" class="sidebar-link">
+              <i data-feather="smartphone" class="w-5 h-5 mr-3"></i>
+              Mobile Apps
+            </a>
+            <a href="#media" class="sidebar-link">
+              <i data-feather="headphones" class="w-5 h-5 mr-3"></i>
+              Media
+            </a>
+          </nav>
+        </div>
       </div>
+
+      <!-- Main Content -->
+      <div class="flex-1">
+        <div class="grid grid-cols-1 gap-8">
+          <!-- Documentation Section -->
+          <section id="docs" class="col-span-full">
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Documentation & Reading</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div class="resource-card">
+                <div class="p-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">PowerShell Documentation</h3>
+                    <span class="badge badge-blue">Docs</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-300">Official Microsoft PowerShell documentation and guides</p>
+                  <a href="https://docs.microsoft.com/en-us/powershell/"
+                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    View Documentation
+                    <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                  </a>
+                </div>
+              </div>
+              <div class="resource-card">
+                <div class="p-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Anthropic Prompt Engineering</h3>
+                    <span class="badge badge-purple">Guide</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-300">Learn effective prompt engineering techniques for AI</p>
+                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    Learn More
+                    <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Windows Section -->
+          <section id="windows" class="col-span-full">
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Windows Utilities</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div class="resource-card">
+                <div class="p-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">PowerToys</h3>
+                    <span class="badge badge-blue">Utility</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-300">Set of utilities for power users to tune Windows experience</p>
+                  <a href="https://github.com/microsoft/PowerToys"
+                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    Get PowerToys
+                    <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                  </a>
+                </div>
+              </div>
+
+              <div class="resource-card">
+                <div class="p-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">DevHome</h3>
+                    <span class="badge badge-blue">Utility</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-300">Developer-focused customization tool for Windows</p>
+                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    Learn More
+                    <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                  </a>
+                </div>
+              </div>
+
+              <div class="resource-card">
+                <div class="p-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Windows Terminal</h3>
+                    <span class="badge badge-blue">Utility</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-300">Modern terminal application for Windows</p>
+                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    Get Terminal
+                    <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                  </a>
+                </div>
+              </div>
+
+              <div class="resource-card">
+                <div class="p-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">OhMyPosh</h3>
+                    <span class="badge badge-blue">Utility</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-300">Prompt theme engine for any shell</p>
+                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    Get OhMyPosh
+                    <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- macOS Section -->
+          <section id="macos" class="col-span-full">
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">macOS Utilities</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div class="resource-card">
+                <div class="p-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Raycast</h3>
+                    <span class="badge badge-blue">Utility</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-300">Productivity tool to control your Mac with keyboard</p>
+                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    Get Raycast
+                    <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                  </a>
+                </div>
+              </div>
+
+              <div class="resource-card">
+                <div class="p-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Cleanshot X</h3>
+                    <span class="badge badge-blue">Utility</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-300">Advanced screenshot and screen recording tool</p>
+                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    Get Cleanshot X
+                    <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                  </a>
+                </div>
+              </div>
+
+              <div class="resource-card">
+                <div class="p-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Screen Studio</h3>
+                    <span class="badge badge-blue">Utility</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-300">Professional screen recording studio</p>
+                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    Get Screen Studio
+                    <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Cross-Platform Section -->
+          <section id="cross-platform" class="col-span-full">
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Cross-Platform Tools</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div class="resource-card">
+                <div class="p-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Notion</h3>
+                    <span class="badge badge-green">Productivity</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-300">All-in-one workspace for notes and collaboration</p>
+                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    Get Notion
+                    <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                  </a>
+                </div>
+              </div>
+
+              <div class="resource-card">
+                <div class="p-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Linear</h3>
+                    <span class="badge badge-green">Project Management</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-300">Issue tracking and project management tool</p>
+                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    Get Linear
+                    <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                  </a>
+                </div>
+              </div>
+
+              <div class="resource-card">
+                <div class="p-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Claude AI</h3>
+                    <span class="badge badge-purple">AI</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-300">Advanced AI assistant by Anthropic</p>
+                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    Try Claude
+                    <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Mobile Apps Section -->
+          <section id="mobile" class="col-span-full">
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Mobile Apps</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div class="resource-card">
+                <div class="p-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Crouton</h3>
+                    <span class="badge badge-green">Recipe</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-300">Simple and elegant recipe management app</p>
+                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    Get Crouton
+                    <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                  </a>
+                </div>
+              </div>
+
+              <div class="resource-card">
+                <div class="p-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Mercury Weather</h3>
+                    <span class="badge badge-blue">Weather</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-300">Beautiful and accurate weather app</p>
+                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    Get Mercury
+                    <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Media Section -->
+          <section id="media" class="col-span-full">
+            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Media</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div class="resource-card">
+                <div class="p-6">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Lenny's Podcast</h3>
+                    <span class="badge badge-purple">Podcast</span>
+                  </div>
+                  <p class="text-gray-600 dark:text-gray-300">Available on YouTube and Apple Music</p>
+                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    Listen Now
+                    <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Overlay for mobile sidebar -->
-  <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-30 lg:hidden hidden transition-opacity duration-300"></div>
-
   <script>
-      // Initialize Feather Icons
-      feather.replace();
+    // Initialize Feather Icons
+    feather.replace();
 
-      // Mobile Navigation
-      const sidebar = document.getElementById('sidebar');
-      const sidebarOverlay = document.getElementById('sidebarOverlay');
-      const mobileNavToggle = document.getElementById('mobileNavToggle');
-      const closeSidebar = document.getElementById('closeSidebar');
-
-      function openSidebar() {
-          sidebar.classList.remove('-translate-x-full');
-          sidebarOverlay.classList.remove('hidden');
-          document.body.classList.add('overflow-hidden');
-      }
-
-      function closeSidebarMenu() {
-          sidebar.classList.add('-translate-x-full');
-          sidebarOverlay.classList.add('hidden');
-          document.body.classList.remove('overflow-hidden');
-      }
-
-      mobileNavToggle.addEventListener('click', openSidebar);
-      closeSidebar.addEventListener('click', closeSidebarMenu);
-      sidebarOverlay.addEventListener('click', closeSidebarMenu);
-
-      // Smooth scrolling for anchor links
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-          anchor.addEventListener('click', function (e) {
-              e.preventDefault();
-              const target = document.querySelector(this.getAttribute('href'));
-              if (target) {
-                  // Close sidebar on mobile when clicking a link
-                  if (window.innerWidth < 1024) {
-                      closeSidebarMenu();
-                  }
-                  
-                  // Smooth scroll to target
-                  target.scrollIntoView({
-                      behavior: 'smooth',
-                      block: 'start'
-                  });
-
-                  // Update active state
-                  document.querySelectorAll('.sidebar-link').forEach(link => {
-                      link.classList.remove('active');
-                  });
-                  this.classList.add('active');
-              }
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
           });
-      });
 
-      // Intersection Observer for active section highlighting
-      const sections = document.querySelectorAll('section');
-      const sidebarLinks = document.querySelectorAll('.sidebar-link');
-
-      const observerOptions = {
-          threshold: 0.2,
-          rootMargin: '-20% 0px -80% 0px'
-      };
-
-      const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                  const id = entry.target.getAttribute('id');
-                  sidebarLinks.forEach(link => {
-                      link.classList.remove('active');
-                      if (link.getAttribute('href') === `#${id}`) {
-                          link.classList.add('active');
-                      }
-                  });
-              }
+          // Update active state
+          document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.classList.remove('active');
           });
-      }, observerOptions);
-
-      sections.forEach(section => {
-          observer.observe(section);
+          this.classList.add('active');
+        }
       });
+    });
+
+    // Intersection Observer for active section highlighting
+    const sections = document.querySelectorAll('section');
+    const sidebarLinks = document.querySelectorAll('.sidebar-link');
+
+    const observerOptions = {
+      threshold: 0.2,
+      rootMargin: '-20% 0px -80% 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          sidebarLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${id}`) {
+              link.classList.add('active');
+            }
+          });
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(section => {
+      observer.observe(section);
+    });
   </script>
 </body>
 
