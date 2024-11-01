@@ -23,6 +23,10 @@
                             light: '#3B82F6',
                             dark: '#60A5FA',
                         }
+                    },
+                    maxWidth: {
+                        '8xl': '88rem',
+                        '9xl': '96rem',
                     }
                 }
             }
@@ -55,6 +59,9 @@
             .category-count {
                 @apply ml-auto bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm px-2 py-0.5 rounded-full;
             }
+            .mobile-nav-button {
+                @apply lg:hidden fixed bottom-6 right-6 z-50 bg-primary-light dark:bg-primary-dark text-white p-4 rounded-full shadow-lg;
+            }
         }
     </style>
 </head>
@@ -62,19 +69,41 @@
 <body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
     <!-- Keep your existing header -->
     <header class="fixed top-6 left-0 right-0 z-10 px-4">
-        <!-- Your existing nav code -->
+        <nav class="bg-white/90 dark:bg-gray-800 backdrop-blur-md rounded-full shadow-lg max-w-fit mx-auto">
+            <div class="flex items-center space-x-2 px-4 py-2">
+                <a href="index.html" class="flex-shrink-0 mr-3">
+                    <img src="favicon.png" alt="Logo" class="h-8 w-auto" />
+                </a>
+                <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="index.html" class="nav-link">Resumé</a>
+                <a href="resources.html" class="nav-link">Resources</a>
+                <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+                <!-- Your theme toggle -->
+            </div>
+        </nav>
     </header>
 
+    <!-- Mobile Navigation Button -->
+    <button id="mobileNavToggle" class="mobile-nav-button">
+        <i data-feather="menu" class="w-6 h-6"></i>
+    </button>
+
     <div class="h-24"></div>
-    
-    <div class="container mx-auto px-4 py-8">
+
+    <div class="container mx-auto px-4 py-8 max-w-9xl">
         <h1 class="text-3xl sm:text-4xl text-sky-800 dark:text-sky-300 mb-8">SysAdmin Resources</h1>
-        
-        <div class="flex gap-8">
+
+        <div class="flex flex-col lg:flex-row gap-8">
             <!-- Sidebar -->
-            <div class="w-64 flex-shrink-0">
-                <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sticky top-28">
-                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Categories</h2>
+            <div id="sidebar" class="lg:w-64 flex-shrink-0 fixed lg:sticky inset-0 lg:inset-auto z-40 transform lg:transform-none -translate-x-full lg:translate-x-0 transition-transform duration-300">
+                <div class="h-full lg:h-auto bg-white dark:bg-gray-800 rounded-xl p-4 lg:sticky lg:top-28 shadow-lg lg:shadow-none">
+                    <div class="flex justify-between items-center lg:hidden mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Categories</h2>
+                        <button id="closeSidebar" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                            <i data-feather="x" class="w-5 h-5"></i>
+                        </button>
+                    </div>
                     <nav class="space-y-2">
                         <a href="#windows" class="sidebar-link active">
                             <i data-feather="monitor" class="w-5 h-5 mr-3"></i>
@@ -109,50 +138,136 @@
                     </nav>
                 </div>
             </div>
-
             <!-- Main Content -->
             <div class="flex-1">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Windows Section -->
-                    <section id="windows" class="col-span-full">
-                        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Windows Resources</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="resource-card" style="background: linear-gradient(135deg, #0078D4, #00A4EF)">
-                                <h3 class="text-xl font-bold text-white mb-3">Server Documentation</h3>
-                                <ul class="space-y-2 text-white/90">
-                                    <li class="hover:text-white transition-colors">
-                                        <a href="https://docs.microsoft.com/en-us/windows-server/">Windows Server Docs</a>
-                                    </li>
-                                    <li class="hover:text-white transition-colors">
-                                        <a href="https://docs.microsoft.com/en-us/powershell/">PowerShell Documentation</a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <!-- Add more Windows resource cards -->
-                        </div>
-                    </section>
+              <div class="grid grid-cols-1 gap-6">
+                  <!-- Windows Section -->
+                  <section id="windows" class="col-span-full">
+                      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Windows Resources</h2>
+                      <div class="grid grid-cols-1 xl:grid-cols-3 md:grid-cols-2 gap-6">
+                          <div class="resource-card" style="background: linear-gradient(135deg, #0078D4, #00A4EF)">
+                              <h3 class="text-xl font-bold text-white mb-3">Server Documentation</h3>
+                              <ul class="space-y-2 text-white/90">
+                                  <li class="hover:text-white transition-colors">
+                                      <a href="https://docs.microsoft.com/en-us/windows-server/">Windows Server Docs</a>
+                                  </li>
+                                  <li class="hover:text-white transition-colors">
+                                      <a href="https://docs.microsoft.com/en-us/powershell/">PowerShell Documentation</a>
+                                  </li>
+                              </ul>
+                          </div>
+                          <!-- Add more Windows cards here -->
+                      </div>
+                  </section>
 
-                    <!-- Linux Section -->
-                    <section id="linux" class="col-span-full">
-                        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Linux Resources</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="resource-card" style="background: linear-gradient(135deg, #E95420, #FF8C44)">
-                                <!-- Linux resource content -->
-                            </div>
-                            <!-- Add more Linux resource cards -->
-                        </div>
-                    </section>
+                  <!-- Linux Section -->
+                  <section id="linux" class="col-span-full">
+                      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Linux Resources</h2>
+                      <div class="grid grid-cols-1 xl:grid-cols-3 md:grid-cols-2 gap-6">
+                          <div class="resource-card" style="background: linear-gradient(135deg, #E95420, #FF8C44)">
+                              <h3 class="text-xl font-bold text-white mb-3">Linux Documentation</h3>
+                              <ul class="space-y-2 text-white/90">
+                                  <li class="hover:text-white transition-colors">
+                                      <a href="https://www.kernel.org/doc/">Kernel Documentation</a>
+                                  </li>
+                                  <li class="hover:text-white transition-colors">
+                                      <a href="https://ubuntu.com/server/docs">Ubuntu Server Guide</a>
+                                  </li>
+                              </ul>
+                          </div>
+                          <!-- Add more Linux cards here -->
+                      </div>
+                  </section>
 
-                    <!-- Add more sections for other categories -->
+                  <!-- Add more sections following the same pattern -->
 
-                </div>
-            </div>
-        </div>
-    </div>
+              </div>
+          </div>
+      </div>
+  </div>
 
-    <script>
-        feather.replace()
-    </script>
+  <!-- Overlay for mobile sidebar -->
+  <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-30 lg:hidden hidden transition-opacity duration-300"></div>
+
+  <script>
+      // Initialize Feather Icons
+      feather.replace();
+
+      // Mobile Navigation
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebarOverlay');
+      const mobileNavToggle = document.getElementById('mobileNavToggle');
+      const closeSidebar = document.getElementById('closeSidebar');
+
+      function openSidebar() {
+          sidebar.classList.remove('-translate-x-full');
+          sidebarOverlay.classList.remove('hidden');
+          document.body.classList.add('overflow-hidden');
+      }
+
+      function closeSidebarMenu() {
+          sidebar.classList.add('-translate-x-full');
+          sidebarOverlay.classList.add('hidden');
+          document.body.classList.remove('overflow-hidden');
+      }
+
+      mobileNavToggle.addEventListener('click', openSidebar);
+      closeSidebar.addEventListener('click', closeSidebarMenu);
+      sidebarOverlay.addEventListener('click', closeSidebarMenu);
+
+      // Smooth scrolling for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+          anchor.addEventListener('click', function (e) {
+              e.preventDefault();
+              const target = document.querySelector(this.getAttribute('href'));
+              if (target) {
+                  // Close sidebar on mobile when clicking a link
+                  if (window.innerWidth < 1024) {
+                      closeSidebarMenu();
+                  }
+                  
+                  // Smooth scroll to target
+                  target.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'start'
+                  });
+
+                  // Update active state
+                  document.querySelectorAll('.sidebar-link').forEach(link => {
+                      link.classList.remove('active');
+                  });
+                  this.classList.add('active');
+              }
+          });
+      });
+
+      // Intersection Observer for active section highlighting
+      const sections = document.querySelectorAll('section');
+      const sidebarLinks = document.querySelectorAll('.sidebar-link');
+
+      const observerOptions = {
+          threshold: 0.2,
+          rootMargin: '-20% 0px -80% 0px'
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                  const id = entry.target.getAttribute('id');
+                  sidebarLinks.forEach(link => {
+                      link.classList.remove('active');
+                      if (link.getAttribute('href') === `#${id}`) {
+                          link.classList.add('active');
+                      }
+                  });
+              }
+          });
+      }, observerOptions);
+
+      sections.forEach(section => {
+          observer.observe(section);
+      });
+  </script>
 </body>
 
 </html>
