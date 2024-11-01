@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mark Rood - SysAdmin Resources</title>
+    <link rel="icon" type="image/x-icon" href="favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="main.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#3B82F6',
+                            dark: '#60A5FA',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer components {
+            .nav-link {
+                @apply px-2 py-1 text-lg font-medium text-gray-700 dark:text-gray-200 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-300;
+            }
+            .resource-card {
+                @apply relative p-6 rounded-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer;
+                background-size: 200% 200%;
+                animation: gradient 15s ease infinite;
+            }
+            .resource-card::before {
+                @apply absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300;
+                content: '';
+                background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+            }
+            .resource-card:hover::before {
+                @apply opacity-100;
+            }
+            .sidebar-link {
+                @apply flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200;
+            }
+            .sidebar-link.active {
+                @apply bg-gray-100 dark:bg-gray-700;
+            }
+            .category-count {
+                @apply ml-auto bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm px-2 py-0.5 rounded-full;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Keep your existing header -->
+    <header class="fixed top-6 left-0 right-0 z-10 px-4">
+        <!-- Your existing nav code -->
+    </header>
+
+    <div class="h-24"></div>
+    
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl sm:text-4xl text-sky-800 dark:text-sky-300 mb-8">SysAdmin Resources</h1>
+        
+        <div class="flex gap-8">
+            <!-- Sidebar -->
+            <div class="w-64 flex-shrink-0">
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-4 sticky top-28">
+                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Categories</h2>
+                    <nav class="space-y-2">
+                        <a href="#windows" class="sidebar-link active">
+                            <i data-feather="monitor" class="w-5 h-5 mr-3"></i>
+                            Windows
+                            <span class="category-count">3</span>
+                        </a>
+                        <a href="#linux" class="sidebar-link">
+                            <i data-feather="terminal" class="w-5 h-5 mr-3"></i>
+                            Linux
+                            <span class="category-count">3</span>
+                        </a>
+                        <a href="#monitoring" class="sidebar-link">
+                            <i data-feather="activity" class="w-5 h-5 mr-3"></i>
+                            Monitoring
+                            <span class="category-count">3</span>
+                        </a>
+                        <a href="#security" class="sidebar-link">
+                            <i data-feather="shield" class="w-5 h-5 mr-3"></i>
+                            Security
+                            <span class="category-count">3</span>
+                        </a>
+                        <a href="#automation" class="sidebar-link">
+                            <i data-feather="cpu" class="w-5 h-5 mr-3"></i>
+                            Automation
+                            <span class="category-count">3</span>
+                        </a>
+                        <a href="#cloud" class="sidebar-link">
+                            <i data-feather="cloud" class="w-5 h-5 mr-3"></i>
+                            Cloud
+                            <span class="category-count">3</span>
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Windows Section -->
+                    <section id="windows" class="col-span-full">
+                        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Windows Resources</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="resource-card" style="background: linear-gradient(135deg, #0078D4, #00A4EF)">
+                                <h3 class="text-xl font-bold text-white mb-3">Server Documentation</h3>
+                                <ul class="space-y-2 text-white/90">
+                                    <li class="hover:text-white transition-colors">
+                                        <a href="https://docs.microsoft.com/en-us/windows-server/">Windows Server Docs</a>
+                                    </li>
+                                    <li class="hover:text-white transition-colors">
+                                        <a href="https://docs.microsoft.com/en-us/powershell/">PowerShell Documentation</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- Add more Windows resource cards -->
+                        </div>
+                    </section>
+
+                    <!-- Linux Section -->
+                    <section id="linux" class="col-span-full">
+                        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Linux Resources</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="resource-card" style="background: linear-gradient(135deg, #E95420, #FF8C44)">
+                                <!-- Linux resource content -->
+                            </div>
+                            <!-- Add more Linux resource cards -->
+                        </div>
+                    </section>
+
+                    <!-- Add more sections for other categories -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        feather.replace()
+    </script>
+</body>
+
+</html>
