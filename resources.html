@@ -9,7 +9,8 @@
   <link rel="icon" type="image/x-icon" href="favicon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/feather-icons"></script>
   <script>
@@ -68,7 +69,72 @@
 </head>
 
 <body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
-  <!-- Keep your existing header -->
+
+  <header class="fixed top-6 left-0 right-0 z-10 px-4">
+    <nav class="bg-white/90 dark:bg-gray-800 backdrop-blur-md rounded-full shadow-lg max-w-fit mx-auto">
+      <div class="flex items-center space-x-2 px-4 py-2">
+        <a href="index.html" class="flex-shrink-0 mr-3">
+          <img src="favicon.png" alt="Logo" class="h-8 w-auto" />
+        </a>
+        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="index.html" class="nav-link">Resumé</a>
+        <a href="resources.html" class="nav-link">Resources</a>
+        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
+        <div class="relative">
+          <button id="darkModeToggle" class="nav-link p-1.5 flex items-center">
+            <svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+            </svg>
+          </button>
+
+          <div id="themeDropdown"
+            class="absolute right-0 mt-2 w-30 bg-white dark:bg-gray-800 rounded-md shadow-lg hidden">
+            <ul class="py-1">
+              <li>
+                <a href="#"
+                  class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  data-theme="light">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-5 h-5 mr-3">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                  </svg>
+                  Light
+                </a>
+              </li>
+              <li>
+                <a href="#"
+                  class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  data-theme="dark">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-5 h-5 mr-3">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                  </svg>
+                  Dark
+                </a>
+              </li>
+              <li>
+                <a href="#"
+                  class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  data-theme="system">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-5 h-5 mr-3">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
+                  </svg>
+                  System
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
 
   <div class="h-24"></div>
 
@@ -79,7 +145,8 @@
       <!-- Sidebar -->
       <div id="sidebar"
         class="lg:w-64 flex-shrink-0 fixed lg:sticky inset-0 lg:inset-auto z-40 transform lg:transform-none -translate-x-full lg:translate-x-0 transition-transform duration-300">
-        <div class="h-full lg:h-auto bg-white dark:bg-gray-800 rounded-xl p-4 lg:sticky lg:top-28 shadow-lg lg:shadow-none">
+        <div
+          class="h-full lg:h-auto bg-white dark:bg-gray-800 rounded-xl p-4 lg:sticky lg:top-28 shadow-lg lg:shadow-none">
           <nav class="space-y-2">
             <a href="#docs" class="sidebar-link">
               <i data-feather="book-open" class="w-5 h-5 mr-3"></i>
@@ -137,7 +204,8 @@
                     <span class="badge badge-purple">Guide</span>
                   </div>
                   <p class="text-gray-600 dark:text-gray-300">Learn effective prompt engineering techniques for AI</p>
-                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                  <a href="#"
+                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
                     Learn More
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -156,7 +224,8 @@
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white">PowerToys</h3>
                     <span class="badge badge-blue">Utility</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-300">Set of utilities for power users to tune Windows experience</p>
+                  <p class="text-gray-600 dark:text-gray-300">Set of utilities for power users to tune Windows
+                    experience</p>
                   <a href="https://github.com/microsoft/PowerToys"
                     class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
                     Get PowerToys
@@ -172,7 +241,8 @@
                     <span class="badge badge-blue">Utility</span>
                   </div>
                   <p class="text-gray-600 dark:text-gray-300">Developer-focused customization tool for Windows</p>
-                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                  <a href="#"
+                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
                     Learn More
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -186,7 +256,8 @@
                     <span class="badge badge-blue">Utility</span>
                   </div>
                   <p class="text-gray-600 dark:text-gray-300">Modern terminal application for Windows</p>
-                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                  <a href="#"
+                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
                     Get Terminal
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -200,7 +271,8 @@
                     <span class="badge badge-blue">Utility</span>
                   </div>
                   <p class="text-gray-600 dark:text-gray-300">Prompt theme engine for any shell</p>
-                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                  <a href="#"
+                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
                     Get OhMyPosh
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -220,7 +292,8 @@
                     <span class="badge badge-blue">Utility</span>
                   </div>
                   <p class="text-gray-600 dark:text-gray-300">Productivity tool to control your Mac with keyboard</p>
-                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                  <a href="#"
+                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
                     Get Raycast
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -234,7 +307,8 @@
                     <span class="badge badge-blue">Utility</span>
                   </div>
                   <p class="text-gray-600 dark:text-gray-300">Advanced screenshot and screen recording tool</p>
-                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                  <a href="#"
+                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
                     Get Cleanshot X
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -248,7 +322,8 @@
                     <span class="badge badge-blue">Utility</span>
                   </div>
                   <p class="text-gray-600 dark:text-gray-300">Professional screen recording studio</p>
-                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                  <a href="#"
+                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
                     Get Screen Studio
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -268,7 +343,8 @@
                     <span class="badge badge-green">Productivity</span>
                   </div>
                   <p class="text-gray-600 dark:text-gray-300">All-in-one workspace for notes and collaboration</p>
-                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                  <a href="#"
+                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
                     Get Notion
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -282,7 +358,8 @@
                     <span class="badge badge-green">Project Management</span>
                   </div>
                   <p class="text-gray-600 dark:text-gray-300">Issue tracking and project management tool</p>
-                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                  <a href="#"
+                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
                     Get Linear
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -296,7 +373,8 @@
                     <span class="badge badge-purple">AI</span>
                   </div>
                   <p class="text-gray-600 dark:text-gray-300">Advanced AI assistant by Anthropic</p>
-                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                  <a href="#"
+                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
                     Try Claude
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -316,7 +394,8 @@
                     <span class="badge badge-green">Recipe</span>
                   </div>
                   <p class="text-gray-600 dark:text-gray-300">Simple and elegant recipe management app</p>
-                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                  <a href="#"
+                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
                     Get Crouton
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -330,7 +409,8 @@
                     <span class="badge badge-blue">Weather</span>
                   </div>
                   <p class="text-gray-600 dark:text-gray-300">Beautiful and accurate weather app</p>
-                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                  <a href="#"
+                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
                     Get Mercury
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -350,7 +430,8 @@
                     <span class="badge badge-purple">Podcast</span>
                   </div>
                   <p class="text-gray-600 dark:text-gray-300">Available on YouTube and Apple Music</p>
-                  <a href="#" class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                  <a href="#"
+                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
                     Listen Now
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
