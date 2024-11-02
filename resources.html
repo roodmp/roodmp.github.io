@@ -255,7 +255,7 @@
                     <span class="badge badge-purple">AI Prompt</span>
                   </div>
                   <div class="relative">
-                    <pre
+                    <pre id="prompt1"
                       class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300 mb-2"><code>Review this code for potential issues and suggest improvements. Consider:
 1. Security vulnerabilities
 2. Performance optimizations
@@ -283,7 +283,7 @@ Please provide specific examples and explanations for each suggestion.</code></p
                     <span class="badge badge-purple">AI Prompt</span>
                   </div>
                   <div class="relative">
-                    <pre
+                    <pre id="prompt2"
                       class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300 mb-2"><code>Analyze this error message and help debug the issue:
 [Error message here]
 
@@ -311,7 +311,7 @@ Please provide:
                     <span class="badge badge-purple">AI Prompt</span>
                   </div>
                   <div class="relative">
-                    <pre
+                    <pre id="prompt3"
                       class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300 mb-2"><code>Generate comprehensive documentation for this code/system. Include:
 1. Overview and purpose
 2. Installation requirements
@@ -620,6 +620,42 @@ Please provide:
 
     sections.forEach(section => {
       observer.observe(section);
+    });
+
+    // Initialize clipboard.js
+    const clipboard = new ClipboardJS(".copy-button");
+
+    clipboard.on("success", function (e) {
+      const button = e.trigger;
+      const originalIcon = button.innerHTML;
+
+      // Show success state
+      button.innerHTML =
+        '<i data-feather="check" class="w-4 h-4 text-green-500"></i>';
+      feather.replace();
+
+      // Reset after 2 seconds
+      setTimeout(() => {
+        button.innerHTML = originalIcon;
+        feather.replace();
+      }, 2000);
+
+      e.clearSelection();
+    });
+
+    clipboard.on("error", function (e) {
+      const button = e.trigger;
+      const originalIcon = button.innerHTML;
+
+      // Show error state
+      button.innerHTML = '<i data-feather="x" class="w-4 h-4 text-red-500"></i>';
+      feather.replace();
+
+      // Reset after 2 seconds
+      setTimeout(() => {
+        button.innerHTML = originalIcon;
+        feather.replace();
+      }, 2000);
     });
   </script>
 </body>

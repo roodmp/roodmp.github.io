@@ -101,40 +101,4 @@ document.addEventListener("DOMContentLoaded", (event) => {
   } else {
     setTheme(savedTheme);
   }
-
-  // Initialize clipboard.js
-  const clipboard = new ClipboardJS(".copy-button");
-
-  clipboard.on("success", function (e) {
-    const button = e.trigger;
-    const originalIcon = button.innerHTML;
-
-    // Show success state
-    button.innerHTML =
-      '<i data-feather="check" class="w-4 h-4 text-green-500"></i>';
-    feather.replace();
-
-    // Reset after 2 seconds
-    setTimeout(() => {
-      button.innerHTML = originalIcon;
-      feather.replace();
-    }, 2000);
-
-    e.clearSelection();
-  });
-
-  clipboard.on("error", function (e) {
-    const button = e.trigger;
-    const originalIcon = button.innerHTML;
-
-    // Show error state
-    button.innerHTML = '<i data-feather="x" class="w-4 h-4 text-red-500"></i>';
-    feather.replace();
-
-    // Reset after 2 seconds
-    setTimeout(() => {
-      button.innerHTML = originalIcon;
-      feather.replace();
-    }, 2000);
-  });
 });
