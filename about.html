@@ -43,6 +43,26 @@
             }
         }
     </style>
+    <style>
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+    </style>
+
 </head>
 
 <body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
@@ -120,29 +140,59 @@
 
     <div class="h-20"></div>
 
-    <section class="py-5 md:py-10">
-        <div class="container mx-auto px-4">
-            <div class="text-center">
-                <div class="flex justify-center mb-16">
-                    <img class="object-contain h-64 w-64 sm:h-96 sm:w-96 rounded-full" src="assets/image/me_dog.png"
-                        alt="Image">
+    <section class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="container mx-auto">
+            <div class="text-center space-y-8 sm:space-y-12">
+                <!-- Image Container with Animation -->
+                <div class="relative inline-block" data-aos="fade-down">
+                    <div
+                        class="absolute inset-0 bg-primary-light dark:bg-primary-dark rounded-full blur-md opacity-20 transform -rotate-6">
+                    </div>
+                    <img class="relative h-48 w-48 sm:h-64 sm:w-64 lg:h-80 lg:w-80 rounded-full object-cover shadow-xl transform transition-transform duration-500 hover:scale-105"
+                        src="assets/image/me_dog.png" alt="Mark Rood with dog" loading="lazy">
                 </div>
-                <p class="font-medium text-sky-800 dark:text-sky-300 text-lg md:text-2xl uppercase mb-8">
-                    Mark Rood</p>
-                <h1 class="font-normal text-gray-900 dark:text-gray-100 text-3xl md:text-7xl leading-none mb-8">Product
-                    Manager</h1>
-                <p class="font-normal text-gray-600 dark:text-gray-400 text-md md:text-xl mb-16">Making life easier, one
-                    clever automation
-                    at a time.
-                </p>
-                <a href="#Me"
-                    class="inline-block px-7 py-3 md:px-9 md:py-4 font-medium md:font-semibold bg-gray-700 dark:bg-gray-600 text-gray-50 text-sm 
-                    rounded-md hover:bg-gray-50 hover:text-gray-700 dark:hover:bg-gray-500 transition ease-linear duration-500">More
-                    About
-                    Me</a>
+
+                <!-- Name -->
+                <div data-aos="fade-up" data-aos-delay="100">
+                    <h2 class="text-xl sm:text-2xl font-medium text-sky-800 dark:text-sky-300 tracking-wide uppercase">
+                        Mark Rood
+                    </h2>
+                </div>
+
+                <!-- Title -->
+                <div data-aos="fade-up" data-aos-delay="200">
+                    <h1
+                        class="text-4xl sm:text-5xl lg:text-7xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
+                        Product Manager
+                    </h1>
+                </div>
+
+                <!-- Tagline -->
+                <div data-aos="fade-up" data-aos-delay="300">
+                    <p class="text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                        Making life easier, one clever automation at a time.
+                    </p>
+                </div>
+
+                <!-- CTA Button -->
+                <div data-aos="fade-up" data-aos-delay="400" class="pt-4">
+                    <a href="#Me"
+                        class="inline-flex items-center px-8 py-4 rounded-lg bg-primary-light dark:bg-primary-dark text-white font-semibold 
+                               shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300
+                               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light dark:focus:ring-primary-dark">
+                        More About Me
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
+
 
     <section id="Me" class="py-10 md:py-16">
         <div class="container max-w-screen-xl mx-auto px-4">
