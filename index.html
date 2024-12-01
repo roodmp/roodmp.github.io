@@ -43,8 +43,138 @@
         }
         }
     </style>
+    <style>
+        .toc {
+            position: fixed;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 40;
+            background-color: var(--toc-bg-color);
+            padding: 0.75rem;
+            border-radius: 999px;
+            transition: all 0.3s ease;
+            width: 2.5rem;
+            backdrop-filter: blur(8px);
+        }
+
+        .toc:hover {
+            width: auto;
+            border-radius: 1rem;
+        }
+
+        .toc-link {
+            position: relative;
+            display: grid;
+            grid-template-columns: 0fr 1.5rem;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            justify-content: end;
+        }
+
+        .toc:hover .toc-link {
+            grid-template-columns: 1fr 0fr;
+        }
+
+        .toc-line {
+            width: 1rem;
+            height: 1px;
+            background-color: var(--toc-line-color);
+            transition: all 0.3s ease;
+            justify-self: end;
+        }
+
+        .toc:hover .toc-line {
+            opacity: 0;
+            width: 0;
+            transition: opacity 0.15s ease, width 0.3s ease;
+        }
+
+        .toc-text {
+            font-size: 0.875rem;
+            color: var(--toc-text-color);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(1rem);
+            transition: transform 0.3s ease,
+                opacity 0.15s ease,
+                visibility 0s linear 0.15s;
+            /* Delay visibility change */
+            white-space: nowrap;
+            text-align: left;
+            overflow: hidden;
+            width: 0;
+        }
+
+        /* Hover states */
+        .toc:hover .toc-text {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+            width: auto;
+            padding-right: 0.5rem;
+            transition: transform 0.3s ease,
+                opacity 0.15s ease 0.1s,
+                /* Slight delay before showing */
+                visibility 0s linear 0s;
+        }
+
+        .toc-link:hover .toc-text,
+        .toc-link.active .toc-text {
+            color: var(--toc-active-color);
+        }
+
+        /* Light theme colors */
+        :root {
+            --toc-bg-color: rgba(229, 231, 235, 0.4);
+            --toc-line-color: rgba(107, 114, 128, 0.4);
+            --toc-text-color: rgba(107, 114, 128, 0.8);
+            --toc-active-color: rgba(31, 41, 55, 0.9);
+        }
+
+        /* Dark theme colors */
+        .dark {
+            --toc-bg-color: rgba(31, 41, 55, 0.2);
+            --toc-line-color: rgba(156, 163, 175, 0.4);
+            --toc-text-color: rgba(156, 163, 175, 0.6);
+            --toc-active-color: rgba(156, 163, 175, 0.9);
+        }
+
+        @media (max-width: 1280px) {
+            .toc {
+                display: none;
+            }
+        }
+    </style>
+
 
 </head>
+
+<nav class="toc" aria-label="Table of Contents">
+    <div class="flex flex-col space-y-2">
+        <a href="#summary" class="toc-link" data-section="summary">
+            <span class="toc-text">Summary</span>
+            <div class="toc-line"></div>
+        </a>
+        <a href="#proficiencies" class="toc-link" data-section="proficiencies">
+            <span class="toc-text">Proficiencies</span>
+            <div class="toc-line"></div>
+        </a>
+        <a href="#work-history" class="toc-link" data-section="work-history">
+            <span class="toc-text">Work History</span>
+            <div class="toc-line"></div>
+        </a>
+        <a href="#education" class="toc-link" data-section="education">
+            <span class="toc-text">Education</span>
+            <div class="toc-line"></div>
+        </a>
+        <a href="#recognitions" class="toc-link" data-section="recognitions">
+            <span class="toc-text">Recognitions</span>
+            <div class="toc-line"></div>
+        </a>
+    </div>
+</nav>
 
 <body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
     <header class="fixed top-4 sm:top-6 left-0 right-0 z-10 px-2 sm:px-4">
@@ -127,7 +257,8 @@
                 Colorado // <a href="mailto:Me@MarkRood.io"
                     class="hover:text-primary-light dark:hover:text-primary-dark transition-colors duration-300">Me@MarkRood.io</a>
             </p>
-            <p class="text-2xl sm:text-3xl mb-3 text-gray-600 dark:text-gray-300"><strong>Summary</strong></p>
+            <p id="summary" class="text-2xl sm:text-3xl mb-3 text-gray-600 dark:text-gray-300"><strong>Summary</strong>
+            </p>
             <p class="mb-3 text-gray-600 dark:text-gray-400">
                 Results-driven IT professional with 10+ years in system administration and
                 engineering across private sector and U.S. Marine Corps. Proven track record of
@@ -135,27 +266,108 @@
                 diverse experience and passion for cutting-edge technology to drive your team's
                 IT infrastructure to new levels of efficiency and security.
             </p>
-            <p class="text-xl mb-4 text-gray-600 dark:text-gray-300"><strong>Proficiencies</strong></p>
-            <div class="mb-4">
-                <ul class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-gray-600 dark:text-gray-400">
-                    <li>HTML / CSS / JS</li>
-                    <li>Linear / Jira</li>
-                    <li>Zendesk Development</li>
-                    <li>Git / GitHub</li>
-                    <li>Agile / Scrum</li>
-                    <li>MaaS360 / Intune</li>
-                    <li>Microsoft SQL</li>
-                    <li>Mimecast / Defender</li>
-                    <li>PowerShell</li>
-                    <li>Project Management</li>
-                    <li>Technical Writing</li>
-                    <li>VMWare / Hyper-V</li>
-                    <li>Windows Svr 2012-2019</li>
-                    <li>Endpoint Central / PDQ</li>
-                    <li>EXO / Exchange</li>
-                </ul>
-            </div>
-            <p class="text-2xl sm:text-3xl mb-2 text-gray-600 dark:text-gray-300"><strong>Work History</strong></p>
+            <section class="mb-12" data-aos="fade-up">
+                <h2 id="proficiencies"
+                    class="text-2xl font-bold mb-8 text-gray-800 dark:text-gray-200 border-b-2 border-primary-light dark:border-primary-dark pb-2">
+                    Proficiencies
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Development Technologies -->
+                    <div
+                        class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md hover:shadow-lg transition-all duration-300">
+                        <h3 class="text-lg font-semibold mb-4 text-primary-light dark:text-primary-dark">
+                            <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                            </svg>
+                            Development
+                        </h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">HTML
+                                / CSS / JS</span>
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">Git
+                                / GitHub</span>
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">PowerShell</span>
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">Microsoft
+                                SQL</span>
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">API</span>
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">Tailwind
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Management & Process -->
+                    <div
+                        class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md hover:shadow-lg transition-all duration-300">
+                        <h3 class="text-lg font-semibold mb-4 text-primary-light dark:text-primary-dark">
+                            <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            Management & Process
+                        </h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">Linear
+                                / Jira</span>
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">Project
+                                Management</span>
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">Technical
+                                Writing</span>
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">Zendesk
+                                Development</span>
+                        </div>
+                    </div>
+
+                    <!-- Infrastructure & Security -->
+                    <div
+                        class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md hover:shadow-lg transition-all duration-300">
+                        <h3 class="text-lg font-semibold mb-4 text-primary-light dark:text-primary-dark">
+                            <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                            Infrastructure & Security
+                        </h3>
+                        <div class="flex flex-wrap gap-2">
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">VMWare
+                                / Hyper-V</span>
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">Windows
+                                Svr 2012-2019</span>
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">MaaS360
+                                / Intune</span>
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">Mimecast
+                                / Defender</span>
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">Endpoint
+                                Central / PDQ</span>
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">EXO
+                                / Exchange</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <p id="work-history" class="text-2xl sm:text-3xl mb-2 text-gray-600 dark:text-gray-300"><strong>Work
+                    History</strong></p>
             <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
                 <strong>Product Manager</strong> | <strong>PDQ </strong> |
                 <em>10/2024 to Current</em>
@@ -274,7 +486,9 @@
                     echelon units)
                 </li>
             </ul>
-            <p class="text-2xl sm:text-3xl mb-2 text-gray-600 dark:text-gray-300"><strong>Education</strong></p>
+            <p id="education" class="text-2xl sm:text-3xl mb-2 text-gray-600 dark:text-gray-300">
+                <strong>Education</strong>
+            </p>
             <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
                 <strong>Certificate of Completion</strong> |
                 <strong>Marine Corps Communications-Electronics School</strong> |
@@ -289,7 +503,9 @@
                     Coursework in information technology and computer applications
                 </li>
             </ul>
-            <p class="text-2xl sm:text-3xl mb-2 text-gray-600 dark:text-gray-300"><strong>Recognitions</strong></p>
+            <p id="recognitions" class="text-2xl sm:text-3xl mb-2 text-gray-600 dark:text-gray-300">
+                <strong>Recognitions</strong>
+            </p>
             <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
                 <strong>Navy and Marine Corps Achievement Medal</strong> |
                 <em>1 April 2016</em>
@@ -314,6 +530,67 @@
             </p>
         </div>
     </section>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('section[id]');
+            const tocLinks = document.querySelectorAll('.toc-link');
+            const marker = document.getElementById('toc-marker');
+            let lastActiveLink = null;
+
+            // Update marker position
+            function updateMarker(link) {
+                if (!link) return;
+                const rect = link.getBoundingClientRect();
+                marker.style.transform = `translateY(${rect.top + (rect.height / 2) - marker.offsetHeight / 2}px)`;
+            }
+
+            // Update active section
+            function updateActiveSection() {
+                let currentSection = null;
+                const fromTop = window.scrollY + window.innerHeight / 3;
+
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.offsetHeight;
+
+                    if (fromTop >= sectionTop && fromTop <= sectionTop + sectionHeight) {
+                        currentSection = section.getAttribute('id');
+                    }
+                });
+
+                tocLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${currentSection}`) {
+                        link.classList.add('active');
+                        lastActiveLink = link;
+                        updateMarker(link);
+                    }
+                });
+            }
+
+            // Smooth scroll to section
+            tocLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href');
+                    const targetSection = document.querySelector(targetId);
+
+                    if (targetSection) {
+                        targetSection.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Update on scroll
+            window.addEventListener('scroll', updateActiveSection);
+
+            // Initial update
+            updateActiveSection();
+        });
+    </script>
+
 </body>
 
 </html>
