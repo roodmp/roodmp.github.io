@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Panda Flight - Easter Egg Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 50%, #F0E68C 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 70%, #228B22 100%);
+            border: 3px solid #8B4513;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        #gameCanvas {
+            display: block;
+            background: transparent;
+        }
+
+        #gameUI {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        #startScreen, #gameOver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+
+        #gameOver {
+            display: none;
+        }
+
+        .game-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+        }
+
+        .game-subtitle {
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #FFB6C1;
+        }
+
+        .instructions {
+            font-size: 18px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .start-button {
+            padding: 15px 30px;
+            font-size: 20px;
+            background: #FF6B6B;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            pointer-events: all;
+        }
+
+        .start-button:hover {
+            background: #FF5252;
+            transform: scale(1.05);
+        }
+
+        .exit-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            pointer-events: all;
+        }
+
+        .exit-button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .clouds {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.8;
+            animation: float 20s infinite linear;
+        }
+
+        .cloud:before {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+        }
+
+        .cloud1 {
+            width: 80px;
+            height: 30px;
+            top: 10%;
+            animation-duration: 25s;
+        }
+
+        .cloud1:before {
+            width: 40px;
+            height: 40px;
+            top: -20px;
+            left: 10px;
+        }
+
+        .cloud2 {
+            width: 60px;
+            height: 25px;
+            top: 20%;
+            animation-duration: 30s;
+            animation-delay: -10s;
+        }
+
+        .cloud2:before {
+            width: 30px;
+            height: 30px;
+            top: -15px;
+            left: 15px;
+        }
+
+        @keyframes float {
+            from { transform: translateX(-100px); }
+            to { transform: translateX(900px); }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div class="clouds">
+            <div class="cloud cloud1"></div>
+            <div class="cloud cloud2"></div>
+        </div>
+        
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <div id="gameUI">
+            <div id="score">Score: 0</div>
+            
+            <div id="startScreen">
+                <div class="game-title">🐾 Red Panda Flight</div>
+                <div class="game-subtitle">Help the red panda navigate through the bamboo forest!</div>
+                <div class="instructions">
+                    Press SPACE or click to flap<br>
+                    Avoid the bamboo pipes<br>
+                    Collect points by passing through gaps
+                </div>
+                <button class="start-button" onclick="startGame()">Start Flying!</button>
+                <button class="exit-button" onclick="exitGame()">Exit</button>
+            </div>
+            
+            <div id="gameOver">
+                <div class="game-title">Game Over!</div>
+                <div id="finalScore" class="game-subtitle">Score: 0</div>
+                <div class="instructions">The red panda had a great flight!</div>
+                <button class="start-button" onclick="restartGame()">Fly Again!</button>
+                <button class="exit-button" onclick="exitGame()">Exit</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Game state
+        let gameState = 'start'; // 'start', 'playing', 'gameOver'
+        let score = 0;
+        let gameSpeed = 2;
+        
+        // Red Panda
+        const panda = {
+            x: 150,
+            y: 250,
+            width: 40,
+            height: 30,
+            velocity: 0,
+            gravity: 0.5,
+            jumpStrength: -8,
+            rotation: 0
+        };
+        
+        // Pipes (bamboo)
+        let pipes = [];
+        const pipeWidth = 60;
+        const pipeGap = 150;
+        
+        // Particles for effects
+        let particles = [];
+        
+        function drawRedPanda() {
+            ctx.save();
+            ctx.translate(panda.x + panda.width/2, panda.y + panda.height/2);
+            ctx.rotate(panda.rotation);
+            
+            // Red panda body (orange-red)
+            ctx.fillStyle = '#FF6B35';
+            ctx.fillRect(-panda.width/2, -panda.height/2, panda.width, panda.height);
+            
+            // Belly (cream colored)
+            ctx.fillStyle = '#FFF8DC';
+            ctx.fillRect(-panda.width/2 + 5, -panda.height/2 + 8, panda.width - 10, panda.height - 12);
+            
+            // Head
+            ctx.fillStyle = '#FF6B35';
+            ctx.beginPath();
+            ctx.arc(-panda.width/2 + 8, -panda.height/2 - 5, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Ears
+            ctx.fillStyle = '#8B4513';
+            ctx.beginPath();
+            ctx.arc(-panda.width/2 + 3, -panda.height/2 - 12, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(-panda.width/2 + 13, -panda.height/2 - 12, 6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Inner ears
+            ctx.fillStyle = '#FFB6C1';
+            ctx.beginPath();
+            ctx.arc(-panda.width/2 + 3, -panda.height/2 - 12, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(-panda.width/2 + 13, -panda.height/2 - 12, 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eyes
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(-panda.width/2 + 5, -panda.height/2 - 8, 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(-panda.width/2 + 11, -panda.height/2 - 8, 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eye highlights
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(-panda.width/2 + 6, -panda.height/2 - 7, 1, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(-panda.width/2 + 12, -panda.height/2 - 7, 1, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Nose
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(-panda.width/2 + 8, -panda.height/2 - 3, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Tail
+            ctx.fillStyle = '#FF6B35';
+            ctx.beginPath();
+            ctx.arc(panda.width/2 - 5, 0, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Tail stripes
+            ctx.fillStyle = '#8B4513';
+            ctx.beginPath();
+            ctx.arc(panda.width/2 - 5, -3, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(panda.width/2 - 5, 3, 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+        }
+        
+        function drawPipe(pipe) {
+            // Bamboo texture
+            const gradient = ctx.createLinearGradient(pipe.x, 0, pipe.x + pipeWidth, 0);
+            gradient.addColorStop(0, '#228B22');
+            gradient.addColorStop(0.5, '#32CD32');
+            gradient.addColorStop(1, '#228B22');
+            
+            ctx.fillStyle = gradient;
+            
+            // Top pipe
+            ctx.fillRect(pipe.x, 0, pipeWidth, pipe.top);
+            
+            // Bottom pipe
+            ctx.fillRect(pipe.x, pipe.bottom, pipeWidth, canvas.height - pipe.bottom);
+            
+            // Bamboo segments
+            ctx.strokeStyle = '#006400';
+            ctx.lineWidth = 2;
+            
+            // Top pipe segments
+            for (let i = 20; i < pipe.top; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(pipe.x, i);
+                ctx.lineTo(pipe.x + pipeWidth, i);
+                ctx.stroke();
+            }
+            
+            // Bottom pipe segments
+            for (let i = pipe.bottom + 20; i < canvas.height; i += 40) {
+                ctx.beginPath();
+                ctx.moveTo(pipe.x, i);
+                ctx.lineTo(pipe.x + pipeWidth, i);
+                ctx.stroke();
+            }
+        }
+        
+        function createPipe() {
+            const minTop = 50;
+            const maxTop = canvas.height - pipeGap - 50;
+            const top = Math.random() * (maxTop - minTop) + minTop;
+            
+            pipes.push({
+                x: canvas.width,
+                top: top,
+                bottom: top + pipeGap,
+                passed: false
+            });
+        }
+        
+        function updateGame() {
+            if (gameState !== 'playing') return;
+            
+            // Update panda
+            panda.velocity += panda.gravity;
+            panda.y += panda.velocity;
+            
+            // Rotation based on velocity
+            panda.rotation = Math.min(Math.max(panda.velocity * 0.05, -0.5), 0.5);
+            
+            // Update pipes
+            pipes.forEach((pipe, index) => {
+                pipe.x -= gameSpeed;
+                
+                // Check if panda passed through pipe
+                if (!pipe.passed && pipe.x + pipeWidth < panda.x) {
+                    pipe.passed = true;
+                    score++;
+                    document.getElementById('score').textContent = `Score: ${score}`;
+                    
+                    // Add celebration particles
+                    for (let i = 0; i < 5; i++) {
+                        particles.push({
+                            x: panda.x + panda.width/2,
+                            y: panda.y + panda.height/2,
+                            vx: (Math.random() - 0.5) * 4,
+                            vy: (Math.random() - 0.5) * 4,
+                            life: 30,
+                            color: `hsl(${Math.random() * 60 + 20}, 70%, 60%)`
+                        });
+                    }
+                    
+                    // Increase game speed slightly
+                    gameSpeed += 0.05;
+                }
+                
+                // Remove pipes that are off screen
+                if (pipe.x + pipeWidth < 0) {
+                    pipes.splice(index, 1);
+                }
+            });
+            
+            // Create new pipes
+            if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 300) {
+                createPipe();
+            }
+            
+            // Update particles
+            particles.forEach((particle, index) => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.life--;
+                
+                if (particle.life <= 0) {
+                    particles.splice(index, 1);
+                }
+            });
+            
+            // Check collisions
+            checkCollisions();
+            
+            // Check if panda is out of bounds
+            if (panda.y + panda.height > canvas.height || panda.y < 0) {
+                gameOver();
+            }
+        }
+        
+        function checkCollisions() {
+            pipes.forEach(pipe => {
+                if (panda.x < pipe.x + pipeWidth &&
+                    panda.x + panda.width > pipe.x &&
+                    (panda.y < pipe.top || panda.y + panda.height > pipe.bottom)) {
+                    gameOver();
+                }
+            });
+        }
+        
+        function drawParticles() {
+            particles.forEach(particle => {
+                ctx.save();
+                ctx.globalAlpha = particle.life / 30;
+                ctx.fillStyle = particle.color;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+        }
+        
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw pipes
+            pipes.forEach(drawPipe);
+            
+            // Draw particles
+            drawParticles();
+            
+            // Draw red panda
+            drawRedPanda();
+        }
+        
+        function gameLoop() {
+            updateGame();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function startGame() {
+            gameState = 'playing';
+            score = 0;
+            gameSpeed = 2;
+            pipes = [];
+            particles = [];
+            
+            panda.y = 250;
+            panda.velocity = 0;
+            panda.rotation = 0;
+            
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('score').textContent = 'Score: 0';
+        }
+        
+        function gameOver() {
+            gameState = 'gameOver';
+            document.getElementById('finalScore').textContent = `Score: ${score}`;
+            document.getElementById('gameOver').style.display = 'flex';
+        }
+        
+        function restartGame() {
+            startGame();
+        }
+        
+        function exitGame() {
+            window.history.back();
+        }
+        
+        function jump() {
+            if (gameState === 'playing') {
+                panda.velocity = panda.jumpStrength;
+            }
+        }
+        
+        // Event listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                jump();
+            }
+        });
+        
+        canvas.addEventListener('click', jump);
+        
+        // Start game loop
+        gameLoop();
+    </script>
+</body>
+</html>
