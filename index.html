@@ -51,26 +51,28 @@
             transform: translateY(-50%);
             z-index: 40;
             background-color: var(--toc-bg-color);
-            padding: 0.75rem;
+            padding: 0.5rem;
             border-radius: 999px;
             transition: all 0.3s ease;
-            width: 2.5rem;
+            width: 2rem;
             backdrop-filter: blur(8px);
         }
 
         .toc:hover {
             width: auto;
-            border-radius: 1rem;
+            border-radius: 0.75rem;
+            padding: 0.5rem 0.75rem;
         }
 
         .toc-link {
             position: relative;
             display: grid;
-            grid-template-columns: 0fr 1.5rem;
+            grid-template-columns: 0fr 1rem;
             align-items: center;
             gap: 0.5rem;
             transition: all 0.3s ease;
             justify-content: end;
+            padding: 0.25rem 0;
         }
 
         .toc:hover .toc-link {
@@ -78,7 +80,7 @@
         }
 
         .toc-line {
-            width: 1rem;
+            width: 0.75rem;
             height: 1px;
             background-color: var(--toc-line-color);
             transition: all 0.3s ease;
@@ -92,31 +94,28 @@
         }
 
         .toc-text {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             color: var(--toc-text-color);
             opacity: 0;
             visibility: hidden;
-            transform: translateX(1rem);
+            transform: translateX(0.75rem);
             transition: transform 0.3s ease,
                 opacity 0.15s ease,
                 visibility 0s linear 0.15s;
-            /* Delay visibility change */
             white-space: nowrap;
             text-align: left;
             overflow: hidden;
             width: 0;
         }
 
-        /* Hover states */
         .toc:hover .toc-text {
             opacity: 1;
             visibility: visible;
             transform: translateX(0);
             width: auto;
-            padding-right: 0.5rem;
+            padding-right: 0.25rem;
             transition: transform 0.3s ease,
                 opacity 0.15s ease 0.1s,
-                /* Slight delay before showing */
                 visibility 0s linear 0s;
         }
 
@@ -125,20 +124,25 @@
             color: var(--toc-active-color);
         }
 
+        .toc-link:hover .toc-line,
+        .toc-link.active .toc-line {
+            background-color: var(--toc-active-color);
+        }
+
         /* Light theme colors */
         :root {
-            --toc-bg-color: rgba(229, 231, 235, 0.4);
-            --toc-line-color: rgba(107, 114, 128, 0.4);
+            --toc-bg-color: rgba(255, 255, 255, 0.8);
+            --toc-line-color: rgba(107, 114, 128, 0.5);
             --toc-text-color: rgba(107, 114, 128, 0.8);
-            --toc-active-color: rgba(31, 41, 55, 0.9);
+            --toc-active-color: rgba(59, 130, 246, 0.9);
         }
 
         /* Dark theme colors */
         .dark {
-            --toc-bg-color: rgba(31, 41, 55, 0.2);
-            --toc-line-color: rgba(156, 163, 175, 0.4);
-            --toc-text-color: rgba(156, 163, 175, 0.6);
-            --toc-active-color: rgba(156, 163, 175, 0.9);
+            --toc-bg-color: rgba(31, 41, 55, 0.8);
+            --toc-line-color: rgba(156, 163, 175, 0.5);
+            --toc-text-color: rgba(156, 163, 175, 0.8);
+            --toc-active-color: rgba(96, 165, 250, 0.9);
         }
 
         @media (max-width: 1280px) {
@@ -152,7 +156,7 @@
 </head>
 
 <nav class="toc" aria-label="Table of Contents">
-    <div class="flex flex-col space-y-2">
+    <div class="flex flex-col">
         <a href="#summary" class="toc-link" data-section="summary">
             <span class="toc-text">Summary</span>
             <div class="toc-line"></div>
