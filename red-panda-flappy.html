@@ -233,15 +233,15 @@
             width: 40,
             height: 30,
             velocity: 0,
-            gravity: 0.5,
-            jumpStrength: -8,
+            gravity: 0.35,
+            jumpStrength: -6.5,
             rotation: 0
         };
         
         // Pipes (bamboo)
         let pipes = [];
         const pipeWidth = 60;
-        const pipeGap = 150;
+        const pipeGap = 200;
         
         // Particles for effects
         let particles = [];
@@ -251,75 +251,107 @@
             ctx.translate(panda.x + panda.width/2, panda.y + panda.height/2);
             ctx.rotate(panda.rotation);
             
-            // Red panda body (orange-red)
-            ctx.fillStyle = '#FF6B35';
-            ctx.fillRect(-panda.width/2, -panda.height/2, panda.width, panda.height);
+            // Red panda body (russet brown-red)
+            ctx.fillStyle = '#B22222';
+            ctx.fillRect(-panda.width/2, -panda.height/2 + 2, panda.width - 4, panda.height - 8);
             
-            // Belly (cream colored)
-            ctx.fillStyle = '#FFF8DC';
-            ctx.fillRect(-panda.width/2 + 5, -panda.height/2 + 8, panda.width - 10, panda.height - 12);
+            // Belly/chest (cream colored)
+            ctx.fillStyle = '#F5DEB3';
+            ctx.fillRect(-panda.width/2 + 4, -panda.height/2 + 6, panda.width - 12, panda.height - 16);
             
-            // Head
-            ctx.fillStyle = '#FF6B35';
+            // Head (more rounded, realistic proportions)
+            ctx.fillStyle = '#B22222';
             ctx.beginPath();
-            ctx.arc(-panda.width/2 + 8, -panda.height/2 - 5, 15, 0, Math.PI * 2);
+            ctx.ellipse(-panda.width/2 + 8, -panda.height/2 - 3, 16, 12, 0, 0, Math.PI * 2);
             ctx.fill();
             
-            // Ears
+            // Face mask pattern (cream)
+            ctx.fillStyle = '#F5DEB3';
+            ctx.beginPath();
+            ctx.ellipse(-panda.width/2 + 8, -panda.height/2 - 1, 12, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Dark markings around eyes (tear marks)
             ctx.fillStyle = '#8B4513';
             ctx.beginPath();
-            ctx.arc(-panda.width/2 + 3, -panda.height/2 - 12, 6, 0, Math.PI * 2);
+            ctx.ellipse(-panda.width/2 + 4, -panda.height/2 - 5, 4, 6, 0, 0, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(-panda.width/2 + 13, -panda.height/2 - 12, 6, 0, Math.PI * 2);
+            ctx.ellipse(-panda.width/2 + 12, -panda.height/2 - 5, 4, 6, 0, 0, Math.PI * 2);
             ctx.fill();
             
-            // Inner ears
+            // Ears (larger, more pointed)
+            ctx.fillStyle = '#B22222';
+            ctx.beginPath();
+            ctx.ellipse(-panda.width/2 + 2, -panda.height/2 - 12, 5, 8, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(-panda.width/2 + 14, -panda.height/2 - 12, 5, 8, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Inner ears (light pink)
             ctx.fillStyle = '#FFB6C1';
             ctx.beginPath();
-            ctx.arc(-panda.width/2 + 3, -panda.height/2 - 12, 3, 0, Math.PI * 2);
+            ctx.ellipse(-panda.width/2 + 2, -panda.height/2 - 12, 2.5, 4, -0.3, 0, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(-panda.width/2 + 13, -panda.height/2 - 12, 3, 0, Math.PI * 2);
+            ctx.ellipse(-panda.width/2 + 14, -panda.height/2 - 12, 2.5, 4, 0.3, 0, Math.PI * 2);
             ctx.fill();
             
-            // Eyes
+            // Eyes (larger, more expressive)
             ctx.fillStyle = 'black';
             ctx.beginPath();
-            ctx.arc(-panda.width/2 + 5, -panda.height/2 - 8, 2, 0, Math.PI * 2);
+            ctx.arc(-panda.width/2 + 4, -panda.height/2 - 5, 2.5, 0, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(-panda.width/2 + 11, -panda.height/2 - 8, 2, 0, Math.PI * 2);
+            ctx.arc(-panda.width/2 + 12, -panda.height/2 - 5, 2.5, 0, Math.PI * 2);
             ctx.fill();
             
             // Eye highlights
             ctx.fillStyle = 'white';
             ctx.beginPath();
-            ctx.arc(-panda.width/2 + 6, -panda.height/2 - 7, 1, 0, Math.PI * 2);
+            ctx.arc(-panda.width/2 + 5, -panda.height/2 - 4, 1, 0, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(-panda.width/2 + 12, -panda.height/2 - 7, 1, 0, Math.PI * 2);
+            ctx.arc(-panda.width/2 + 13, -panda.height/2 - 4, 1, 0, Math.PI * 2);
             ctx.fill();
             
-            // Nose
-            ctx.fillStyle = 'black';
+            // Nose (more realistic shape)
+            ctx.fillStyle = '#2F4F4F';
             ctx.beginPath();
-            ctx.arc(-panda.width/2 + 8, -panda.height/2 - 3, 1.5, 0, Math.PI * 2);
+            ctx.ellipse(-panda.width/2 + 8, -panda.height/2 + 1, 2, 1.5, 0, 0, Math.PI * 2);
             ctx.fill();
             
-            // Tail
-            ctx.fillStyle = '#FF6B35';
+            // Mouth line
+            ctx.strokeStyle = '#2F4F4F';
+            ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.arc(panda.width/2 - 5, 0, 8, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.moveTo(-panda.width/2 + 8, -panda.height/2 + 3);
+            ctx.lineTo(-panda.width/2 + 8, -panda.height/2 + 5);
+            ctx.stroke();
             
-            // Tail stripes
+            // Paws/legs (small visible parts)
             ctx.fillStyle = '#8B4513';
             ctx.beginPath();
-            ctx.arc(panda.width/2 - 5, -3, 3, 0, Math.PI * 2);
+            ctx.arc(-panda.width/2 + 2, panda.height/2 - 2, 3, 0, Math.PI * 2);
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(panda.width/2 - 5, 3, 3, 0, Math.PI * 2);
+            ctx.arc(panda.width/2 - 6, panda.height/2 - 2, 3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Tail (bushier, more realistic)
+            ctx.fillStyle = '#B22222';
+            ctx.beginPath();
+            ctx.ellipse(panda.width/2 - 3, 2, 10, 6, 0.2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Tail rings (dark brown stripes)
+            ctx.fillStyle = '#654321';
+            ctx.beginPath();
+            ctx.ellipse(panda.width/2 - 3, -1, 8, 2, 0.2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(panda.width/2 - 3, 5, 8, 2, 0.2, 0, Math.PI * 2);
             ctx.fill();
             
             ctx.restore();
@@ -381,8 +413,11 @@
             panda.velocity += panda.gravity;
             panda.y += panda.velocity;
             
-            // Rotation based on velocity
-            panda.rotation = Math.min(Math.max(panda.velocity * 0.05, -0.5), 0.5);
+            // Smooth velocity damping for more realistic physics
+            panda.velocity *= 0.98;
+            
+            // Rotation based on velocity (smoother rotation)
+            panda.rotation = Math.min(Math.max(panda.velocity * 0.03, -0.3), 0.3);
             
             // Update pipes
             pipes.forEach((pipe, index) => {
@@ -510,7 +545,12 @@
         }
         
         function exitGame() {
-            window.history.back();
+            // Try to go back in history, otherwise navigate to about page
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = 'about.html';
+            }
         }
         
         function jump() {
