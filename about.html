@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mark Rood - About Me</title>
+    <title>Mark Rood - AI Product Manager</title>
     <link rel="icon" type="image/x-icon" href="favicon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital,wght@0,400;1,400&family=Audiowide&display=swap"
         rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js"
         integrity="sha512-7x3zila4t2qNycrtZ31HO0NnJr8kg2VI67YLoRSyi9hGhRN66FHYWr7Axa9Y1J9tGYHVBPqIjSE1ogHrJTz51g=="
@@ -23,40 +23,85 @@
             theme: {
                 extend: {
                     colors: {
-                        // Linear/Raycast inspired palette with blue accents
+                        // AI-focused futuristic palette
                         primary: {
                             50: '#EBF4FF',
                             100: '#D1E7FF',
                             200: '#A6D0FF',
                             300: '#7AB8FF',
                             400: '#4F9FFF',
-                            500: '#2563EB', // Main blue accent
+                            500: '#2563EB',
                             600: '#1E40AF',
                             700: '#1E3A8A',
                             800: '#1E2A69',
                             900: '#1A1F37'
                         },
+                        ai: {
+                            cyan: '#06B6D4',
+                            purple: '#8B5CF6',
+                            blue: '#3B82F6',
+                            indigo: '#6366F1',
+                            violet: '#7C3AED'
+                        },
                         surface: {
-                            // Light theme surfaces
-                            'light-primary': '#FFFFFF',
-                            'light-secondary': '#F8FAFC',
-                            'light-tertiary': '#F1F5F9',
-                            'light-border': '#E2E8F0',
-                            // Dark theme surfaces  
-                            'dark-primary': '#0F0F0F',
-                            'dark-secondary': '#1A1A1A',
-                            'dark-tertiary': '#262626',
-                            'dark-border': '#404040'
+                            primary: '#0F0F0F',
+                            secondary: '#1A1A1A',
+                            tertiary: '#262626',
+                            border: '#404040'
                         },
                         text: {
-                            // Light theme text - WCAG AA compliant
-                            'light-primary': '#0F172A',     // 16.75:1 on white - excellent
-                            'light-secondary': '#334155',   // 8.35:1 on white - excellent  
-                            'light-tertiary': '#475569',    // 6.25:1 on white - excellent
-                            // Dark theme text - WCAG AA compliant
-                            'dark-primary': '#FFFFFF',      // 21:1 on dark - excellent
-                            'dark-secondary': '#E2E8F0',    // 12.5:1 on dark - excellent
-                            'dark-tertiary': '#CBD5E1'      // 9.2:1 on dark - excellent
+                            primary: '#FFFFFF',
+                            secondary: '#E2E8F0',
+                            tertiary: '#CBD5E1'
+                        }
+                    },
+                    fontFamily: {
+                        'serif': ['Instrument Serif', 'serif'],
+                        'sans': ['Inter', 'sans-serif']
+                    },
+                    animation: {
+                        'gradient': 'gradient 8s linear infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                        'fade-in-up-delay': 'fadeInUp 0.8s ease-out 0.2s forwards',
+                        'fade-in-up-delay-2': 'fadeInUp 0.8s ease-out 0.4s forwards',
+                        'slide-in-right': 'slideInRight 0.8s ease-out forwards'
+                    },
+                    keyframes: {
+                        gradient: {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        fadeInUp: {
+                            '0%': {
+                                opacity: '0',
+                                transform: 'translateY(30px)'
+                            },
+                            '100%': {
+                                opacity: '1',
+                                transform: 'translateY(0)'
+                            }
+                        },
+                        slideInRight: {
+                            '0%': {
+                                opacity: '0',
+                                transform: 'translateX(30px)'
+                            },
+                            '100%': {
+                                opacity: '1',
+                                transform: 'translateX(0)'
+                            }
                         }
                     }
                 }
@@ -66,28 +111,55 @@
     <style type="text/tailwindcss">
         @layer components {
         .nav-link {
-            @apply text-sm text-text-light-secondary dark:text-text-dark-secondary hover:text-text-light-primary dark:hover:text-text-dark-primary focus:text-text-light-primary dark:focus:text-text-dark-primary transition-all duration-200 ease-out hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-surface-light-primary dark:focus:ring-offset-surface-dark-secondary rounded-md px-2 py-1;
+            @apply text-sm text-text-secondary hover:text-text-primary focus:text-text-primary transition-all duration-200 ease-out hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-surface-secondary rounded-md px-2 py-1;
         }
         
-        .linear-card {
-            @apply bg-surface-light-primary dark:bg-surface-dark-secondary border border-surface-light-border dark:border-surface-dark-border rounded-xl backdrop-blur-sm;
+        .ai-card {
+            @apply bg-surface-secondary/80 backdrop-blur-xl border border-surface-border/50 rounded-2xl shadow-2xl hover:shadow-ai-cyan/10 transition-all duration-500 hover:scale-[1.02] hover:border-ai-cyan/30;
         }
         
-        .linear-button {
-            @apply bg-primary-600 hover:bg-primary-700 focus:bg-primary-700 text-white font-medium rounded-lg transition-all duration-200 ease-out hover:scale-105 focus:scale-105 shadow-sm hover:shadow-md focus:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-surface-light-primary dark:focus:ring-offset-surface-dark-primary;
+        .ai-button {
+            @apply bg-gradient-to-r from-ai-blue to-ai-purple hover:from-ai-purple hover:to-ai-cyan text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-ai-cyan focus:ring-offset-2 focus:ring-offset-surface-primary;
         }
         
-        /* Enhanced focus indicators for better accessibility */
-        .theme-toggle {
-            @apply p-2 hover:bg-surface-light-tertiary dark:hover:bg-surface-dark-tertiary focus:bg-surface-light-tertiary dark:focus:bg-surface-dark-tertiary rounded-lg transition-all duration-200 ease-out hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-surface-light-primary dark:focus:ring-offset-surface-dark-secondary;
+        .gradient-text {
+            @apply bg-gradient-to-r from-ai-cyan via-ai-blue to-ai-purple bg-clip-text text-transparent animate-gradient;
+            -webkit-background-clip: text;
+            background-clip: text;
+            display: inline-block;
+            padding-left: 0.125rem;
+            padding-right: 0.125rem;
+            line-height: 1.2;
+            padding-bottom: 0.125rem;
         }
         
-        /* Skip link for screen readers */
+        .neural-glow {
+            @apply relative;
+        }
+        
+        .neural-glow::before {
+            content: '';
+            @apply absolute inset-0 bg-gradient-to-r from-ai-cyan/20 via-ai-purple/20 to-ai-blue/20 rounded-full blur-xl opacity-0 transition-opacity duration-500;
+        }
+        
+        .neural-glow:hover::before {
+            @apply opacity-100;
+        }
+        
+        .theme-logo {
+            transition: all 0.3s ease;
+            filter: invert(1) brightness(1.2) drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+        }
+        
+        .theme-logo:hover {
+            transform: scale(1.05);
+            filter: invert(1) brightness(1.3) drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+        }
+        
         .skip-link {
             @apply absolute left-0 top-0 bg-primary-600 text-white px-4 py-2 rounded-br-lg transform -translate-y-full focus:translate-y-0 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-white z-50;
         }
         
-        /* Screen reader only text */
         .sr-only {
             position: absolute;
             width: 1px;
@@ -100,67 +172,103 @@
             border: 0;
         }
         
-        /* Theme-responsive logo styling */
-        .theme-logo {
-            transition: all 0.3s ease;
+        .particle-bg {
+            background: radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
         }
         
-        /* Light mode: keep original black panda */
-        .theme-logo {
-            filter: none;
+        .ai-metric {
+            @apply text-4xl font-bold gradient-text;
         }
         
-        /* Dark mode: invert to white and add subtle glow */
-        .dark .theme-logo {
-            filter: invert(1) brightness(1.2) drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+        .connection-line {
+            @apply absolute w-px bg-gradient-to-b from-transparent via-ai-cyan/30 to-transparent;
+        }
         }
         
-        /* Hover effect for logo */
-        .theme-logo:hover {
-            transform: scale(1.05);
-        }
-        
-        /* Enhanced dark mode hover effect */
-        .dark .theme-logo:hover {
-            filter: invert(1) brightness(1.3) drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
-        }
-        
-        .linear-surface {
-            @apply bg-surface-light-secondary dark:bg-surface-dark-primary transition-colors duration-300;
-        }
-        }
         @media (max-width: 640px) {
             body {
                 font-size: 14px;
             }
         }
+        
+        /* Particle animation */
+        @keyframes particle-float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-30px) rotate(120deg); }
+            66% { transform: translateY(15px) rotate(240deg); }
+        }
+        
+        .particle {
+            animation: particle-float 8s ease-in-out infinite;
+        }
+        
+        .particle:nth-child(2) { animation-delay: -2s; }
+        .particle:nth-child(3) { animation-delay: -4s; }
+        .particle:nth-child(4) { animation-delay: -6s; }
     </style>
     <style>
-        @keyframes float {
-            0% {
-                transform: translateY(0px);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
-
-            100% {
-                transform: translateY(0px);
-            }
+        /* Advanced AI-themed animations */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease-out forwards;
         }
-
-        .float-animation {
-            animation: float 6s ease-in-out infinite;
+        
+        .fade-in-up-delay {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease-out 0.2s forwards;
+        }
+        
+        .fade-in-up-delay-2 {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease-out 0.4s forwards;
+        }
+        
+        .slide-in-right {
+            opacity: 0;
+            transform: translateX(30px);
+            animation: slideInRight 0.8s ease-out forwards;
+        }
+        
+        /* Neural network connection lines */
+        .neural-connection {
+            position: absolute;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, rgba(6, 182, 212, 0.3), transparent);
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+        
+        /* Floating particles */
+        .floating-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.8), transparent);
+            border-radius: 50%;
+            animation: particle-float 12s linear infinite;
+        }
+        
+        .floating-particle:nth-child(odd) {
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.8), transparent);
+            animation-duration: 15s;
         }
     </style>
 
 </head>
 
-<body class="linear-surface min-h-screen font-['Inter',system-ui,sans-serif] antialiased">
+<body class="bg-surface-primary min-h-screen font-['Inter',system-ui,sans-serif] antialiased particle-bg overflow-x-hidden">
     <!-- Skip link for screen readers -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <header class="fixed top-4 sm:top-6 left-0 right-0 z-10 px-2 sm:px-4">
+    <header class="fixed top-4 sm:top-6 left-0 right-0 z-50 px-2 sm:px-4">
         <nav class="bg-surface-secondary/95 backdrop-blur-md rounded-full shadow-lg hover:shadow-xl transition-all duration-300 max-w-fit mx-auto border border-surface-border/50">
             <div class="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2">
                 <!-- Logo -->
@@ -180,54 +288,86 @@
         </nav>
     </header>
 
+    <!-- Floating particles background -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden">
+        <div class="floating-particle" style="left: 10%; top: 20%; animation-delay: 0s;"></div>
+        <div class="floating-particle" style="left: 80%; top: 10%; animation-delay: -3s;"></div>
+        <div class="floating-particle" style="left: 60%; top: 70%; animation-delay: -6s;"></div>
+        <div class="floating-particle" style="left: 20%; top: 80%; animation-delay: -9s;"></div>
+        <div class="floating-particle" style="left: 90%; top: 60%; animation-delay: -12s;"></div>
+    </div>
+
     <div class="h-20"></div>
 
-    <section class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div class="container mx-auto">
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <!-- Neural connection lines -->
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="neural-connection" style="left: 20%; height: 200px; top: 20%; animation-delay: 0s;"></div>
+            <div class="neural-connection" style="right: 25%; height: 150px; top: 40%; animation-delay: 1s;"></div>
+            <div class="neural-connection" style="left: 70%; height: 180px; top: 60%; animation-delay: 2s;"></div>
+            <div class="neural-connection" style="left: 10%; height: 120px; top: 70%; animation-delay: 0.5s;"></div>
+            <div class="neural-connection" style="right: 15%; height: 160px; top: 15%; animation-delay: 1.5s;"></div>
+            <div class="neural-connection" style="left: 85%; height: 140px; top: 80%; animation-delay: 2.5s;"></div>
+            <div class="neural-connection" style="left: 45%; height: 100px; top: 10%; animation-delay: 3s;"></div>
+        </div>
+
+        <div class="container mx-auto relative z-10">
             <div class="text-center space-y-8 sm:space-y-12">
-                <!-- Image Container with Animation -->
-                <div class="relative inline-block" data-aos="fade-down">
-                    <div
-                        class="absolute inset-0 bg-primary-light dark:bg-primary-dark rounded-full blur-md opacity-20 transform -rotate-6">
+                <!-- Profile Image with AI Glow -->
+                <div class="relative inline-block fade-in-up">
+                    <div class="neural-glow">
+                        <div class="absolute inset-0 bg-gradient-to-r from-ai-cyan/20 via-ai-purple/20 to-ai-blue/20 rounded-full blur-2xl opacity-60 animate-pulse-slow"></div>
+                        <img class="relative h-48 w-48 sm:h-64 sm:w-64 lg:h-80 lg:w-80 rounded-full object-cover shadow-2xl transform transition-all duration-500 hover:scale-105 border-2 border-ai-cyan/30"
+                            src="assets/image/me_dog.png" alt="Mark Rood - AI Product Manager" loading="lazy">
                     </div>
-                    <img class="relative h-48 w-48 sm:h-64 sm:w-64 lg:h-80 lg:w-80 rounded-full object-cover shadow-xl transform transition-transform duration-500 hover:scale-105"
-                        src="assets/image/me_dog.png" alt="Mark Rood with dog" loading="lazy">
                 </div>
 
-                <!-- Name -->
-                <div data-aos="fade-up" data-aos-delay="100">
-                    <h2 class="text-xl sm:text-2xl font-medium text-sky-800 dark:text-sky-300 tracking-wide uppercase">
+                <!-- Name with subtle animation -->
+                <div class="fade-in-up-delay">
+                    <h2 class="text-xl sm:text-2xl font-medium text-ai-purple tracking-wide uppercase animate-fade-in-up">
                         Mark Rood
                     </h2>
                 </div>
 
-                <!-- Title -->
-                <div data-aos="fade-up" data-aos-delay="200">
-                    <h1
-                        class="text-4xl sm:text-5xl lg:text-7xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
-                        Product Manager
+                <!-- AI-focused title with gradient -->
+                <div class="fade-in-up-delay-2">
+                    <h1 class="text-5xl sm:text-6xl lg:text-8xl font-black tracking-tight overflow-visible">
+                        <span class="gradient-text font-serif italic inline-block px-3" style="letter-spacing: 0.05em;">AI</span> <span class="text-text-primary font-light">Product Manager</span>
                     </h1>
                 </div>
 
-                <!-- Tagline -->
-                <div data-aos="fade-up" data-aos-delay="300">
-                    <p class="text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                        Making life easier, one clever automation at a time.
+                <!-- Mission statement -->
+                <div class="slide-in-right">
+                    <p class="text-xl sm:text-2xl text-text-secondary max-w-4xl mx-auto leading-relaxed">
+                        Building the future of <span class="text-ai-cyan font-semibold">human-AI collaboration</span> through strategic product vision and <span class="text-ai-purple font-semibold">ethical AI development</span>
                     </p>
                 </div>
 
+                <!-- AI Metrics -->
+                <div class="fade-in-up-delay-2 pt-8">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                        <div class="ai-card p-6">
+                            <div class="ai-metric">15+</div>
+                            <p class="text-text-secondary mt-2">AI-Enhanced Projects</p>
+                        </div>
+                        <div class="ai-card p-6">
+                            <div class="ai-metric">5</div>
+                            <p class="text-text-secondary mt-2">ML Models Integrated</p>
+                        </div>
+                        <div class="ai-card p-6">
+                            <div class="ai-metric">3+</div>
+                            <p class="text-text-secondary mt-2">Years AI/ML Experience</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- CTA Button -->
-                <div data-aos="fade-up" data-aos-delay="400" class="pt-4">
-                    <a href="#Me"
-                        class="inline-flex items-center px-8 py-4 rounded-lg bg-primary-light dark:bg-primary-dark text-white font-semibold 
-                               shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300
-                               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light dark:focus:ring-primary-dark">
-                        More About Me
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20"
-                            fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L9 14.586V3a1 1 0 012 0v11.586l4.293-4.293a1 1 0 011.414 0z"
-                                clip-rule="evenodd" />
+                <div class="fade-in-up-delay-2 pt-8">
+                    <a href="#ai-journey" class="ai-button inline-flex items-center px-8 py-4 text-lg">
+                        About Me
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
                         </svg>
                     </a>
                 </div>
@@ -236,143 +376,189 @@
     </section>
 
 
-    <section id="Me" class="py-10 md:py-16">
-        <div class="container max-w-screen-xl mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="bg-gray-50 dark:bg-gray-800 px-8 py-10 rounded-md">
-                    <div class="w-20 py-6 flex justify-center bg-blue-100 dark:bg-blue-900 rounded-md mb-4">
-                        <i data-feather="layers" class="text-gray-700 dark:text-gray-300"></i>
+    <!-- AI Journey Section -->
+    <section id="ai-journey" class="py-20 md:py-32 relative">
+        <!-- Additional neural connections for this section -->
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="neural-connection" style="left: 30%; height: 180px; top: 25%; animation-delay: 1s;"></div>
+            <div class="neural-connection" style="right: 35%; height: 220px; top: 50%; animation-delay: 2.5s;"></div>
+            <div class="neural-connection" style="left: 80%; height: 160px; top: 10%; animation-delay: 4s;"></div>
+        </div>
+        <div class="container max-w-7xl mx-auto px-4">
+            <!-- Section Header -->
+            <div class="text-center mb-16 fade-in-up">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+                    <span class="gradient-text">AI Strategy</span> <span class="text-text-tertiary">&</span> <span class="text-text-primary">Vision</span>
+                </h2>
+                <p class="text-xl text-text-secondary max-w-3xl mx-auto">
+                    Bridging the gap between cutting-edge AI capabilities and human-centered product experiences
+                </p>
+            </div>
+
+            <!-- AI Expertise Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- AI Product Strategy -->
+                <div class="ai-card p-8 group fade-in-up">
+                    <div class="w-16 h-16 bg-gradient-to-br from-ai-cyan to-ai-blue rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
                     </div>
-                    <h4 class="font-medium text-gray-700 dark:text-gray-300 text-lg mb-4">Product Management</h4>
-                    <p class="font-normal text-gray-500 dark:text-gray-400 text-md">I'm passionate about product
-                        management,
-                        driving innovation through user-centric strategies. I enjoy identifying needs, defining product
-                        vision,
-                        and collaborating with teams to deliver impactful solutions.</p>
+                    <h3 class="text-xl font-bold text-text-primary mb-4">AI Product Strategy</h3>
+                    <p class="text-text-secondary leading-relaxed">
+                        Defining product roadmaps that leverage AI/ML capabilities while maintaining user-centric design principles. Expert in identifying AI opportunities that drive real business value.
+                    </p>
                 </div>
-                <div class="bg-gray-50 dark:bg-gray-800 px-8 py-10 rounded-md">
-                    <div class="w-20 py-6 flex justify-center bg-blue-100 dark:bg-blue-900 rounded-md mb-4">
-                        <i data-feather="tool" class="text-gray-700 dark:text-gray-300"></i>
+
+                <!-- Human-AI Collaboration -->
+                <div class="ai-card p-8 group fade-in-up-delay">
+                    <div class="w-16 h-16 bg-gradient-to-br from-ai-purple to-ai-violet rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
                     </div>
-                    <h4 class="font-medium text-gray-700 dark:text-gray-300 text-lg mb-4 ">Automation</h4>
-                    <p class="font-normal text-gray-500 dark:text-gray-400 text-md">Continuing to learn and grow more
-                        confident in
-                        automation tools is very important to me and the direction I want to be headed in.</p>
+                    <h3 class="text-xl font-bold text-text-primary mb-4">Human-AI Collaboration</h3>
+                    <p class="text-text-secondary leading-relaxed">
+                        Designing seamless interfaces where AI augments human capabilities rather than replacing them. Focus on building trust and transparency in AI-powered experiences.
+                    </p>
                 </div>
-                <div class="bg-gray-50 dark:bg-gray-800 px-8 py-10 rounded-md">
-                    <div class="w-20 py-6 flex justify-center bg-blue-100 dark:bg-blue-900 rounded-md mb-4">
-                        <i data-feather="home" class="text-gray-700 dark:text-gray-300"></i>
+
+
+
+                <!-- Future of Work -->
+                <div class="ai-card p-8 group fade-in-up-delay-2">
+                    <div class="w-16 h-16 bg-gradient-to-br from-ai-blue to-ai-cyan rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
                     </div>
-                    <h4 class="font-medium text-gray-700 dark:text-gray-300 text-lg mb-4">Hobbies/Interests</h4>
-                    <p class="font-normal text-gray-500 dark:text-gray-400 text-md">Outside of work I enjoy cooking,
-                        taking walks with my
-                        dogs, hiking, hockey, waiting for Dune Messiah and taking roadtrips!</p>
+                    <h3 class="text-xl font-bold text-text-primary mb-4">Future of Work</h3>
+                    <p class="text-text-secondary leading-relaxed">
+                        Passionate about how AI will transform workflows and productivity. Building products that prepare teams for an AI-augmented future while preserving human creativity and judgment.
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="Projects" class="py-10 md:py-16">
-        <div class="container max-w-screen-xl mx-auto px-4">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-gray-200 mb-8 text-center">My Projects
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div
-                    class="bg-gray-50 dark:bg-gray-800 rounded-md shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+    <!-- Projects Section -->
+    <section id="Projects" class="py-20 md:py-32 relative">
+        <!-- Neural connections for projects section -->
+        <div class="absolute inset-0 pointer-events-none">
+            <div class="neural-connection" style="left: 15%; height: 200px; top: 30%; animation-delay: 0.8s;"></div>
+            <div class="neural-connection" style="right: 20%; height: 170px; top: 60%; animation-delay: 3.2s;"></div>
+            <div class="neural-connection" style="left: 65%; height: 190px; top: 20%; animation-delay: 1.8s;"></div>
+            <div class="neural-connection" style="right: 45%; height: 130px; top: 80%; animation-delay: 4.5s;"></div>
+        </div>
+        <div class="container max-w-7xl mx-auto px-4">
+            <!-- Section Header -->
+            <div class="text-center mb-16 fade-in-up">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">
+                    <span class="gradient-text">Projects</span>
+                </h2>
+                <p class="text-xl text-text-secondary max-w-3xl mx-auto">
+                    Real-world applications where AI meets product innovation
+                </p>
+            </div>
+            <!-- Projects Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Hockey Extension - AI Enhanced -->
+                <div class="ai-card overflow-hidden group fade-in-up">
                     <div class="relative">
-                        <div class="h-48 overflow-hidden">
-                            <img src="assets/image/raycast.png" alt="Hockey Extension via Raycast"
-                                class="w-full h-full object-cover object-top">
-                            <div
-                                class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-gray-50 dark:from-gray-800 to-transparent">
-                            </div>
+                        <div class="h-64 overflow-hidden">
+                            <img src="assets/image/raycast.png" alt="AI-Enhanced Hockey Extension"
+                                class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-surface-secondary/90 via-transparent to-transparent"></div>
                         </div>
-                        <div
-                            class="absolute bottom-0 left-8 w-20 h-20 transform translate-y-1/2 flex justify-center items-center bg-blue-100 dark:bg-blue-900 rounded-md">
-                            <i data-feather="radio" class="text-gray-700 dark:text-gray-300"></i>
+                        <div class="absolute bottom-4 left-6 w-16 h-16 bg-gradient-to-br from-ai-cyan to-ai-blue rounded-2xl flex items-center justify-center shadow-lg">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
                         </div>
                     </div>
-                    <div class="px-8 pt-16 pb-10">
-                        <h4 class="font-medium text-gray-700 dark:text-gray-300 text-xl mb-4">Hockey Extension |
-                            Raycast</h4>
-                        <p class="font-normal text-gray-500 dark:text-gray-400 text-md mb-4">
-                            Developed a custom Raycast extension to address the lack of quality hockey score
-                            applications for macOS.
+                    <div class="p-8">
+                        <h3 class="text-2xl font-bold text-text-primary mb-4">AI-Enhanced Hockey Extension</h3>
+                        <p class="text-text-secondary mb-6 leading-relaxed">
+                            Developed an intelligent Raycast extension that uses ML algorithms to predict game outcomes and provide personalized hockey insights for macOS users.
                         </p>
-                        <div class="flex flex-wrap gap-2">
-                            <span
-                                class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">React</span>
-                            <span
-                                class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">Raycast
-                                API</span>
-                            <span
-                                class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">NHL
-                                API</span>
-                            <span
-                                class="px-3 py-1 bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900 dark:to-indigo-900 text-purple-800 dark:text-purple-200 rounded-full text-sm flex items-center gap-1">
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-ai-blue/20 text-ai-blue rounded-full text-sm font-medium">React</span>
+                            <span class="px-3 py-1 bg-ai-cyan/20 text-ai-cyan rounded-full text-sm font-medium">Raycast API</span>
+                            <span class="px-3 py-1 bg-ai-purple/20 text-ai-purple rounded-full text-sm font-medium">NHL API</span>
+                            <span class="px-3 py-1 bg-gradient-to-r from-ai-cyan/20 to-ai-purple/20 text-ai-cyan rounded-full text-sm font-medium flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                AI-Powered
+                            </span>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- AI Discovery Platform -->
+                <div class="ai-card overflow-hidden group fade-in-up-delay">
+                    <div class="relative">
+                        <div class="h-64 overflow-hidden">
+                            <img src="assets/image/discover.png" alt="Resource Discovery Platform"
+                                class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-surface-secondary/90 via-transparent to-transparent"></div>
+                        </div>
+                        <div class="absolute bottom-4 left-6 w-16 h-16 bg-gradient-to-br from-ai-purple to-ai-violet rounded-2xl flex items-center justify-center shadow-lg">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-2xl font-bold text-text-primary mb-4">Resource Discovery Platform</h3>
+                        <p class="text-text-secondary mb-6 leading-relaxed">
+                            Created a centralized Notion-based knowledge hub to organize and surface relevant templates, configurations, and community contributions for improved team productivity and resource accessibility.
+                        </p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-ai-purple/20 text-ai-purple rounded-full text-sm font-medium">Notion</span>
+                            <span class="px-3 py-1 bg-ai-blue/20 text-ai-blue rounded-full text-sm font-medium">Knowledge Management</span>
+                            <span class="px-3 py-1 bg-ai-cyan/20 text-ai-cyan rounded-full text-sm font-medium">Information Architecture</span>
+                            <span class="px-3 py-1 bg-gradient-to-r from-ai-purple/20 to-ai-blue/20 text-ai-purple rounded-full text-sm font-medium flex items-center gap-1">
                                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
-                                AI-Enhanced
+                                Collaborative
                             </span>
                         </div>
+
                     </div>
                 </div>
-                <div
-                    class="bg-gray-50 dark:bg-gray-800 rounded-md shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                <!-- Intelligent Package Explorer -->
+                <div class="ai-card overflow-hidden group fade-in-up">
                     <div class="relative">
-                        <div class="h-48 overflow-hidden">
-                            <img src="assets/image/discover.png" alt="Discovery Tool Screenshot"
-                                class="w-full h-full object-cover object-top">
-                            <div
-                                class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-gray-50 dark:from-gray-800 to-transparent">
-                            </div>
+                        <div class="h-64 overflow-hidden">
+                            <img src="assets/image/packagelibrary.png" alt="AI-Powered Package Explorer"
+                                class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-surface-secondary/90 via-transparent to-transparent"></div>
                         </div>
-                        <div
-                            class="absolute bottom-0 left-8 w-20 h-20 transform translate-y-1/2 flex justify-center items-center bg-blue-100 dark:bg-blue-900 rounded-md">
-                            <i data-feather="search" class="text-gray-700 dark:text-gray-300"></i>
+                        <div class="absolute bottom-4 left-6 w-16 h-16 bg-gradient-to-br from-ai-blue to-ai-indigo rounded-2xl flex items-center justify-center shadow-lg">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
                         </div>
                     </div>
-                    <div class="px-8 pt-16 pb-10">
-                        <h4 class="font-medium text-gray-700 dark:text-gray-300 text-xl mb-4">Discovery Tool</h4>
-                        <p class="font-normal text-gray-500 dark:text-gray-400 text-md mb-4">
-                            Created a centralized platform to explore a curated list of resources, including pre-built
-                            configurations, templates, and community contributions. This tool enhances user experience
-                            by providing easy access to valuable assets developed by both the internal team and the user
-                            community.
+                    <div class="p-8">
+                        <h3 class="text-2xl font-bold text-text-primary mb-4">Intelligent Package Explorer</h3>
+                        <p class="text-text-secondary mb-6 leading-relaxed">
+                            Created an AI-powered exploration interface that uses semantic search and content analysis to help users navigate complex product packages with intelligent recommendations and contextual insights.
                         </p>
-                        <div class="flex flex-wrap gap-2">
-                            <span
-                                class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">Notion</span>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-ai-blue/20 text-ai-blue rounded-full text-sm font-medium">Tailwind CSS</span>
+                            <span class="px-3 py-1 bg-ai-indigo/20 text-ai-indigo rounded-full text-sm font-medium">JavaScript</span>
+                            <span class="px-3 py-1 bg-ai-cyan/20 text-ai-cyan rounded-full text-sm font-medium">Semantic Search</span>
+                            <span class="px-3 py-1 bg-gradient-to-r from-ai-blue/20 to-ai-indigo/20 text-ai-blue rounded-full text-sm font-medium flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                                AI-Assisted
+                            </span>
                         </div>
-                    </div>
-                </div>
-                <div
-                    class="bg-gray-50 dark:bg-gray-800 rounded-md shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
-                    <div class="relative">
-                        <div class="h-48 overflow-hidden">
-                            <img src="assets/image/packagelibrary.png" alt="Explorer Tool Screenshot"
-                                class="w-full h-full object-cover object-top">
-                            <div
-                                class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-gray-50 dark:from-gray-800 to-transparent">
-                            </div>
-                        </div>
-                        <div
-                            class="absolute bottom-0 left-8 w-20 h-20 transform translate-y-1/2 flex justify-center items-center bg-blue-100 dark:bg-blue-900 rounded-md">
-                            <i data-feather="compass" class="text-gray-700 dark:text-gray-300"></i>
-                        </div>
-                    </div>
-                    <div class="px-8 pt-16 pb-10">
-                        <h4 class="font-medium text-gray-700 dark:text-gray-300 text-xl mb-4">Package Explorer</h4>
-                        <p class="font-normal text-gray-500 dark:text-gray-400 text-md mb-4">
-                            Developed an explorer tool that acts as a wrapper, allowing new and existing customers to
-                            view and navigate product contents remotely. This intuitive interface enhances product
-                            understanding and accessibility without requiring direct product access.</p>
-                        <div class="flex flex-wrap gap-2">
-                            <span
-                                class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">Tailwind
-                                / JS</span>
-                        </div>
+
                     </div>
                 </div>
 
@@ -443,45 +629,38 @@
                     </div>
                 </div>
 
-                <div
-                    class="bg-gray-50 dark:bg-gray-800 rounded-md shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                <!-- AI Support Bot -->
+                <div class="ai-card overflow-hidden group fade-in-up-delay">
                     <div class="relative">
-                        <div class="h-48 overflow-hidden">
-                            <img src="assets/image/discord.png" alt="Support Bot | Discord"
-                                class="w-full h-full object-cover object-left"> <!-- Added object-left here -->
-                            <div
-                                class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-gray-50 dark:from-gray-800 to-transparent">
-                            </div>
+                        <div class="h-64 overflow-hidden">
+                            <img src="assets/image/discord.png" alt="AI-Powered Discord Support Bot"
+                                class="w-full h-full object-cover object-left group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-surface-secondary/90 via-transparent to-transparent"></div>
                         </div>
-                        <div
-                            class="absolute bottom-0 left-8 w-20 h-20 transform translate-y-1/2 flex justify-center items-center bg-blue-100 dark:bg-blue-900 rounded-md">
-                            <i data-feather="user-plus" class="text-gray-700 dark:text-gray-300"></i>
+                        <div class="absolute bottom-4 left-6 w-16 h-16 bg-gradient-to-br from-ai-violet to-ai-purple rounded-2xl flex items-center justify-center shadow-lg">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
                         </div>
                     </div>
-                    <div class="px-8 pt-16 pb-10">
-                        <h4 class="font-medium text-gray-700 dark:text-gray-300 text-xl mb-4">Support Bot | Discord</h4>
-                        <p class="font-normal text-gray-500 dark:text-gray-400 text-md mb-4">Developed a sophisticated
-                            Discord bot to streamline customer access to company resources, addressing the growing trend
-                            of customers utilizing Discord for support and community engagement.
+                    <div class="p-8">
+                        <h3 class="text-2xl font-bold text-text-primary mb-4">AI Support Bot</h3>
+                        <p class="text-text-secondary mb-6 leading-relaxed">
+                            Engineered an intelligent Discord bot with NLP capabilities for automated support, sentiment analysis, and predictive issue resolution, transforming community engagement and support efficiency.
                         </p>
-
-                        <div class="flex flex-wrap gap-2">
-                            <span
-                                class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">Discord.js</span>
-                            <span
-                                class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">Javascript</span>
-                            <span
-                                class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">Node.js</span>
-                            <span
-                                class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">ArgoCD</span>
-                            <span
-                                class="px-3 py-1 bg-gradient-to-r from-purple-100 to-indigo-100 dark:from-purple-900 dark:to-indigo-900 text-purple-800 dark:text-purple-200 rounded-full text-sm flex items-center gap-1">
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-3 py-1 bg-ai-violet/20 text-ai-violet rounded-full text-sm font-medium">Discord.js</span>
+                            <span class="px-3 py-1 bg-ai-purple/20 text-ai-purple rounded-full text-sm font-medium">Node.js</span>
+                            <span class="px-3 py-1 bg-ai-blue/20 text-ai-blue rounded-full text-sm font-medium">NLP</span>
+                            <span class="px-3 py-1 bg-ai-cyan/20 text-ai-cyan rounded-full text-sm font-medium">ArgoCD</span>
+                            <span class="px-3 py-1 bg-gradient-to-r from-ai-violet/20 to-ai-purple/20 text-ai-violet rounded-full text-sm font-medium flex items-center gap-1">
                                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                                 </svg>
-                                AI-Optimized
+                                AI-Powered
                             </span>
                         </div>
+
                     </div>
                 </div>
 

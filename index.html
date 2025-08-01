@@ -9,7 +9,7 @@
     <link rel="icon" type="image/x-icon" href="favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital,wght@0,400;1,400&display=swap"
         rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
@@ -21,18 +21,25 @@
             theme: {
                 extend: {
                     colors: {
-                        // Linear/Raycast inspired palette with blue accents
+                        // AI-focused futuristic palette
                         primary: {
                             50: '#EBF4FF',
                             100: '#D1E7FF',
                             200: '#A6D0FF',
                             300: '#7AB8FF',
                             400: '#4F9FFF',
-                            500: '#2563EB', // Main blue accent
+                            500: '#2563EB',
                             600: '#1E40AF',
                             700: '#1E3A8A',
                             800: '#1E2A69',
                             900: '#1A1F37'
+                        },
+                        ai: {
+                            cyan: '#06B6D4',
+                            purple: '#8B5CF6',
+                            blue: '#3B82F6',
+                            indigo: '#6366F1',
+                            violet: '#7C3AED'
                         },
                         surface: {
                             primary: '#0F0F0F',
@@ -45,34 +52,80 @@
                             secondary: '#E2E8F0',
                             tertiary: '#CBD5E1'
                         }
+                    },
+                    animation: {
+                        'gradient': 'gradient 8s linear infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                        'fade-in-up-delay': 'fadeInUp 0.8s ease-out 0.2s forwards',
+                        'fade-in-up-delay-2': 'fadeInUp 0.8s ease-out 0.4s forwards'
+                    },
+                    keyframes: {
+                        gradient: {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        },
+                        fadeInUp: {
+                            '0%': {
+                                opacity: '0',
+                                transform: 'translateY(30px)'
+                            },
+                            '100%': {
+                                opacity: '1',
+                                transform: 'translateY(0)'
+                            }
+                        }
                     }
                 }
             }
         }
     </script>
-    <style>
-        @media (max-width: 640px) {
-            body {
-                font-size: 14px;
-            }
-        }
-    </style>
     <style type="text/tailwindcss">
         @layer components {
         .nav-link {
             @apply text-sm text-text-secondary hover:text-text-primary focus:text-text-primary transition-all duration-200 ease-out hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-surface-secondary rounded-md px-2 py-1;
         }
         
-        .linear-card {
-            @apply bg-surface-secondary border border-surface-border rounded-xl backdrop-blur-sm;
+        .ai-card {
+            @apply bg-surface-secondary/80 backdrop-blur-xl border border-surface-border/50 rounded-2xl shadow-2xl hover:shadow-ai-cyan/10 transition-all duration-500 hover:scale-[1.02] hover:border-ai-cyan/30;
         }
         
-        .linear-button {
-            @apply bg-primary-600 hover:bg-primary-700 focus:bg-primary-700 text-white font-medium rounded-lg transition-all duration-200 ease-out hover:scale-105 focus:scale-105 shadow-sm hover:shadow-md focus:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-surface-primary;
+        .ai-button {
+            @apply bg-gradient-to-r from-ai-blue to-ai-purple hover:from-ai-purple hover:to-ai-cyan text-white font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-ai-cyan focus:ring-offset-2 focus:ring-offset-surface-primary;
         }
         
-        .linear-surface {
-            @apply bg-surface-primary transition-colors duration-300;
+        .gradient-text {
+            @apply bg-gradient-to-r from-ai-cyan via-ai-blue to-ai-purple bg-clip-text text-transparent animate-gradient;
+        }
+        
+        .neural-glow {
+            @apply relative;
+        }
+        
+        .neural-glow::before {
+            content: '';
+            @apply absolute inset-0 bg-gradient-to-r from-ai-cyan/20 via-ai-purple/20 to-ai-blue/20 rounded-full blur-xl opacity-0 transition-opacity duration-500;
+        }
+        
+        .neural-glow:hover::before {
+            @apply opacity-100;
+        }
+        
+        .particle-bg {
+            background: radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
         }
         
 
@@ -308,12 +361,69 @@
                 font-size: 0.75rem;
             }
         }
+        
+        /* Neural connection lines */
+        .neural-connection {
+            position: absolute;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, rgba(6, 182, 212, 0.3), transparent);
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+        
+        /* Floating particles */
+        .floating-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.8), transparent);
+            border-radius: 50%;
+            animation: particle-float 12s linear infinite;
+        }
+        
+        .floating-particle:nth-child(odd) {
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.8), transparent);
+            animation-duration: 15s;
+        }
+        
+        @keyframes particle-float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-30px) rotate(120deg); }
+            66% { transform: translateY(15px) rotate(240deg); }
+        }
     </style>
 
 
 </head>
 
-<body class="linear-surface min-h-screen font-['Inter',system-ui,sans-serif] antialiased">
+<body class="bg-surface-primary min-h-screen font-['Inter',system-ui,sans-serif] antialiased particle-bg overflow-x-hidden">
+    <!-- Floating particles background -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden">
+        <div class="floating-particle" style="left: 10%; top: 20%; animation-delay: 0s;"></div>
+        <div class="floating-particle" style="left: 80%; top: 10%; animation-delay: -3s;"></div>
+        <div class="floating-particle" style="left: 60%; top: 70%; animation-delay: -6s;"></div>
+        <div class="floating-particle" style="left: 20%; top: 80%; animation-delay: -9s;"></div>
+        <div class="floating-particle" style="left: 90%; top: 60%; animation-delay: -12s;"></div>
+        <div class="floating-particle" style="left: 30%; top: 30%; animation-delay: -15s;"></div>
+        <div class="floating-particle" style="left: 70%; top: 40%; animation-delay: -18s;"></div>
+    </div>
+
+    <!-- Neural connection lines -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden">
+        <div class="neural-connection" style="left: 15%; height: 200px; top: 25%; animation-delay: 0s;"></div>
+        <div class="neural-connection" style="right: 20%; height: 150px; top: 45%; animation-delay: 1s;"></div>
+        <div class="neural-connection" style="left: 75%; height: 180px; top: 65%; animation-delay: 2s;"></div>
+        <div class="neural-connection" style="left: 5%; height: 120px; top: 75%; animation-delay: 0.5s;"></div>
+        <div class="neural-connection" style="right: 10%; height: 160px; top: 20%; animation-delay: 1.5s;"></div>
+        <div class="neural-connection" style="left: 85%; height: 140px; top: 85%; animation-delay: 2.5s;"></div>
+        <div class="neural-connection" style="left: 45%; height: 100px; top: 15%; animation-delay: 3s;"></div>
+        <div class="neural-connection" style="right: 35%; height: 170px; top: 55%; animation-delay: 3.5s;"></div>
+    </div>
+
     <!-- Skip link for screen readers -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <nav class="toc" aria-label="Table of Contents" role="navigation">
@@ -338,7 +448,7 @@
             <span class="toc-text">Recognitions</span>
         </a>
     </nav>
-    <header class="fixed top-4 sm:top-6 left-0 right-0 z-10 px-2 sm:px-4" role="banner">
+    <header class="fixed top-4 sm:top-6 left-0 right-0 z-50 px-2 sm:px-4" role="banner">
         <nav class="bg-surface-secondary/95 backdrop-blur-md rounded-full shadow-lg hover:shadow-xl transition-all duration-300 max-w-fit mx-auto border border-surface-border/50" role="navigation" aria-label="Main navigation">
             <div class="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2">
                 <!-- Logo -->
