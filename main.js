@@ -38,7 +38,7 @@ function triggerEasterEgg() {
     const modal = document.createElement('div');
     modal.style.cssText = `
         position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-        background: linear-gradient(135deg, #FF6B35, #F7931E); 
+        background: linear-gradient(135deg, #2563EB, #4F9FFF); 
         color: white; padding: 30px; border-radius: 20px; 
         text-align: center; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         animation: bounceIn 0.6s ease-out;
@@ -106,7 +106,7 @@ function triggerEasterEgg() {
 }
 
 function createConfetti() {
-    const colors = ['#FF6B35', '#F7931E', '#FFD23F', '#06FFA5', '#A663CC'];
+    const colors = ['#2563EB', '#4F9FFF', '#7AB8FF', '#A6D0FF', '#D1E7FF'];
     
     for (let i = 0; i < 50; i++) {
         const confetti = document.createElement('div');
@@ -158,32 +158,5 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }
   });
 
-  // SUPER SIMPLE theme toggle - just light/dark, no complexity
-  const themeToggle = document.getElementById("themeToggle");
-  const html = document.documentElement;
 
-  if (themeToggle) {
-    // Check for saved theme preference or default to 'light'
-    const savedTheme = localStorage.getItem("theme") || "light";
-    
-    // Apply initial theme
-    if (savedTheme === "dark") {
-      html.classList.add("dark");
-    } else {
-      html.classList.remove("dark");
-    }
-
-    // Simple toggle function
-    themeToggle.addEventListener("click", () => {
-      const isDark = html.classList.contains("dark");
-      
-      if (isDark) {
-        html.classList.remove("dark");
-        localStorage.setItem("theme", "light");
-      } else {
-        html.classList.add("dark");
-        localStorage.setItem("theme", "dark");
-      }
-    });
-  }
 });

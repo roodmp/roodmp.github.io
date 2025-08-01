@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 
 <head>
   <meta charset="UTF-8">
@@ -7,6 +7,43 @@
   <title>PowerShell Verb Challenge</title>
   <link rel="icon" type="image/x-icon" href="favicon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            // Linear/Raycast inspired palette with blue accents
+            primary: {
+              50: '#EBF4FF',
+              100: '#D1E7FF',
+              200: '#A6D0FF',
+              300: '#7AB8FF',
+              400: '#4F9FFF',
+              500: '#2563EB', // Main blue accent
+              600: '#1E40AF',
+              700: '#1E3A8A',
+              800: '#1E2A69',
+              900: '#1A1F37'
+            },
+            surface: {
+              // Dark theme surfaces (powershell is dark-focused)
+              'dark-primary': '#0F0F0F',
+              'dark-secondary': '#1A1A1A',
+              'dark-tertiary': '#262626',
+              'dark-border': '#404040'
+            },
+            text: {
+              // Dark theme text
+              'dark-primary': '#F8FAFC',
+              'dark-secondary': '#CBD5E1',
+              'dark-tertiary': '#94A3B8'
+            }
+          }
+        }
+      }
+    }
+  </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
@@ -23,14 +60,35 @@
     .fade-out {
       animation: fadeOut 0.5s ease-out 4.5s forwards;
     }
+    
+    /* Skip link for screen readers */
+    .skip-link {
+      position: absolute;
+      left: 0;
+      top: 0;
+      background: #1E40AF;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0 0 0.5rem 0;
+      transform: translateY(-100%);
+      transition: transform 0.2s;
+      z-index: 50;
+    }
+    
+    .skip-link:focus {
+      transform: translateY(0);
+      outline: 2px solid white;
+    }
   </style>
 </head>
 
-<body class="bg-gray-900 min-h-screen flex items-center justify-center font-['Inter',sans-serif] text-[#E0E0E0]">
-  <div class="bg-gray-800 p-8 mx-3 rounded-lg shadow-lg max-w-2xl w-full">
-    <h1 class="text-2xl font-semibold mb-6 text-center text-white">PowerShell Verb Challenge</h1>
+<body class="bg-surface-dark-primary min-h-screen flex items-center justify-center font-['Inter',sans-serif] text-text-dark-secondary">
+  <!-- Skip link for screen readers -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <main id="main-content" class="bg-surface-dark-secondary border border-surface-dark-border p-8 mx-3 rounded-xl shadow-lg max-w-2xl w-full backdrop-blur-sm" role="main">
+    <h1 class="text-2xl font-semibold mb-6 text-center text-text-dark-primary">PowerShell Verb Challenge</h1>
 
-    <div id="scenario" class="p-4 bg-gray-700 rounded-md mb-4 text-sm">
+    <div id="scenario" class="p-4 bg-surface-dark-tertiary border border-surface-dark-border rounded-lg mb-4 text-sm">
       <!-- Scenario will be inserted here -->
     </div>
 
@@ -38,7 +96,7 @@
       <!-- Clickable options will be inserted here -->
     </div>
 
-    <div id="commandArea" class="mb-6 p-4 rounded-md flex items-center justify-center text-sm font-mono">
+    <div id="commandArea" class="mb-6 p-4 rounded-lg flex items-center justify-center text-sm font-mono border border-surface-dark-border">
       <!-- Partial command will be inserted here -->
     </div>
 
@@ -47,12 +105,12 @@
     </div>
 
     <button id="submitBtn"
-      class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-[#0066CC] transition w-full text-sm font-medium">Submit</button>
+      class="bg-primary-500 hover:bg-primary-600 focus:bg-primary-600 text-white px-4 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 focus:scale-105 w-full text-sm font-medium shadow-sm hover:shadow-md focus:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 focus:ring-offset-surface-dark-secondary">Submit</button>
 
     <button id="nextBtn"
-      class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-[#34C759] transition hidden w-full text-sm font-medium">Next
+      class="bg-green-500 hover:bg-green-600 focus:bg-green-600 text-white px-4 py-2 rounded-lg transition-all duration-200 ease-out hover:scale-105 focus:scale-105 hidden w-full text-sm font-medium shadow-sm hover:shadow-md focus:shadow-md focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-surface-dark-secondary">Next
       Challenge</button>
-  </div>
+  </main>
 
   <script>
     const scenarios = [

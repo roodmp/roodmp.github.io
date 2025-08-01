@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en" class="dark">
 
 <head>
   <meta charset="UTF-8" />
@@ -22,9 +22,29 @@
       theme: {
         extend: {
           colors: {
+            // Linear/Raycast inspired palette with blue accents
             primary: {
-              light: '#3B82F6',
-              dark: '#60A5FA',
+              50: '#EBF4FF',
+              100: '#D1E7FF',
+              200: '#A6D0FF',
+              300: '#7AB8FF',
+              400: '#4F9FFF',
+              500: '#2563EB', // Main blue accent
+              600: '#1E40AF',
+              700: '#1E3A8A',
+              800: '#1E2A69',
+              900: '#1A1F37'
+            },
+            surface: {
+              primary: '#0F0F0F',
+              secondary: '#1A1A1A',
+              tertiary: '#262626',
+              border: '#404040'
+            },
+            text: {
+              primary: '#FFFFFF',
+              secondary: '#E2E8F0',
+              tertiary: '#CBD5E1'
             }
           },
           maxWidth: {
@@ -41,31 +61,80 @@
   <style type="text/tailwindcss">
     @layer components {
       .nav-link {
-        @apply text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors duration-200;
+        @apply text-sm text-text-secondary hover:text-text-primary focus:text-text-primary transition-all duration-200 ease-out hover:scale-105 focus:scale-105 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-surface-secondary rounded-md px-2 py-1;
       }
       .resource-card {
-        @apply bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden;
+        @apply linear-card shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden;
+      }
+      .linear-card {
+        @apply bg-surface-secondary border border-surface-border rounded-xl backdrop-blur-sm;
+      }
+      .linear-button {
+        @apply bg-primary-600 hover:bg-primary-700 focus:bg-primary-700 text-white font-medium rounded-lg transition-all duration-200 ease-out hover:scale-105 focus:scale-105 shadow-sm hover:shadow-md focus:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-surface-primary;
+      }
+      
+
+      
+      /* Skip link for screen readers */
+      .skip-link {
+        @apply absolute left-0 top-0 bg-primary-600 text-white px-4 py-2 rounded-br-lg transform -translate-y-full focus:translate-y-0 transition-transform duration-200 focus:outline-none focus:ring-2 focus:ring-white z-50;
+      }
+      
+      /* Screen reader only text */
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      
+      /* Theme-responsive logo styling */
+      .theme-logo {
+        transition: all 0.3s ease;
+      }
+      
+      /* Light mode: keep original black panda */
+      .theme-logo {
+        filter: none;
+      }
+      
+      /* Dark mode: invert to white and add subtle glow */
+      .dark .theme-logo {
+        filter: invert(1) brightness(1.2) drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+      }
+      
+      /* Hover effect for logo */
+      .theme-logo:hover {
+        transform: scale(1.05);
+      }
+      
+      /* Enhanced dark mode hover effect */
+      .dark .theme-logo:hover {
+        filter: invert(1) brightness(1.3) drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+      }
+      .linear-surface {
+        @apply bg-surface-primary transition-colors duration-300;
       }
       .resource-card:hover {
         @apply transform translate-y-[-4px];
       }
-      .sidebar-link {
-        @apply flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200;
-      }
-      .sidebar-link.active {
-        @apply bg-gray-100 dark:bg-gray-700;
-      }
+
       .badge {
         @apply px-3 py-1 text-sm rounded-full;
       }
       .badge-blue {
-        @apply bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100;
+        @apply bg-blue-900 text-blue-100;
       }
       .badge-green {
-        @apply bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100;
+        @apply bg-green-900 text-green-100;
       }
       .badge-purple {
-        @apply bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-100;
+        @apply bg-purple-900 text-purple-100;
       }
       .copy-button {
         @apply opacity-0 group-hover:opacity-100 focus:opacity-100;
@@ -87,17 +156,187 @@
       pre {
         @apply whitespace-pre-wrap break-words;
       }
-        }
+    }
+
+    /* TOC Styles */
+    :root {
+      --toc-bg-color: rgba(15, 15, 15, 0.85);
+      --toc-border-color: rgba(64, 64, 64, 0.6);
+      --toc-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+      --toc-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+      --toc-dot-color: rgba(148, 163, 184, 0.5);
+      --toc-text-color: rgba(203, 213, 225, 0.8);
+      --toc-text-hover-color: rgba(226, 232, 240, 0.9);
+      --toc-active-color: #3b82f6;
+      --toc-link-hover-bg: rgba(38, 38, 38, 0.8);
+      --toc-link-active-bg: rgba(59, 130, 246, 0.12);
+    }
+
+    .toc {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 40;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    /* Collapsed state - pure glow effect */
+    .toc::before {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 2px;
+      height: 300px;
+      background: transparent;
+      border-radius: 0;
+      opacity: 1;
+      box-shadow: 
+        0 0 25px 10px rgba(59, 130, 246, 0.2),
+        0 0 50px 20px rgba(59, 130, 246, 0.1),
+        0 0 100px 30px rgba(59, 130, 246, 0.05),
+        0 0 150px 40px rgba(59, 130, 246, 0.025),
+        0 0 200px 50px rgba(59, 130, 246, 0.015);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .toc:not(.expanded) {
+      width: 20px;
+      height: 400px;
+      background: transparent;
+      border: none;
+      padding: 0;
+      overflow: visible;
+      cursor: pointer;
+    }
+
+    .toc.expanded {
+      width: 12rem;
+      height: auto;
+      background-color: var(--toc-bg-color);
+      border: 1px solid var(--toc-border-color);
+      border-radius: 0.5rem;
+      backdrop-filter: blur(12px);
+      box-shadow: var(--toc-shadow-hover);
+      padding: 0.75rem;
+      right: 2rem;
+      transform: translateY(-50%);
+      cursor: default;
+    }
+
+    .toc.expanded::before {
+      opacity: 0;
+    }
+
+    .toc:not(.expanded):hover::before {
+      box-shadow: 
+        0 0 30px 12px rgba(59, 130, 246, 0.3),
+        0 0 60px 25px rgba(59, 130, 246, 0.15),
+        0 0 120px 35px rgba(59, 130, 246, 0.08),
+        0 0 180px 45px rgba(59, 130, 246, 0.04),
+        0 0 240px 55px rgba(59, 130, 246, 0.025);
+    }
+
+    .toc-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.375rem 0.5rem;
+      margin: 0.125rem 0;
+      border-radius: 0.25rem;
+      text-decoration: none;
+      position: relative;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.1s, 
+                  visibility 0s 0.4s;
+    }
+
+    .toc.expanded .toc-link {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.1s, 
+                  visibility 0s 0s;
+    }
+
+    .toc-link:hover {
+      background-color: var(--toc-link-hover-bg);
+    }
+
+    .toc-link.active {
+      background-color: var(--toc-link-active-bg);
+      color: var(--toc-active-color);
+    }
+
+    .toc-link.active::before {
+      content: '';
+      position: absolute;
+      left: -0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 2px;
+      height: 1rem;
+      background-color: var(--toc-active-color);
+      border-radius: 1px;
+    }
+
+    .toc-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background-color: var(--toc-dot-color);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
+    }
+
+    .toc-link:hover .toc-dot {
+      background-color: var(--toc-active-color);
+      transform: scale(1.25);
+    }
+
+    .toc-link.active .toc-dot {
+      background-color: var(--toc-active-color);
+      transform: scale(1.5);
+    }
+
+    .toc-text {
+      font-size: 0.8125rem;
+      font-weight: 400;
+      color: var(--toc-text-color);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      line-height: 1.2;
+    }
+
+    .toc-link:hover .toc-text {
+      color: var(--toc-text-hover-color);
+    }
+
+    .toc-link.active .toc-text {
+      color: var(--toc-active-color);
+      font-weight: 500;
+    }
+
+    @media (max-width: 1280px) {
+      .toc {
+        display: none;
+      }
+    }
   </style>
 </head>
 
-<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+<body class="linear-surface min-h-screen font-['Inter',system-ui,sans-serif] antialiased">
+  <!-- Skip link for screen readers -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
   <header class="fixed top-4 sm:top-6 left-0 right-0 z-10 px-2 sm:px-4">
-    <nav class="bg-white/90 dark:bg-gray-800 backdrop-blur-md rounded-full shadow-lg max-w-fit mx-auto">
+    <nav class="bg-surface-secondary/95 backdrop-blur-md rounded-full shadow-lg hover:shadow-xl transition-all duration-300 max-w-fit mx-auto border border-surface-border/50">
       <div class="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2">
         <!-- Logo -->
         <a href="about.html" class="flex-shrink-0">
-          <img src="favicon.png" alt="Logo" class="h-7 w-auto" />
+          <img src="favicon.png" alt="Mark Rood Logo" class="h-7 w-auto theme-logo" />
         </a>
 
         <!-- Middle navigation links -->
@@ -107,69 +346,58 @@
           <a href="resources.html" class="nav-link">Resources</a>
         </div>
 
-        <!-- Simple theme toggle -->
-        <button id="themeToggle" class="nav-link p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors duration-200" aria-label="Toggle dark mode">
-          <span class="material-icons dark:hidden text-gray-600">dark_mode</span>
-          <span class="material-icons hidden dark:inline text-gray-300">light_mode</span>
-        </button>
+
       </div>
     </nav>
   </header>
 
   <div class="h-24"></div>
 
-  <div class="container mx-auto px-4 py-8 max-w-9xl">
-    <div class="flex flex-col lg:flex-row gap-8">
-      <!-- Sidebar -->
-      <div id="sidebar"
-        class="lg:w-64 flex-shrink-0 fixed lg:sticky inset-0 lg:inset-auto z-40 transform lg:transform-none -translate-x-full lg:translate-x-0 transition-transform duration-300">
-        <div
-          class="h-full lg:h-auto bg-white dark:bg-gray-800 rounded-xl p-4 lg:sticky lg:top-28 shadow-lg lg:shadow-none">
-          <nav class="space-y-2">
-            <a href="#docs" class="sidebar-link">
-              <i data-feather="book-open" class="w-5 h-5 mr-3"></i>
-              Documentation
-            </a>
-            <a href="#windows" class="sidebar-link">
-              <i data-feather="monitor" class="w-5 h-5 mr-3"></i>
-              Windows
-            </a>
-            <a href="#macos" class="sidebar-link">
-              <i data-feather="command" class="w-5 h-5 mr-3"></i>
-              macOS
-            </a>
-            <a href="#cross-platform" class="sidebar-link">
-              <i data-feather="layers" class="w-5 h-5 mr-3"></i>
-              Cross-Platform
-            </a>
-            <a href="#mobile" class="sidebar-link">
-              <i data-feather="smartphone" class="w-5 h-5 mr-3"></i>
-              Mobile Apps
-            </a>
-            <a href="#media" class="sidebar-link">
-              <i data-feather="headphones" class="w-5 h-5 mr-3"></i>
-              Media
-            </a>
-          </nav>
-        </div>
-      </div>
+  <!-- TOC Navigation -->
+  <nav class="toc" aria-label="Table of Contents" role="navigation">
+    <a href="#docs" class="toc-link" data-section="docs" aria-label="Navigate to Documentation section">
+      <div class="toc-dot" aria-hidden="true"></div>
+      <span class="toc-text">Documentation</span>
+    </a>
+    <a href="#windows" class="toc-link" data-section="windows" aria-label="Navigate to Windows section">
+      <div class="toc-dot" aria-hidden="true"></div>
+      <span class="toc-text">Windows</span>
+    </a>
+    <a href="#macos" class="toc-link" data-section="macos" aria-label="Navigate to macOS section">
+      <div class="toc-dot" aria-hidden="true"></div>
+      <span class="toc-text">macOS</span>
+    </a>
+    <a href="#cross-platform" class="toc-link" data-section="cross-platform" aria-label="Navigate to Cross-Platform section">
+      <div class="toc-dot" aria-hidden="true"></div>
+      <span class="toc-text">Cross-Platform</span>
+    </a>
+    <a href="#mobile" class="toc-link" data-section="mobile" aria-label="Navigate to Mobile Apps section">
+      <div class="toc-dot" aria-hidden="true"></div>
+      <span class="toc-text">Mobile Apps</span>
+    </a>
+    <a href="#media" class="toc-link" data-section="media" aria-label="Navigate to Media section">
+      <div class="toc-dot" aria-hidden="true"></div>
+      <span class="toc-text">Media</span>
+    </a>
+  </nav>
 
-      <!-- Main Content -->
-      <div class="flex-1">
+  <div class="container mx-auto px-4 py-8 max-w-9xl">
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto">
         <div class="grid grid-cols-1 gap-8">
           <!-- Documentation Section -->
           <section id="docs" class="col-span-full">
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Documentation & Reading</h2>
+            <h2 class="text-2xl font-semibold text-white mb-6">Documentation & Reading</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               <div class="resource-card">
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">PowerShell Documentation</h3>
+                    <h3 class="text-xl font-bold text-white">PowerShell Documentation</h3>
                     <span class="badge badge-blue">Docs</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-300">Official Microsoft PowerShell documentation and guides</p>
+                  <p class="text-gray-300">Official Microsoft PowerShell documentation and guides</p>
                   <a href="https://docs.microsoft.com/en-us/powershell/"
-                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    class="mt-4 inline-flex items-center text-primary-400 hover:text-primary-300 hover:underline">
                     View Documentation
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -178,12 +406,12 @@
               <div class="resource-card">
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Anthropic Prompt Engineering</h3>
+                    <h3 class="text-xl font-bold text-white">Anthropic Prompt Engineering</h3>
                     <span class="badge badge-purple">Guide</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-300">Learn effective prompt engineering techniques for AI</p>
+                  <p class="text-gray-300">Learn effective prompt engineering techniques for AI</p>
                   <a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview"
-                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    class="mt-4 inline-flex items-center text-primary-400 hover:text-primary-300 hover:underline">
                     Learn More
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -194,18 +422,18 @@
 
           <!-- Windows Section -->
           <section id="windows" class="col-span-full">
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Windows Utilities</h2>
+            <h2 class="text-2xl font-semibold text-white mb-6">Windows Utilities</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               <div class="resource-card">
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">PowerToys</h3>
+                    <h3 class="text-xl font-bold text-white">PowerToys</h3>
                     <span class="badge badge-blue">Utility</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-300">Set of utilities for power users to tune Windows
+                  <p class="text-gray-300">Set of utilities for power users to tune Windows
                     experience</p>
                   <a href="https://github.com/microsoft/PowerToys"
-                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    class="mt-4 inline-flex items-center text-primary-400 hover:text-primary-300 hover:underline">
                     Get PowerToys
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -215,12 +443,12 @@
               <div class="resource-card">
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">DevHome</h3>
+                    <h3 class="text-xl font-bold text-white">DevHome</h3>
                     <span class="badge badge-blue">Utility</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-300">Developer-focused customization tool for Windows</p>
+                  <p class="text-gray-300">Developer-focused customization tool for Windows</p>
                   <a href="https://apps.microsoft.com/detail/9n8mhtphngvv?hl=en-us&gl=US"
-                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    class="mt-4 inline-flex items-center text-primary-400 hover:text-primary-300 hover:underline">
                     Get DevHome
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -230,12 +458,12 @@
               <div class="resource-card">
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Windows Terminal</h3>
+                    <h3 class="text-xl font-bold text-white">Windows Terminal</h3>
                     <span class="badge badge-blue">Utility</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-300">Modern terminal application for Windows</p>
+                  <p class="text-gray-300">Modern terminal application for Windows</p>
                   <a href="https://apps.microsoft.com/detail/9n0dx20hk701?gl=US&hl=en-us"
-                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    class="mt-4 inline-flex items-center text-primary-400 hover:text-primary-300 hover:underline">
                     Get Terminal
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -246,17 +474,17 @@
 
           <!-- macOS Section -->
           <section id="macos" class="col-span-full">
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">macOS Utilities</h2>
+            <h2 class="text-2xl font-semibold text-white mb-6">macOS Utilities</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               <div class="resource-card">
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Raycast</h3>
+                    <h3 class="text-xl font-bold text-white">Raycast</h3>
                     <span class="badge badge-blue">Utility</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-300">Productivity tool to control your Mac with keyboard</p>
+                  <p class="text-gray-300">Productivity tool to control your Mac with keyboard</p>
                   <a href="https://www.raycast.com/"
-                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    class="mt-4 inline-flex items-center text-primary-400 hover:text-primary-300 hover:underline">
                     Get Raycast
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -266,12 +494,12 @@
               <div class="resource-card">
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Cleanshot X</h3>
+                    <h3 class="text-xl font-bold text-white">Cleanshot X</h3>
                     <span class="badge badge-blue">Utility</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-300">Advanced screenshot and screen recording tool</p>
+                  <p class="text-gray-300">Advanced screenshot and screen recording tool</p>
                   <a href="Cleanshot.com"
-                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    class="mt-4 inline-flex items-center text-primary-400 hover:text-primary-300 hover:underline">
                     Get Cleanshot X
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -281,12 +509,12 @@
               <div class="resource-card">
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Screen Studio</h3>
+                    <h3 class="text-xl font-bold text-white">Screen Studio</h3>
                     <span class="badge badge-blue">Utility</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-300">Professional screen recording studio</p>
+                  <p class="text-gray-300">Professional screen recording studio</p>
                   <a href="https://screen.studio/"
-                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    class="mt-4 inline-flex items-center text-primary-400 hover:text-primary-300 hover:underline">
                     Get Screen Studio
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -297,17 +525,17 @@
 
           <!-- Cross-Platform Section -->
           <section id="cross-platform" class="col-span-full">
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Cross-Platform Tools</h2>
+            <h2 class="text-2xl font-semibold text-white mb-6">Cross-Platform Tools</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               <div class="resource-card">
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Notion</h3>
+                    <h3 class="text-xl font-bold text-white">Notion</h3>
                     <span class="badge badge-green">Productivity</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-300">All-in-one workspace for notes and collaboration</p>
+                  <p class="text-gray-300">All-in-one workspace for notes and collaboration</p>
                   <a href="https://notion.com"
-                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    class="mt-4 inline-flex items-center text-primary-400 hover:text-primary-300 hover:underline">
                     Get Notion
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -317,12 +545,12 @@
               <div class="resource-card">
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Linear</h3>
+                    <h3 class="text-xl font-bold text-white">Linear</h3>
                     <span class="badge badge-green">Project Management</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-300">Issue tracking and project management tool</p>
+                  <p class="text-gray-300">Issue tracking and project management tool</p>
                   <a href="https://linear.app"
-                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    class="mt-4 inline-flex items-center text-primary-400 hover:text-primary-300 hover:underline">
                     Get Linear
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -332,12 +560,12 @@
               <div class="resource-card">
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Claude AI</h3>
+                    <h3 class="text-xl font-bold text-white">Claude AI</h3>
                     <span class="badge badge-purple">AI</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-300">Advanced AI assistant by Anthropic</p>
+                  <p class="text-gray-300">Advanced AI assistant by Anthropic</p>
                   <a href="https://claude.ai"
-                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    class="mt-4 inline-flex items-center text-primary-400 hover:text-primary-300 hover:underline">
                     Try Claude
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -348,17 +576,17 @@
 
           <!-- Mobile Apps Section -->
           <section id="mobile" class="col-span-full">
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Mobile Apps</h2>
+            <h2 class="text-2xl font-semibold text-white mb-6">Mobile Apps</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               <div class="resource-card">
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Crouton</h3>
+                    <h3 class="text-xl font-bold text-white">Crouton</h3>
                     <span class="badge badge-green">Recipe</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-300">Simple and elegant recipe management app</p>
+                  <p class="text-gray-300">Simple and elegant recipe management app</p>
                   <a href="https://crouton.app"
-                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    class="mt-4 inline-flex items-center text-primary-400 hover:text-primary-300 hover:underline">
                     Get Crouton
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -368,12 +596,12 @@
               <div class="resource-card">
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Mercury Weather</h3>
+                    <h3 class="text-xl font-bold text-white">Mercury Weather</h3>
                     <span class="badge badge-blue">Weather</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-300">Beautiful and accurate weather app</p>
+                  <p class="text-gray-300">Beautiful and accurate weather app</p>
                   <a href="https://mercuryweather.app/"
-                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    class="mt-4 inline-flex items-center text-primary-400 hover:text-primary-300 hover:underline">
                     Get Mercury
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -384,17 +612,17 @@
 
           <!-- Media Section -->
           <section id="media" class="col-span-full">
-            <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Media</h2>
+            <h2 class="text-2xl font-semibold text-white mb-6">Media</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
               <div class="resource-card">
                 <div class="p-6">
                   <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Lenny's Podcast</h3>
+                    <h3 class="text-xl font-bold text-white">Lenny's Podcast</h3>
                     <span class="badge badge-purple">Podcast</span>
                   </div>
-                  <p class="text-gray-600 dark:text-gray-300">Available on YouTube and Apple Music</p>
+                  <p class="text-gray-300">Available on YouTube and Apple Music</p>
                   <a href="https://www.youtube.com/@LennysPodcast"
-                    class="mt-4 inline-flex items-center text-primary-light dark:text-primary-dark hover:underline">
+                    class="mt-4 inline-flex items-center text-primary-400 hover:text-primary-300 hover:underline">
                     Listen Now
                     <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
                   </a>
@@ -402,7 +630,6 @@
               </div>
             </div>
           </section>
-        </div>
       </div>
     </div>
   </div>
@@ -411,59 +638,11 @@
     // Initialize Feather Icons
     feather.replace();
 
-    const mobileMenuButton = document.getElementById('mobileMenuButton');
-    const mobileMenu = document.getElementById('mobileMenu');
 
-    mobileMenuButton.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
-    });
 
-    // Smooth scrolling for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
 
-          // Update active state
-          document.querySelectorAll('.sidebar-link').forEach(link => {
-            link.classList.remove('active');
-          });
-          this.classList.add('active');
-        }
-      });
-    });
 
-    // Intersection Observer for active section highlighting
-    const sections = document.querySelectorAll('section');
-    const sidebarLinks = document.querySelectorAll('.sidebar-link');
 
-    const observerOptions = {
-      threshold: 0.2,
-      rootMargin: '-20% 0px -80% 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const id = entry.target.getAttribute('id');
-          sidebarLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === `#${id}`) {
-              link.classList.add('active');
-            }
-          });
-        }
-      });
-    }, observerOptions);
-
-    sections.forEach(section => {
-      observer.observe(section);
-    });
 
     // Initialize clipboard.js
     const clipboard = new ClipboardJS(".copy-button");
@@ -500,6 +679,119 @@
         feather.replace();
       }, 2000);
     });
+
+    // TOC Functionality
+    const sections = document.querySelectorAll('section[id]');
+    const tocLinks = document.querySelectorAll('.toc-link');
+    const toc = document.querySelector('.toc');
+    let scrollTimeout = null;
+
+    console.log('TOC Debug:', { sections: sections.length, tocLinks: tocLinks.length, toc: !!toc });
+
+    if (toc) {
+      // TOC toggle functionality
+      function toggleTOC(e) {
+        // Only toggle if clicking on the collapsed TOC (not on links when expanded)
+        if (!toc.classList.contains('expanded')) {
+          e.preventDefault();
+          e.stopPropagation();
+          toc.classList.add('expanded');
+        }
+      }
+
+      // Close TOC when clicking outside
+      function closeTOC(e) {
+        if (toc.classList.contains('expanded') && !toc.contains(e.target)) {
+          toc.classList.remove('expanded');
+        }
+      }
+
+      // Add click handlers
+      toc.addEventListener('click', (e) => {
+        console.log('TOC clicked!', { 
+          expanded: toc.classList.contains('expanded'), 
+          target: e.target,
+          targetClass: e.target.className 
+        });
+        
+        // Check if clicking on a link or its children
+        const clickedLink = e.target.closest('.toc-link');
+        if (clickedLink) {
+          // Link clicked - allow navigation and keep TOC open
+          console.log('Link clicked, not toggling');
+          return;
+        }
+        
+        // Only toggle if clicking directly on the TOC container or its ::before pseudo-element area
+        if (e.target === toc) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          if (!toc.classList.contains('expanded')) {
+            toc.classList.add('expanded');
+            console.log('TOC expanded');
+          } else {
+            toc.classList.remove('expanded');
+            console.log('TOC collapsed');
+          }
+        }
+      });
+      
+      document.addEventListener('click', closeTOC);
+
+      // Throttled scroll handler
+      function throttledUpdateActiveSection() {
+        if (scrollTimeout) return;
+        scrollTimeout = setTimeout(() => {
+          updateActiveSection();
+          scrollTimeout = null;
+        }, 16); // ~60fps
+      }
+
+      // Update active section
+      function updateActiveSection() {
+        let currentSection = null;
+        const fromTop = window.scrollY + window.innerHeight / 3;
+
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.offsetHeight;
+
+          if (fromTop >= sectionTop && fromTop <= sectionTop + sectionHeight) {
+            currentSection = section.getAttribute('id');
+          }
+        });
+
+        tocLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${currentSection}`) {
+            link.classList.add('active');
+          }
+        });
+      }
+
+      // Smooth scroll to section
+      tocLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetId = link.getAttribute('href');
+          const targetSection = document.querySelector(targetId);
+
+          if (targetSection) {
+            targetSection.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+
+      // Update on scroll with throttling
+      window.addEventListener('scroll', throttledUpdateActiveSection, { passive: true });
+
+      // Initial update
+      updateActiveSection();
+    }
   </script>
 </body>
 

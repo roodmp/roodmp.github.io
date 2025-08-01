@@ -54,8 +54,8 @@ npm run serve          # Same as dev
 npm run preview        # Uses npx serve instead of Python
 
 # Manual commands (if npm unavailable)
-python3 -m http.server 8000
-npx serve . -p 8000
+python3 -m http.server 3000
+npx serve . -p 3000
 ```
 
 **Deployment:**
@@ -97,7 +97,7 @@ npx serve . -p 8000
 ## Navigation Maintenance
 
 **Current Architecture:**
-- Navigation HTML is duplicated across all pages (index.html, about.html, resources.html)
+- Navigation HTML is duplicated across all pages (index.html, about.html, resources.html, powershell.html)
 - This maintains simplicity and fast loading for the static site
 - Each page contains ~50 lines of identical navigation code
 
@@ -106,8 +106,9 @@ When updating navigation items, logos, or theme toggle:
 1. Update `index.html` navigation section
 2. Update `about.html` navigation section  
 3. Update `resources.html` navigation section
-4. Test theme toggle functionality on all pages
-5. Verify responsive behavior across pages
+4. Update `powershell.html` navigation section
+5. Test theme toggle functionality on all pages
+6. Verify responsive behavior across pages
 
 **Future Componentization Consideration:**
 Consider moving to a component-based navigation when:
