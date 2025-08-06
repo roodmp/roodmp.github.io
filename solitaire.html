@@ -859,14 +859,21 @@
                 cardElement.addEventListener('touchend', (e) => {
                     e.preventDefault();
                     const touchDuration = Date.now() - cardElement.touchStartTime;
+                    const now = Date.now();
                     
                     if (touchDuration < 300) {
-                        if (cardElement.lastTouchTime && Date.now() - cardElement.lastTouchTime < 500) {
+                        if (cardElement.lastTouchTime && now - cardElement.lastTouchTime < 400) {
+                            // Double tap - auto move
+                            clearTimeout(cardElement.singleTapTimeout);
                             handleCardDoubleClick('waste', 0, 0);
+                            cardElement.lastTouchTime = 0; // Reset to prevent triple tap
                         } else {
-                            handleCardClick('waste', 0, 0);
+                            // Single tap - delay to check for double tap
+                            cardElement.singleTapTimeout = setTimeout(() => {
+                                handleCardClick('waste', 0, 0);
+                            }, 400);
+                            cardElement.lastTouchTime = now;
                         }
-                        cardElement.lastTouchTime = Date.now();
                     }
                 });
                 
@@ -1060,16 +1067,22 @@
                             cardElement.addEventListener('touchend', (e) => {
                                 e.preventDefault();
                                 const touchDuration = Date.now() - cardElement.touchStartTime;
+                                const now = Date.now();
                                 
                                 // Double tap detection for mobile
                                 if (touchDuration < 300) {
-                                    if (cardElement.lastTouchTime && Date.now() - cardElement.lastTouchTime < 500) {
+                                    if (cardElement.lastTouchTime && now - cardElement.lastTouchTime < 400) {
+                                        // Double tap - auto move
+                                        clearTimeout(cardElement.singleTapTimeout);
                                         handleCardDoubleClick('tableau', colIndex, cardIndex);
+                                        cardElement.lastTouchTime = 0; // Reset to prevent triple tap
                                     } else {
-                                        // Single tap - select card for mobile
-                                        handleCardClick('tableau', colIndex, cardIndex);
+                                        // Single tap - delay to check for double tap
+                                        cardElement.singleTapTimeout = setTimeout(() => {
+                                            handleCardClick('tableau', colIndex, cardIndex);
+                                        }, 400);
+                                        cardElement.lastTouchTime = now;
                                     }
-                                    cardElement.lastTouchTime = Date.now();
                                 }
                             });
                             
