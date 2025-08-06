@@ -538,6 +538,91 @@
             }
             gameState = newState;
             updateUndoButton();
+            checkForWin();
+        }
+
+        function checkForWin() {
+            if (!gameState) return;
+            
+            // Check if all foundation piles are complete (K = 13 cards each)
+            const foundationComplete = Object.values(gameState.foundation).every(pile => pile.length === 13);
+            
+            if (foundationComplete) {
+                gameState.gameWon = true;
+                setTimeout(() => {
+                    alert('Congratulations! You won! 🎉\n\nFinal Score: ' + gameState.score + '\nMoves: ' + gameState.moves);
+                }, 500);
+                return;
+            }
+            
+            // Check if all tableau cards are face up (potential auto-solve condition)
+            const allTableauFaceUp = gameState.tableau.every(column => 
+                column.every(card => card.faceUp)
+            );
+            
+            if (allTableauFaceUp && gameState.stock.length === 0 && canAutoSolve()) {
+                setTimeout(() => {
+                    if (confirm('All cards are revealed! Would you like to auto-solve the remaining moves?')) {
+                        autoSolve();
+                    }
+                }, 500);
+            }
+        }
+
+        function canAutoSolve() {
+            // Check if all remaining moves are just moving cards to foundations
+            // This is a simplified check - we assume if all cards are face up, 
+            // the remaining moves are deterministic foundation moves
+            return gameState.tableau.some(column => column.length > 0) || gameState.waste.length > 0;
+        }
+
+        async function autoSolve() {
+            let moved = true;
+            let attempts = 0;
+            const maxAttempts = 100; // Prevent infinite loops
+            
+            while (moved && attempts < maxAttempts) {
+                moved = false;
+                attempts++;
+                
+                // Try to move from tableau to foundation
+                for (let colIndex = 0; colIndex < gameState.tableau.length; colIndex++) {
+                    const column = gameState.tableau[colIndex];
+                    if (column.length > 0) {
+                        const topCard = column[column.length - 1];
+                        if (topCard.faceUp && canPlaceOnFoundation(topCard, gameState.foundation[topCard.suit])) {
+                            const newState = moveCardToFoundation('tableau', colIndex, topCard.suit);
+                            if (newState) {
+                                gameState = newState;
+                                moved = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Try to move from waste to foundation
+                if (!moved && gameState.waste.length > 0) {
+                    const topCard = gameState.waste[0];
+                    if (canPlaceOnFoundation(topCard, gameState.foundation[topCard.suit])) {
+                        const newState = moveCardToFoundation('waste', 0, topCard.suit);
+                        if (newState) {
+                            gameState = newState;
+                            moved = true;
+                        }
+                    }
+                }
+                
+                renderGame();
+                
+                // Add a small delay to show the moves
+                if (moved) {
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
+            }
+            
+            // Final win check
+            checkForWin();
         }
 
         function updateUndoButton() {
