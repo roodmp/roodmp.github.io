@@ -225,10 +225,10 @@
 
     <div class="h-24"></div>
     <main class="py-5 md:py-10" role="main">
-        <div class="max-w-7xl mx-auto px-2 sm:px-4">
+        <div class="max-w-7xl mx-auto px-1 sm:px-4">
             <!-- Header -->
-            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-8 gap-4">
-                <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight text-text-primary">Solitaire</h1>
+            <div class="flex justify-between items-center mb-4 sm:mb-8 gap-3">
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-text-primary">Solitaire</h1>
                 <div class="flex gap-2 sm:gap-3">
                     <button id="undoBtn" class="hidden p-3 text-gray-600 dark:text-gray-400 rounded-xl font-medium transition-colors hover:text-gray-900 dark:hover:text-white" title="Undo last move">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -252,21 +252,21 @@
             <!-- Game board -->
             <div id="gameBoard" class="hidden">
                 <!-- Top row - Foundations, Stock, and Waste -->
-                <div class="flex justify-between mb-6 sm:mb-12">
+                <div class="flex justify-between items-start mb-6 sm:mb-12 overflow-x-auto">
                     <!-- Foundations -->
-                    <div class="flex gap-2 sm:gap-4" id="foundations">
+                    <div class="flex gap-1 sm:gap-2 md:gap-4 flex-shrink-0" id="foundations">
                         <!-- Foundation piles will be generated here -->
                     </div>
 
-                    <div class="flex gap-3 sm:gap-6">
-                        <!-- Waste -->
+                    <div class="flex gap-1 sm:gap-2 md:gap-4 flex-shrink-0 ml-2">
+                        <!-- Waste (discard) -->
                         <div class="flex flex-col items-center">
                             <div id="wastePile" class="card border-2 border-dashed border-gray-300 dark:border-gray-500 rounded-xl transition-all hover:border-gray-400 dark:hover:border-gray-400 cursor-pointer flex items-center justify-center">
                                 <!-- Waste cards will be rendered here -->
                             </div>
                         </div>
 
-                        <!-- Stock -->
+                        <!-- Stock (new cards) -->
                         <div class="flex flex-col items-center">
                             <div id="stockPile" class="card border-2 border-dashed border-gray-300 dark:border-gray-500 rounded-xl transition-all hover:border-gray-400 dark:hover:border-gray-400 cursor-pointer hover:shadow-lg transition-shadow flex items-center justify-center">
                                 <!-- Stock cards will be rendered here -->
@@ -844,53 +844,37 @@
             
             if (gameState.waste.length > 0) {
                 const topCard = gameState.waste[0];
-                wasteContainer.className = wasteContainer.className.replace(/border-[^\s]+/g, '') + ' bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500';
+                const cardElement = createCardElement(topCard);
                 
-                // Mobile responsive text sizes
-                const rankSize = window.innerWidth <= 480 ? 'text-sm' : window.innerWidth <= 768 ? 'text-lg' : 'text-2xl';
-                const suitSize = window.innerWidth <= 480 ? 'text-xl' : window.innerWidth <= 768 ? 'text-2xl' : 'text-4xl';
-                const padding = window.innerWidth <= 480 ? 'p-1' : window.innerWidth <= 768 ? 'p-1.5' : 'p-2';
-                
-                wasteContainer.innerHTML = `
-                    <div class="${padding} h-full flex flex-col justify-between">
-                        <div class="${rankSize} font-bold ${suitColors[topCard.suit]}">
-                            ${topCard.rank}
-                        </div>
-                        <div class="${suitSize} self-center ${suitColors[topCard.suit]}">
-                            ${suitSymbols[topCard.suit]}
-                        </div>
-                        <div class="${rankSize} font-bold rotate-180 self-end ${suitColors[topCard.suit]}">
-                            ${topCard.rank}
-                        </div>
-                    </div>
-                `;
-                
-                wasteContainer.draggable = true;
-                wasteContainer.addEventListener('dragstart', (e) => handleDragStart(e, 'waste', 0, 0));
-                wasteContainer.addEventListener('dragend', handleDragEnd);
-                wasteContainer.addEventListener('dblclick', () => handleCardDoubleClick('waste', 0, 0));
+                // Set up event listeners on the card element
+                cardElement.addEventListener('dragstart', (e) => handleDragStart(e, 'waste', 0, 0));
+                cardElement.addEventListener('dragend', handleDragEnd);
+                cardElement.addEventListener('dblclick', () => handleCardDoubleClick('waste', 0, 0));
                 
                 // Touch support for mobile
-                wasteContainer.addEventListener('touchstart', (e) => {
-                    wasteContainer.touchStartTime = Date.now();
+                cardElement.addEventListener('touchstart', (e) => {
+                    cardElement.touchStartTime = Date.now();
                 });
                 
-                wasteContainer.addEventListener('touchend', (e) => {
+                cardElement.addEventListener('touchend', (e) => {
                     e.preventDefault();
-                    const touchDuration = Date.now() - wasteContainer.touchStartTime;
+                    const touchDuration = Date.now() - cardElement.touchStartTime;
                     
                     if (touchDuration < 300) {
-                        if (wasteContainer.lastTouchTime && Date.now() - wasteContainer.lastTouchTime < 500) {
+                        if (cardElement.lastTouchTime && Date.now() - cardElement.lastTouchTime < 500) {
                             handleCardDoubleClick('waste', 0, 0);
                         } else {
                             handleCardClick('waste', 0, 0);
                         }
-                        wasteContainer.lastTouchTime = Date.now();
+                        cardElement.lastTouchTime = Date.now();
                     }
                 });
+                
+                // Replace the container's classes and content with the card element
+                wasteContainer.className = 'card flex items-center justify-center';
+                wasteContainer.appendChild(cardElement);
             } else {
                 wasteContainer.className = 'card border-2 border-dashed border-gray-300 dark:border-gray-500 rounded-xl transition-all hover:border-gray-400 dark:hover:border-gray-400 cursor-pointer flex items-center justify-center';
-                wasteContainer.draggable = false;
             }
         }
 
