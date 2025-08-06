@@ -96,8 +96,8 @@
 
         @media (max-width: 480px) {
             .card {
-                width: 70px;
-                height: 96px;
+                width: 54px;
+                height: 76px;
             }
         }
 
@@ -225,7 +225,7 @@
 
     <div class="h-24"></div>
     <main class="py-5 md:py-10" role="main">
-        <div class="max-w-7xl mx-auto px-1 sm:px-4">
+        <div class="max-w-7xl mx-auto px-0 sm:px-4">
             <!-- Header -->
             <div class="flex justify-between items-center mb-4 sm:mb-8 gap-3">
                 <h1 class="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-text-primary">Solitaire</h1>
@@ -258,7 +258,7 @@
                         <!-- Foundation piles will be generated here -->
                     </div>
 
-                    <div class="flex gap-1 sm:gap-2 md:gap-4 flex-shrink-0 ml-2">
+                    <div class="flex gap-1 sm:gap-2 md:gap-4 flex-shrink-0 ml-1">
                         <!-- Waste (discard) -->
                         <div class="flex flex-col items-center">
                             <div id="wastePile" class="card border-2 border-dashed border-gray-300 dark:border-gray-500 rounded-xl transition-all hover:border-gray-400 dark:hover:border-gray-400 cursor-pointer flex items-center justify-center">
@@ -276,7 +276,7 @@
                 </div>
 
                 <!-- Tableau -->
-                <div class="flex gap-2 sm:gap-6 justify-center overflow-x-auto" id="tableau">
+                <div class="flex gap-0.5 sm:gap-1 md:gap-2 lg:gap-4 justify-center px-0.5 sm:px-1 md:px-2 lg:px-4" id="tableau">
                     <!-- Tableau columns will be generated here -->
                 </div>
             </div>
@@ -1009,9 +1009,9 @@
                 
                 const tableauColumn = document.createElement('div');
                 tableauColumn.className = 'relative min-h-40 sm:min-h-60';
-                // Adjust min-width for mobile
+                // Adjust min-width for mobile to match card width exactly
                 if (window.innerWidth <= 480) {
-                    tableauColumn.style.minWidth = '70px';
+                    tableauColumn.style.minWidth = '54px';
                 } else if (window.innerWidth <= 768) {
                     tableauColumn.style.minWidth = '80px';
                 } else {
