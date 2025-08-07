@@ -289,6 +289,20 @@
         </div>
     </main>
 
+    <!-- Custom Modal -->
+    <div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm mx-4 shadow-2xl">
+            <div id="modalContent" class="text-center">
+                <div id="modalIcon" class="text-4xl mb-4"></div>
+                <h3 id="modalTitle" class="text-lg font-semibold text-gray-900 dark:text-white mb-3"></h3>
+                <p id="modalMessage" class="text-gray-600 dark:text-gray-300 mb-6"></p>
+                <div id="modalButtons" class="flex gap-3 justify-center">
+                    <!-- Buttons will be added dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Game state
         let gameState = null;
@@ -314,6 +328,49 @@
             clubs: 'text-gray-900 dark:text-white',
             spades: 'text-gray-900 dark:text-white'
         };
+
+        // Modal functions
+        function showModal({ title, message, icon, buttons }) {
+            const modal = document.getElementById('customModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalButtons = document.getElementById('modalButtons');
+
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalIcon.textContent = icon;
+            
+            // Clear existing buttons
+            modalButtons.innerHTML = '';
+            
+            // Add new buttons
+            buttons.forEach(button => {
+                const btn = document.createElement('button');
+                btn.textContent = button.text;
+                btn.className = `px-4 py-2 rounded-lg font-medium transition-colors ${button.primary ? 
+                    'bg-primary-600 hover:bg-primary-700 text-white' : 
+                    'bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-900 dark:text-white'}`;
+                btn.onclick = () => {
+                    hideModal();
+                    if (button.action) button.action();
+                };
+                modalButtons.appendChild(btn);
+            });
+            
+            modal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        // Click outside modal to close
+        document.getElementById('customModal').addEventListener('click', (e) => {
+            if (e.target.id === 'customModal') {
+                hideModal();
+            }
+        });
 
         // Card creation and game logic
         function createDeck() {
@@ -550,7 +607,15 @@
             if (foundationComplete) {
                 gameState.gameWon = true;
                 setTimeout(() => {
-                    alert('Congratulations! You won! 🎉\n\nFinal Score: ' + gameState.score + '\nMoves: ' + gameState.moves);
+                    showModal({
+                        title: 'Congratulations!',
+                        message: `You won! 🎉\n\nFinal Score: ${gameState.score}\nMoves: ${gameState.moves}`,
+                        icon: '🎉',
+                        buttons: [
+                            { text: 'New Game', primary: true, action: handleNewGame },
+                            { text: 'Close', primary: false }
+                        ]
+                    });
                 }, 500);
                 return;
             }
@@ -562,9 +627,27 @@
             
             if (allTableauFaceUp && gameState.stock.length === 0 && canAutoSolve()) {
                 setTimeout(() => {
-                    if (confirm('All cards are revealed! Would you like to auto-solve the remaining moves?')) {
-                        autoSolve();
-                    }
+                    showModal({
+                        title: 'Auto-Solve Available',
+                        message: 'All cards are revealed! Would you like to auto-solve the remaining moves?',
+                        icon: '🤖',
+                        buttons: [
+                            { text: 'Auto-Solve', primary: true, action: autoSolve },
+                            { text: 'Continue Playing', primary: false }
+                        ]
+                    });
+                }, 500);
+            } else if (!hasAvailableMoves()) {
+                setTimeout(() => {
+                    showModal({
+                        title: 'Game Over',
+                        message: 'No more moves available! 😞\n\nWould you like to start a new game?',
+                        icon: '😞',
+                        buttons: [
+                            { text: 'New Game', primary: true, action: handleNewGame },
+                            { text: 'Close', primary: false }
+                        ]
+                    });
                 }, 500);
             }
         }
@@ -574,6 +657,68 @@
             // This is a simplified check - we assume if all cards are face up, 
             // the remaining moves are deterministic foundation moves
             return gameState.tableau.some(column => column.length > 0) || gameState.waste.length > 0;
+        }
+
+        function hasAvailableMoves() {
+            if (gameState.gameWon) return false;
+            
+            // Check if we can draw from stock
+            if (gameState.stock.length > 0) {
+                return true;
+            }
+            
+            // Check all tableau cards for possible moves
+            for (let sourceCol = 0; sourceCol < gameState.tableau.length; sourceCol++) {
+                const sourceColumn = gameState.tableau[sourceCol];
+                
+                for (let cardIndex = 0; cardIndex < sourceColumn.length; cardIndex++) {
+                    const card = sourceColumn[cardIndex];
+                    
+                    // Skip face-down cards (can't move them)
+                    if (!card.faceUp) continue;
+                    
+                    // Check if card can move to foundation
+                    if (canPlaceOnFoundation(card, gameState.foundation[card.suit])) {
+                        return true;
+                    }
+                    
+                    // Check if card sequence can move to other tableau columns
+                    if (isValidSequence(sourceColumn, cardIndex)) {
+                        for (let targetCol = 0; targetCol < gameState.tableau.length; targetCol++) {
+                            if (targetCol === sourceCol) continue;
+                            
+                            const targetColumn = gameState.tableau[targetCol];
+                            const targetCard = targetColumn.length > 0 ? targetColumn[targetColumn.length - 1] : null;
+                            
+                            if (canPlaceOnTableau(card, targetCard)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Check waste pile for moves
+            if (gameState.waste.length > 0) {
+                const wasteCard = gameState.waste[0];
+                
+                // Check if waste card can move to foundation
+                if (canPlaceOnFoundation(wasteCard, gameState.foundation[wasteCard.suit])) {
+                    return true;
+                }
+                
+                // Check if waste card can move to tableau
+                for (let targetCol = 0; targetCol < gameState.tableau.length; targetCol++) {
+                    const targetColumn = gameState.tableau[targetCol];
+                    const targetCard = targetColumn.length > 0 ? targetColumn[targetColumn.length - 1] : null;
+                    
+                    if (canPlaceOnTableau(wasteCard, targetCard)) {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
         }
 
         async function autoSolve() {
