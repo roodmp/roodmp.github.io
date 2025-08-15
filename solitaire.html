@@ -348,9 +348,17 @@
             buttons.forEach(button => {
                 const btn = document.createElement('button');
                 btn.textContent = button.text;
-                btn.className = `px-4 py-2 rounded-lg font-medium transition-colors ${button.primary ? 
-                    'bg-primary-600 hover:bg-primary-700 text-white' : 
-                    'bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-900 dark:text-white'}`;
+                let buttonClasses = 'px-4 py-2 rounded-lg font-medium transition-colors ';
+                
+                if (button.primary) {
+                    buttonClasses += 'bg-primary-600 hover:bg-primary-700 text-white';
+                } else if (button.subtle) {
+                    buttonClasses += 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700';
+                } else {
+                    buttonClasses += 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-900 dark:text-white';
+                }
+                
+                btn.className = buttonClasses;
                 btn.onclick = () => {
                     hideModal();
                     if (button.action) button.action();
@@ -609,11 +617,11 @@
                 setTimeout(() => {
                     showModal({
                         title: 'Congratulations!',
-                        message: `You won! 🎉\n\nFinal Score: ${gameState.score}\nMoves: ${gameState.moves}`,
+                        message: `You won! 🎉\n\nMoves: ${gameState.moves}`,
                         icon: '🎉',
                         buttons: [
                             { text: 'New Game', primary: true, action: handleNewGame },
-                            { text: 'Close', primary: false }
+                            { text: 'Close', primary: false, subtle: true }
                         ]
                     });
                 }, 500);
