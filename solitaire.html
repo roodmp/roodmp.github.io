@@ -1086,6 +1086,10 @@
                 cardElement.addEventListener('dragstart', (e) => handleDragStart(e, 'waste', 0, 0));
                 cardElement.addEventListener('dragend', handleDragEnd);
                 cardElement.addEventListener('dblclick', () => handleCardDoubleClick('waste', 0, 0));
+                cardElement.addEventListener('contextmenu', (e) => {
+                    e.preventDefault(); // Prevent context menu
+                    handleCardDoubleClick('waste', 0, 0); // Use same logic as double-click
+                });
                 
                 // Touch support for mobile
                 cardElement.addEventListener('touchstart', (e) => {
@@ -1182,6 +1186,10 @@
                             cardElement.addEventListener('dragstart', (e) => handleDragStart(e, 'tableau', colIndex, cardIndex));
                             cardElement.addEventListener('dragend', handleDragEnd);
                             cardElement.addEventListener('dblclick', () => handleCardDoubleClick('tableau', colIndex, cardIndex));
+                            cardElement.addEventListener('contextmenu', (e) => {
+                                e.preventDefault(); // Prevent context menu
+                                handleCardDoubleClick('tableau', colIndex, cardIndex); // Use same logic as double-click
+                            });
                             
                             // Hover effects for showing stack
                             cardElement.addEventListener('mouseenter', () => {
@@ -1294,6 +1302,10 @@
                             cardElement.addEventListener('dragstart', (e) => handleDragStart(e, 'tableau', colIndex, cardIndex));
                             cardElement.addEventListener('dragend', handleDragEnd);
                             cardElement.addEventListener('dblclick', () => handleCardDoubleClick('tableau', colIndex, cardIndex));
+                            cardElement.addEventListener('contextmenu', (e) => {
+                                e.preventDefault(); // Prevent context menu
+                                handleCardDoubleClick('tableau', colIndex, cardIndex); // Use same logic as double-click
+                            });
                             
                             // Touch support for mobile
                             cardElement.addEventListener('touchstart', (e) => {
