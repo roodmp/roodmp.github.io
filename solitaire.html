@@ -196,6 +196,82 @@
             color: #FFFFFF;
             transform: scale(1.05);
         }
+
+        /* Enhanced mobile selection styles */
+        .selected-card-mobile {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            position: relative;
+        }
+
+        /* Pulse animation for mobile selection */
+        @keyframes mobile-selection-pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(251, 191, 36, 0);
+            }
+        }
+
+        .selected-card-mobile {
+            animation: mobile-selection-pulse 2s infinite;
+        }
+
+        /* Better touch targets for mobile */
+        @media (max-width: 768px) {
+            .card {
+                min-width: 44px;
+                min-height: 44px;
+            }
+            
+            /* Ensure buttons meet touch target guidelines */
+            #newGameBtn, #undoBtn {
+                min-width: 44px;
+                min-height: 44px;
+                padding: 12px 16px;
+            }
+            
+            /* Enhanced undo button for mobile thumb access */
+            #undoBtn {
+                border-radius: 12px;
+                background-color: rgb(55 65 81); /* gray-700 */
+                color: white;
+                border: 1px solid rgb(75 85 99); /* gray-600 */
+                transition: all 0.2s ease;
+            }
+            
+            #undoBtn:hover {
+                background-color: rgb(75 85 99); /* gray-600 */
+                transform: scale(1.05);
+            }
+            
+            /* Position buttons better for thumb access */
+            .game-controls {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                display: flex;
+                gap: 12px;
+                z-index: 40;
+            }
+            
+            .game-controls button {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            
+            /* Make stock and waste piles larger for easier tapping */
+            #stockPile, #wastePile {
+                min-width: 44px;
+                min-height: 44px;
+            }
+            
+            /* Foundation piles touch targets */
+            #foundations .card {
+                min-width: 44px;
+                min-height: 44px;
+            }
+        }
     </style>
 </head>
 
@@ -235,16 +311,29 @@
             <!-- Header -->
             <div class="flex justify-between items-center mb-4 sm:mb-8 gap-3">
                 <h1 class="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-text-primary">Solitaire</h1>
-                <div class="flex gap-2 sm:gap-3">
-                    <button id="undoBtn" class="hidden p-3 text-gray-600 dark:text-gray-400 rounded-xl font-medium transition-colors hover:text-gray-900 dark:hover:text-white" title="Undo last move">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <!-- Desktop controls -->
+                <div class="hidden md:flex gap-2 sm:gap-3" role="group" aria-label="Game controls">
+                    <button id="undoBtnDesktop" class="hidden p-3 text-gray-600 dark:text-gray-400 rounded-xl font-medium transition-colors hover:text-gray-900 dark:hover:text-white" title="Undo last move" aria-label="Undo last move">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
                         </svg>
                     </button>
-                    <button id="newGameBtn" class="px-3 py-2 sm:px-4 sm:py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-xl font-medium transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 text-sm sm:text-base">
+                    <button id="newGameBtnDesktop" class="px-3 py-2 sm:px-4 sm:py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-xl font-medium transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 text-sm sm:text-base" aria-label="Start a new game">
                         New Game
                     </button>
                 </div>
+            </div>
+            
+            <!-- Mobile controls - positioned for thumb access -->
+            <div class="md:hidden game-controls" role="group" aria-label="Game controls">
+                <button id="undoBtn" class="hidden p-3 text-white rounded-xl font-medium transition-all" title="Undo last move" aria-label="Undo last move">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                    </svg>
+                </button>
+                <button id="newGameBtn" class="px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-xl font-medium transition-all text-sm" aria-label="Start a new game">
+                    New Game
+                </button>
             </div>
 
             <!-- Loading state -->
@@ -256,25 +345,25 @@
             </div>
 
             <!-- Game board -->
-            <div id="gameBoard" class="hidden">
+            <div id="gameBoard" class="hidden" role="application" aria-label="Solitaire game board">
                 <!-- Top row - Foundations, Stock, and Waste -->
                 <div class="flex justify-between items-start mb-1 sm:mb-6 overflow-x-auto">
                     <!-- Foundations -->
-                    <div class="flex gap-1 sm:gap-2 md:gap-4 flex-shrink-0" id="foundations">
+                    <div class="flex gap-1 sm:gap-2 md:gap-4 flex-shrink-0" id="foundations" role="group" aria-label="Foundation piles - build up from Ace to King by suit">
                         <!-- Foundation piles will be generated here -->
                     </div>
 
-                    <div class="flex gap-1 sm:gap-2 md:gap-4 flex-shrink-0 ml-1">
+                    <div class="flex gap-1 sm:gap-2 md:gap-4 flex-shrink-0 ml-1" role="group" aria-label="Stock and waste piles">
                         <!-- Waste (discard) -->
                         <div class="flex flex-col items-center">
-                            <div id="wastePile" class="card border-2 border-dashed border-gray-300 dark:border-gray-500 rounded-xl transition-all hover:border-gray-400 dark:hover:border-gray-400 cursor-pointer flex items-center justify-center">
+                            <div id="wastePile" class="card border-2 border-dashed border-gray-300 dark:border-gray-500 rounded-xl transition-all hover:border-gray-400 dark:hover:border-gray-400 cursor-pointer flex items-center justify-center" role="button" aria-label="Waste pile - top card available for play" tabindex="0">
                                 <!-- Waste cards will be rendered here -->
                             </div>
                         </div>
 
                         <!-- Stock (new cards) -->
                         <div class="flex flex-col items-center">
-                            <div id="stockPile" class="card border-2 border-dashed border-gray-300 dark:border-gray-500 rounded-xl transition-all hover:border-gray-400 dark:hover:border-gray-400 cursor-pointer hover:shadow-lg transition-shadow flex items-center justify-center">
+                            <div id="stockPile" class="card border-2 border-dashed border-gray-300 dark:border-gray-500 rounded-xl transition-all hover:border-gray-400 dark:hover:border-gray-400 cursor-pointer hover:shadow-lg transition-shadow flex items-center justify-center" role="button" aria-label="Stock pile - click to draw new cards" tabindex="0">
                                 <!-- Stock cards will be rendered here -->
                             </div>
                         </div>
@@ -282,7 +371,7 @@
                 </div>
 
                 <!-- Tableau -->
-                <div class="flex gap-0.5 sm:gap-1 md:gap-2 lg:gap-4 justify-center px-0.5 sm:px-1 md:px-2 lg:px-4" id="tableau">
+                <div class="flex gap-0.5 sm:gap-1 md:gap-2 lg:gap-4 justify-center px-0.5 sm:px-1 md:px-2 lg:px-4" id="tableau" role="group" aria-label="Tableau - main playing area with 7 columns">
                     <!-- Tableau columns will be generated here -->
                 </div>
             </div>
@@ -328,6 +417,114 @@
             clubs: 'text-gray-900 dark:text-white',
             spades: 'text-gray-900 dark:text-white'
         };
+
+        // Haptic feedback utility
+        function triggerHapticFeedback(type = 'light') {
+            if ('vibrate' in navigator) {
+                switch (type) {
+                    case 'light':
+                        navigator.vibrate(50); // Quick tap for card moves
+                        break;
+                    case 'medium':
+                        navigator.vibrate(100); // Foundation moves
+                        break;
+                    case 'success':
+                        navigator.vibrate([100, 50, 100]); // Win condition
+                        break;
+                    case 'error':
+                        navigator.vibrate([200, 100, 200]); // Invalid moves
+                        break;
+                }
+            }
+        }
+
+        // Game state persistence
+        const STORAGE_KEY = 'solitaire_game_state';
+        const STORAGE_VERSION = '1.0';
+
+        function saveGameState() {
+            if (!gameState) return;
+            
+            const gameData = {
+                version: STORAGE_VERSION,
+                timestamp: Date.now(),
+                state: gameState,
+                previousState: previousGameState
+            };
+            
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(gameData));
+            } catch (error) {
+                console.warn('Failed to save game state:', error);
+            }
+        }
+
+        function loadGameState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (!saved) return null;
+                
+                const gameData = JSON.parse(saved);
+                
+                // Check version compatibility
+                if (gameData.version !== STORAGE_VERSION) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    return null;
+                }
+                
+                // Check if save is less than 24 hours old
+                const hoursSinceLastPlay = (Date.now() - gameData.timestamp) / (1000 * 60 * 60);
+                if (hoursSinceLastPlay > 24) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    return null;
+                }
+                
+                return gameData;
+            } catch (error) {
+                console.warn('Failed to load game state:', error);
+                localStorage.removeItem(STORAGE_KEY);
+                return null;
+            }
+        }
+
+        function clearSavedGame() {
+            localStorage.removeItem(STORAGE_KEY);
+        }
+
+        // Swipe gesture handling for mobile
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+        let swipeTarget = null;
+
+        function handleTouchStart(e, target) {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+            swipeTarget = target;
+        }
+
+        function handleTouchEnd(e) {
+            if (!swipeTarget) return;
+            
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            const minSwipeDistance = 50;
+            
+            // Check if it's a horizontal swipe and not vertical
+            if (Math.abs(deltaX) > minSwipeDistance && Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (swipeTarget === 'stock') {
+                    // Swipe left or right on stock pile to draw cards
+                    handleStockClick();
+                    triggerHapticFeedback('light');
+                }
+            }
+            
+            swipeTarget = null;
+        }
 
         // Modal functions
         function showModal({ title, message, icon, buttons }) {
@@ -546,12 +743,15 @@
         }
 
         // Card rendering
-        function createCardElement(card, extraClasses = '') {
+        function createCardElement(card, extraClasses = '', cardContext = '') {
             const cardElement = document.createElement('div');
             cardElement.className = `card rounded-xl cursor-pointer transition-all shadow-sm ${extraClasses}`;
             
             if (!card) {
                 cardElement.className += ' border-2 border-dashed border-gray-300 dark:border-gray-500 hover:border-gray-400 dark:hover:border-gray-400';
+                cardElement.setAttribute('role', 'button');
+                cardElement.setAttribute('aria-label', `Empty ${cardContext} pile`);
+                cardElement.setAttribute('tabindex', '0');
                 return cardElement;
             }
             
@@ -559,6 +759,7 @@
             
             if (!card.faceUp) {
                 cardElement.className += ' bg-gray-800 dark:bg-gray-900 border-2 border-blue-600 dark:border-blue-400';
+                cardElement.setAttribute('aria-label', 'Face down card');
                 
                 // Responsive back card design
                 const backSize = window.innerWidth <= 480 ? 'w-10 h-14' : window.innerWidth <= 768 ? 'w-12 h-16' : 'w-16 h-22';
@@ -573,6 +774,13 @@
             
             cardElement.className += ' bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500';
             cardElement.draggable = true;
+            
+            // Add ARIA labels for face-up cards
+            const suitName = card.suit.charAt(0).toUpperCase() + card.suit.slice(1);
+            const cardName = `${card.rank} of ${suitName}`;
+            cardElement.setAttribute('role', 'button');
+            cardElement.setAttribute('aria-label', `${cardName}${cardContext ? ` in ${cardContext}` : ''}`);
+            cardElement.setAttribute('tabindex', '0');
             
             // Mobile responsive text sizes
             const rankSize = window.innerWidth <= 480 ? 'text-sm' : window.innerWidth <= 768 ? 'text-lg' : 'text-2xl';
@@ -602,6 +810,7 @@
                 previousGameState = JSON.parse(JSON.stringify(gameState));
             }
             gameState = newState;
+            saveGameState(); // Auto-save after each move
             updateUndoButton();
             checkForWin();
         }
@@ -614,13 +823,14 @@
             
             if (foundationComplete) {
                 gameState.gameWon = true;
+                triggerHapticFeedback('success'); // Haptic feedback for win
                 setTimeout(() => {
                     showModal({
                         title: 'Congratulations!',
                         message: `You won! 🎉\n\nMoves: ${gameState.moves}`,
                         icon: '🎉',
                         buttons: [
-                            { text: 'New Game', primary: true, action: handleNewGame },
+                            { text: 'New Game', primary: true, action: startNewGame },
                             { text: 'Close', primary: false, subtle: true }
                         ]
                     });
@@ -652,7 +862,7 @@
                         message: 'No more moves available! 😞\n\nWould you like to start a new game?',
                         icon: '😞',
                         buttons: [
-                            { text: 'New Game', primary: true, action: handleNewGame },
+                            { text: 'New Game', primary: true, action: startNewGame },
                             { text: 'Close', primary: false }
                         ]
                     });
@@ -780,10 +990,14 @@
 
         function updateUndoButton() {
             const undoBtn = document.getElementById('undoBtn');
+            const undoBtnDesktop = document.getElementById('undoBtnDesktop');
+            
             if (previousGameState) {
                 undoBtn.classList.remove('hidden');
+                undoBtnDesktop?.classList.remove('hidden');
             } else {
                 undoBtn.classList.add('hidden');
+                undoBtnDesktop?.classList.add('hidden');
             }
         }
 
@@ -828,6 +1042,9 @@
             newState.moves += 1;
             newState.score += 10;
             
+            // Haptic feedback for foundation moves
+            triggerHapticFeedback('medium');
+            
             return newState;
         }
 
@@ -871,6 +1088,9 @@
             
             newState.moves += 1;
             newState.score += 5;
+            
+            // Haptic feedback for tableau moves
+            triggerHapticFeedback('light');
             
             return newState;
         }
@@ -934,8 +1154,27 @@
         }
 
         function handleNewGame() {
+            // Show confirmation on mobile to prevent accidental resets
+            if (window.innerWidth <= 768 && gameState && gameState.moves > 0) {
+                showModal({
+                    title: 'New Game',
+                    message: 'Are you sure you want to start a new game? Your current progress will be lost.',
+                    icon: '🆕',
+                    buttons: [
+                        { text: 'Start New Game', primary: true, action: startNewGame },
+                        { text: 'Cancel', primary: false }
+                    ]
+                });
+            } else {
+                startNewGame();
+            }
+        }
+
+        function startNewGame() {
             gameState = initializeGame();
             previousGameState = null;
+            clearSavedGame(); // Clear any saved state when starting new
+            saveGameState(); // Save the new game state
             updateUndoButton();
             renderGame();
         }
@@ -1007,14 +1246,14 @@
         function updateSelectedCardVisuals() {
             // Remove previous selection styles
             document.querySelectorAll('.card').forEach(card => {
-                card.classList.remove('ring-2', 'ring-blue-500', 'ring-primary-500');
+                card.classList.remove('ring-2', 'ring-4', 'ring-blue-500', 'ring-primary-500', 'ring-yellow-400', 'shadow-lg', 'shadow-yellow-400/50', 'scale-105', 'selected-card-mobile');
             });
             
             if (selectedCard) {
                 let targetElement = null;
                 
                 if (selectedCard.sourceType === 'waste') {
-                    targetElement = document.getElementById('wastePile');
+                    targetElement = document.getElementById('wastePile').querySelector('.card') || document.getElementById('wastePile');
                 } else if (selectedCard.sourceType === 'tableau') {
                     const tableauContainer = document.getElementById('tableau');
                     const columnDiv = tableauContainer.children[selectedCard.sourceIndex];
@@ -1025,7 +1264,14 @@
                 }
                 
                 if (targetElement) {
-                    targetElement.classList.add('ring-2', 'ring-primary-500');
+                    // Enhanced mobile-friendly selection styling
+                    if (window.innerWidth <= 768) {
+                        // Mobile: larger, more visible selection with animation
+                        targetElement.classList.add('ring-4', 'ring-yellow-400', 'shadow-lg', 'shadow-yellow-400/50', 'scale-105', 'selected-card-mobile');
+                    } else {
+                        // Desktop: subtle ring
+                        targetElement.classList.add('ring-2', 'ring-primary-500');
+                    }
                 }
             }
         }
@@ -1039,7 +1285,7 @@
                 foundationDiv.className = 'flex flex-col items-center';
                 
                 const topCard = cards.length > 0 ? cards[cards.length - 1] : null;
-                const cardElement = createCardElement(topCard);
+                const cardElement = createCardElement(topCard, '', `${suit} foundation`);
                 
                 // Add pulse animation if this foundation is pulsing
                 if (pulsingCard?.type === 'foundation' && pulsingCard?.target === suit) {
@@ -1088,7 +1334,7 @@
             
             if (gameState.waste.length > 0) {
                 const topCard = gameState.waste[0];
-                const cardElement = createCardElement(topCard);
+                const cardElement = createCardElement(topCard, '', 'waste pile');
                 
                 // Set up event listeners on the card element
                 cardElement.addEventListener('dragstart', (e) => handleDragStart(e, 'waste', 0, 0));
@@ -1149,6 +1395,10 @@
             }
             
             stockContainer.addEventListener('click', handleStockClick);
+            
+            // Add swipe gesture support for mobile
+            stockContainer.addEventListener('touchstart', (e) => handleTouchStart(e, 'stock'));
+            stockContainer.addEventListener('touchend', handleTouchEnd);
         }
 
         function renderTableau() {
@@ -1165,7 +1415,7 @@
                 tableauColumn.addEventListener('drop', (e) => handleDropOnTableau(e, colIndex));
                 
                 if (column.length === 0) {
-                    const emptyCard = createCardElement(null);
+                    const emptyCard = createCardElement(null, '', `tableau column ${colIndex + 1}`);
                     tableauColumn.appendChild(emptyCard);
                 } else {
                     column.forEach((card, cardIndex) => {
@@ -1181,7 +1431,7 @@
                         cardWrapper.style.top = `${topOffset}px`;
                         cardWrapper.style.left = '0px';
                         
-                        const cardElement = createCardElement(card);
+                        const cardElement = createCardElement(card, '', `tableau column ${colIndex + 1}`);
                         
                         // Add pulse animation if this card is pulsing
                         if (pulsingCard?.type === 'tableau' && 
@@ -1281,7 +1531,7 @@
                 tableauColumn.addEventListener('drop', (e) => handleDropOnTableau(e, colIndex));
                 
                 if (column.length === 0) {
-                    const emptyCard = createCardElement(null);
+                    const emptyCard = createCardElement(null, '', `tableau column ${colIndex + 1}`);
                     tableauColumn.appendChild(emptyCard);
                 } else {
                     column.forEach((card, cardIndex) => {
@@ -1297,7 +1547,7 @@
                         cardWrapper.style.top = `${topOffset}px`;
                         cardWrapper.style.left = '0px';
                         
-                        const cardElement = createCardElement(card);
+                        const cardElement = createCardElement(card, '', `tableau column ${colIndex + 1}`);
                         
                         // Add pulse animation if this card is pulsing
                         if (pulsingCard?.type === 'tableau' && 
@@ -1403,9 +1653,16 @@
 
         // Initialize game
         document.addEventListener('DOMContentLoaded', () => {
-            // Event listeners
+            // Event listeners for both mobile and desktop buttons
             document.getElementById('newGameBtn').addEventListener('click', handleNewGame);
             document.getElementById('undoBtn').addEventListener('click', handleUndo);
+            
+            // Desktop button listeners
+            const newGameBtnDesktop = document.getElementById('newGameBtnDesktop');
+            const undoBtnDesktop = document.getElementById('undoBtnDesktop');
+            
+            if (newGameBtnDesktop) newGameBtnDesktop.addEventListener('click', handleNewGame);
+            if (undoBtnDesktop) undoBtnDesktop.addEventListener('click', handleUndo);
             
             // Handle window resize for responsive spacing
             window.addEventListener('resize', () => {
@@ -1414,9 +1671,36 @@
                 }
             });
             
-            // Start game
+            // Start game - try to load saved state first
             setTimeout(() => {
-                gameState = initializeGame();
+                const savedGame = loadGameState();
+                
+                if (savedGame && savedGame.state) {
+                    // Restore saved game
+                    gameState = savedGame.state;
+                    previousGameState = savedGame.previousState;
+                    updateUndoButton();
+                    
+                    // Show restore notification on mobile
+                    if (window.innerWidth <= 768) {
+                        setTimeout(() => {
+                            showModal({
+                                title: 'Game Restored',
+                                message: 'Your previous game has been restored. Continue playing or start a new game.',
+                                icon: '🔄',
+                                buttons: [
+                                    { text: 'Continue', primary: true },
+                                    { text: 'New Game', primary: false, action: startNewGame }
+                                ]
+                            });
+                        }, 500);
+                    }
+                } else {
+                    // Start new game
+                    gameState = initializeGame();
+                    saveGameState();
+                }
+                
                 renderGame();
             }, 1000);
         });
