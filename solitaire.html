@@ -855,11 +855,11 @@
                         ]
                     });
                 }, 500);
-            } else if (!hasAvailableMoves()) {
+            } else if (isGameUnwinnable()) {
                 setTimeout(() => {
                     showModal({
-                        title: 'Game Over',
-                        message: 'No more moves available! 😞\n\nWould you like to start a new game?',
+                        title: 'Game Unwinnable',
+                        message: 'This game cannot be won with the current card arrangement! 😞\n\nWould you like to start a new game?',
                         icon: '😞',
                         buttons: [
                             { text: 'New Game', primary: true, action: startNewGame },
@@ -939,6 +939,136 @@
             return false;
         }
 
+        function isGameUnwinnable() {
+            if (gameState.gameWon) return false;
+            
+            // If there are still cards in stock or any immediate moves available, game is not unwinnable
+            if (hasAvailableMoves()) return false;
+            
+            // Advanced unwinnable detection
+            return (
+                hasUnreachableCards() ||
+                hasBlockedFoundationCards() ||
+                hasImpossibleSequences()
+            );
+        }
+
+        function hasUnreachableCards() {
+            // Check if there are face-down cards that can never be revealed
+            for (let colIndex = 0; colIndex < gameState.tableau.length; colIndex++) {
+                const column = gameState.tableau[colIndex];
+                
+                // Find first face-down card
+                let firstFaceDownIndex = -1;
+                for (let i = 0; i < column.length; i++) {
+                    if (!column[i].faceUp) {
+                        firstFaceDownIndex = i;
+                        break;
+                    }
+                }
+                
+                if (firstFaceDownIndex !== -1) {
+                    // Check if all face-up cards above this can be moved elsewhere
+                    const faceUpCards = column.slice(firstFaceDownIndex + 1);
+                    if (faceUpCards.length > 0 && !canMoveSequenceAnywhere(faceUpCards, colIndex)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function hasBlockedFoundationCards() {
+            // Check if required foundation cards are blocked by higher cards in tableau
+            for (const suit of suits) {
+                const foundation = gameState.foundation[suit];
+                const nextNeededRank = foundation.length + 1; // Next rank needed (1=A, 2=2, etc.)
+                
+                if (nextNeededRank > 13) continue; // Foundation complete
+                
+                // Check if the needed card is buried under higher cards in tableau
+                for (let colIndex = 0; colIndex < gameState.tableau.length; colIndex++) {
+                    const column = gameState.tableau[colIndex];
+                    
+                    for (let cardIndex = 0; cardIndex < column.length - 1; cardIndex++) {
+                        const card = column[cardIndex];
+                        
+                        // If we found the needed card but it's not on top
+                        if (card.suit === suit && getRankValue(card.rank) === nextNeededRank) {
+                            // Check if any card above it blocks its removal
+                            const cardsAbove = column.slice(cardIndex + 1);
+                            if (cardsAbove.some(c => c.faceUp && getRankValue(c.rank) < nextNeededRank)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        function hasImpossibleSequences() {
+            // Check for sequences that can never be built due to missing intermediate cards
+            const allVisibleCards = [];
+            
+            // Collect all visible cards
+            gameState.tableau.forEach(column => {
+                column.forEach(card => {
+                    if (card.faceUp) allVisibleCards.push(card);
+                });
+            });
+            
+            if (gameState.waste.length > 0) {
+                allVisibleCards.push(gameState.waste[0]);
+            }
+            
+            // Check each suit for missing critical sequences
+            for (const suit of suits) {
+                const suitCards = allVisibleCards.filter(c => c.suit === suit);
+                const foundation = gameState.foundation[suit];
+                const foundationTop = foundation.length; // 0-based, so next needed is foundationTop + 1
+                
+                // If we need a specific rank for foundation but there's a gap
+                for (let rank = foundationTop + 1; rank <= 13; rank++) {
+                    const hasRank = suitCards.some(c => getRankValue(c.rank) === rank);
+                    if (!hasRank) {
+                        // Missing card - check if it could be in stock/waste cycle
+                        const cardsInStockWaste = gameState.stock.length + gameState.waste.length;
+                        if (cardsInStockWaste === 0) {
+                            return true; // Missing card and no hidden cards to reveal it
+                        }
+                    }
+                }
+            }
+            
+            return false;
+        }
+
+        function canMoveSequenceAnywhere(cards, excludeColumnIndex) {
+            if (cards.length === 0) return false;
+            
+            const firstCard = cards[0];
+            
+            // Check if sequence can move to any tableau column
+            for (let colIndex = 0; colIndex < gameState.tableau.length; colIndex++) {
+                if (colIndex === excludeColumnIndex) continue;
+                
+                const targetColumn = gameState.tableau[colIndex];
+                const targetCard = targetColumn.length > 0 ? targetColumn[targetColumn.length - 1] : null;
+                
+                if (canPlaceOnTableau(firstCard, targetCard)) {
+                    return true;
+                }
+            }
+            
+            // Check if first card can go to foundation (only single cards to foundation)
+            if (cards.length === 1 && canPlaceOnFoundation(firstCard, gameState.foundation[firstCard.suit])) {
+                return true;
+            }
+            
+            return false;
+        }
+
         async function autoSolve() {
             let moved = true;
             let attempts = 0;
@@ -980,7 +1110,7 @@
                 
                 // Add a small delay to show the moves
                 if (moved) {
-                    await new Promise(resolve => setTimeout(resolve, 200));
+                    await new Promise(resolve => setTimeout(resolve, 100));
                 }
             }
             
