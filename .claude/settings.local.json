@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npm run dev:*)",
       "Bash(npx serve:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "WebFetch(domain:en.wikipedia.org)"
     ],
     "defaultMode": "acceptEdits"
   }

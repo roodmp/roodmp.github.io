@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Klotski Puzzle - Mark Rood</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.png" />
+    
+    <!-- Critical CSS and page transitions - loaded first to prevent flash -->
+    <script src="../scripts/critical-styles.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital,wght@0,400;1,400&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="../scripts/shared-config.js"></script>
+    <script src="../scripts/shared-nav.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#EBF4FF',
+                            100: '#D1E7FF',
+                            200: '#A6D0FF',
+                            300: '#7AB8FF',
+                            400: '#4F9FFF',
+                            500: '#2563EB',
+                            600: '#1E40AF',
+                            700: '#1E3A8A',
+                            800: '#1E2A69',
+                            900: '#1A1F37'
+                        },
+                        ai: {
+                            cyan: '#06B6D4',
+                            purple: '#8B5CF6',
+                            blue: '#3B82F6',
+                            indigo: '#6366F1',
+                            violet: '#7C3AED'
+                        },
+                        surface: {
+                            primary: '#0F0F0F',
+                            secondary: '#1A1A1A',
+                            tertiary: '#262626',
+                            border: '#404040'
+                        },
+                        text: {
+                            primary: '#FFFFFF',
+                            secondary: '#E2E8F0',
+                            tertiary: '#CBD5E1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes single-pulse-glow {
+            0%, 100% {
+                border-color: rgb(156 163 175);
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+            }
+            50% {
+                border-color: rgb(59 130 246);
+                box-shadow: 0 0 8px 2px rgba(59, 130, 246, 0.4);
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            @keyframes single-pulse-glow {
+                0%, 100% {
+                    border-color: rgb(75 85 99);
+                    box-shadow: 0 0 0 0 rgba(147, 197, 253, 0);
+                }
+                50% {
+                    border-color: rgb(147 197, 253);
+                    box-shadow: 0 0 8px 2px rgba(147, 197, 253, 0.4);
+                }
+            }
+        }
+
+        .animate-single-pulse-glow {
+            animation: single-pulse-glow 2.5s ease-in-out;
+        }
+
+        /* Game board grid - responsive to viewport */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 4px;
+            width: 100%;
+            max-width: min(400px, 85vw);
+            aspect-ratio: 4/5;
+            background-color: rgb(38 38 38); /* surface-tertiary */
+            border-radius: 16px;
+            padding: 16px;
+            border: 2px solid rgb(64 64 64); /* surface-border */
+        }
+
+        @media (max-width: 768px) {
+            .game-grid {
+                max-width: min(320px, 90vw);
+                padding: 12px;
+                gap: 3px;
+                border-radius: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-grid {
+                max-width: min(280px, 95vw);
+                padding: 8px;
+                gap: 2px;
+                border-radius: 8px;
+            }
+        }
+
+        @media (max-height: 700px) {
+            .game-grid {
+                max-width: min(300px, 85vw);
+                padding: 10px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .game-grid {
+                max-width: min(250px, 90vw);
+                padding: 8px;
+                gap: 2px;
+            }
+        }
+
+        /* Block styles */
+        .block {
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            border: 2px solid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .block {
+                border-radius: 8px;
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .block {
+                border-radius: 6px;
+                font-size: 0.625rem;
+            }
+        }
+
+        /* Hero block (2x2) - Main piece, distinctive but simple */
+        .block-hero {
+            grid-column: span 2;
+            grid-row: span 2;
+            background: white;
+            border: 2px solid #ef4444; /* red-500 for prominence */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .block-hero {
+            background: rgb(31 41 55); /* gray-800 */
+            border-color: #f87171; /* red-400 */
+        }
+
+        .block-hero:hover {
+            transform: scale(1.02);
+            border-color: #dc2626; /* red-600 */
+        }
+
+        .dark .block-hero:hover {
+            border-color: #ef4444; /* red-500 */
+        }
+
+        /* General blocks horizontal (1x2) - Standard pieces */
+        .block-general-h {
+            grid-column: span 2;
+            grid-row: span 1;
+            background: white;
+            border: 1px solid rgb(209 213 219); /* gray-300 */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .block-general-h {
+            background: rgb(31 41 55); /* gray-800 */
+            border-color: rgb(75 85 99); /* gray-600 */
+        }
+
+        /* General blocks vertical (2x1) - Standard pieces */
+        .block-general-v {
+            grid-column: span 1;
+            grid-row: span 2;
+            background: white;
+            border: 1px solid rgb(209 213 219); /* gray-300 */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark .block-general-v {
+            background: rgb(31 41 55); /* gray-800 */
+            border-color: rgb(75 85 99); /* gray-600 */
+        }
+
+        .block-general-h:hover,
+        .block-general-v:hover {
+            transform: scale(1.05);
+            border-color: rgb(156 163 175); /* gray-400 */
+        }
+
+        .dark .block-general-h:hover,
+        .dark .block-general-v:hover {
+            border-color: rgb(107 114 128); /* gray-500 */
+        }
+
+        /* Soldier blocks (1x1) - Small pieces */
+        .block-soldier {
+            grid-column: span 1;
+            grid-row: span 1;
+            background: white;
+            border: 1px solid rgb(209 213 219); /* gray-300 */
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .block-soldier {
+            background: rgb(31 41 55); /* gray-800 */
+            border-color: rgb(75 85 99); /* gray-600 */
+        }
+
+        .block-soldier:hover {
+            transform: scale(1.08);
+            border-color: rgb(156 163 175); /* gray-400 */
+        }
+
+        .dark .block-soldier:hover {
+            border-color: rgb(107 114 128); /* gray-500 */
+        }
+
+        /* Empty cell styling */
+        .empty-cell {
+            border: 2px dashed rgb(75 85 99);
+            border-radius: 8px;
+            background-color: rgba(55, 65, 81, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .empty-cell.drop-target {
+            border-color: rgb(59 130 246);
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        /* Exit area highlighting */
+        .exit-area {
+            background-color: rgba(34, 197, 94, 0.2) !important;
+            border-color: rgb(34, 197, 94) !important;
+            position: relative;
+        }
+
+        .exit-area::after {
+            content: '⬇';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgb(34, 197, 94);
+            font-size: 1.5rem;
+            text-shadow: 0 0 4px rgba(34, 197, 94, 0.5);
+        }
+
+        /* Block dragging states */
+        .block-dragging {
+            transform: scale(1.05) rotate(2deg);
+            z-index: 50;
+            opacity: 0.9;
+        }
+
+        .block-selected {
+            ring: 2px;
+            ring-color: rgb(251, 191, 36);
+            transform: scale(1.05);
+        }
+
+        /* Mobile selection animation */
+        @keyframes mobile-selection-pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(251, 191, 36, 0);
+            }
+        }
+
+        .block-selected-mobile {
+            animation: mobile-selection-pulse 2s infinite;
+        }
+
+        .floating-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.8), transparent);
+            border-radius: 50%;
+            animation: particle-float 12s linear infinite;
+        }
+        
+        .floating-particle:nth-child(odd) {
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.8), transparent);
+            animation-duration: 15s;
+        }
+        
+        @keyframes particle-float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-30px) rotate(120deg); }
+            66% { transform: translateY(15px) rotate(240deg); }
+        }
+
+        .theme-logo {
+            transition: all 0.3s ease;
+            filter: invert(1) brightness(1.2) drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+        }
+
+        .theme-logo:hover {
+            transform: scale(1.05);
+            filter: invert(1) brightness(1.3) drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+        }
+
+        .nav-link {
+            color: #E2E8F0;
+            transition: all 0.2s ease;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+
+        .nav-link:hover {
+            color: #FFFFFF;
+            transform: scale(1.05);
+        }
+
+        /* Mobile game controls */
+        @media (max-width: 768px) {
+            .game-controls {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                display: flex;
+                gap: 12px;
+                z-index: 40;
+            }
+            
+            .game-controls button {
+                min-width: 44px;
+                min-height: 44px;
+                padding: 12px 16px;
+                border-radius: 12px;
+                background-color: rgb(55 65 81);
+                color: white;
+                border: 1px solid rgb(75 85 99);
+                transition: all 0.2s ease;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            
+            .game-controls button:hover {
+                background-color: rgb(75 85 99);
+                transform: scale(1.05);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-surface-primary min-h-screen font-['Inter',system-ui,sans-serif] antialiased overflow-x-hidden">
+    <!-- Floating particles background -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden">
+        <div class="floating-particle" style="left: 10%; top: 20%; animation-delay: 0s;"></div>
+        <div class="floating-particle" style="left: 80%; top: 10%; animation-delay: -3s;"></div>
+        <div class="floating-particle" style="left: 60%; top: 70%; animation-delay: -6s;"></div>
+        <div class="floating-particle" style="left: 20%; top: 80%; animation-delay: -9s;"></div>
+        <div class="floating-particle" style="left: 90%; top: 60%; animation-delay: -12s;"></div>
+        <div class="floating-particle" style="left: 30%; top: 30%; animation-delay: -15s;"></div>
+        <div class="floating-particle" style="left: 70%; top: 40%; animation-delay: -18s;"></div>
+    </div>
+
+    <header class="fixed top-4 sm:top-6 left-0 right-0 z-50 px-2 sm:px-4" role="banner">
+        <nav class="bg-surface-secondary/95 backdrop-blur-md rounded-full shadow-lg hover:shadow-xl transition-all duration-300 max-w-fit mx-auto border border-surface-border/50" role="navigation" aria-label="Main navigation">
+            <div class="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2">
+                <!-- Logo -->
+                <a href="../about.html" class="flex-shrink-0" aria-label="Home - Mark Rood Portfolio">
+                    <img src="../favicon.png" alt="Mark Rood Logo" class="h-7 w-auto theme-logo" />
+                </a>
+
+                <!-- Middle navigation links -->
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <a href="../about.html" class="nav-link" aria-label="About page">About</a>
+                    <a href="../index.html" class="nav-link" aria-label="Resume page">Resumé</a>
+                    <a href="../resources.html" class="nav-link" aria-label="Resources page">Resources</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="h-20 sm:h-24"></div>
+    <main class="py-1 sm:py-2 md:py-4" role="main">
+        <div class="max-w-7xl mx-auto px-2 sm:px-4">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-3 sm:mb-6 gap-3">
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-text-primary">Klotski Puzzle</h1>
+                
+                <!-- Desktop controls -->
+                <div class="hidden md:flex gap-2 sm:gap-3" role="group" aria-label="Game controls">
+                    <button id="undoBtnDesktop" class="hidden p-3 text-gray-600 dark:text-gray-400 rounded-xl font-medium transition-colors hover:text-gray-900 dark:hover:text-white" title="Undo last move" aria-label="Undo last move">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                        </svg>
+                    </button>
+                    <button id="resetBtnDesktop" class="px-3 py-2 sm:px-4 sm:py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-xl font-medium transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 text-sm sm:text-base" aria-label="Reset puzzle">
+                        Reset
+                    </button>
+                    <button id="newPuzzleBtnDesktop" class="px-3 py-2 sm:px-4 sm:py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-medium transition-colors text-sm sm:text-base" aria-label="New puzzle">
+                        New Puzzle
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile controls - positioned for thumb access -->
+            <div class="md:hidden game-controls" role="group" aria-label="Game controls">
+                <button id="undoBtn" class="hidden text-white rounded-xl font-medium transition-all" title="Undo last move" aria-label="Undo last move">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                    </svg>
+                </button>
+                <button id="resetBtn" class="text-white rounded-xl font-medium transition-all text-sm" aria-label="Reset puzzle">
+                    Reset
+                </button>
+                <button id="newPuzzleBtn" class="bg-primary-600 text-white rounded-xl font-medium transition-all text-sm" aria-label="New puzzle">
+                    New
+                </button>
+            </div>
+
+            <!-- Game stats - Mobile only -->
+            <div class="md:hidden flex justify-center gap-6 mb-4">
+                <div class="text-center">
+                    <div class="text-xl font-bold text-text-primary" id="moveCounterMobile">0</div>
+                    <div class="text-xs text-text-secondary">Moves</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-xl font-bold text-text-primary" id="timerMobile">00:00</div>
+                    <div class="text-xs text-text-secondary">Time</div>
+                </div>
+            </div>
+
+            <!-- Loading state -->
+            <div id="loading" class="flex items-center justify-center py-20">
+                <div class="flex flex-col items-center gap-4">
+                    <div class="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div class="text-lg font-medium text-text-primary">Setting up puzzle...</div>
+                </div>
+            </div>
+
+            <!-- Game board -->
+            <div id="gameBoard" class="hidden" role="application" aria-label="Klotski sliding block puzzle">
+                <!-- Instructions -->
+                <div class="text-center mb-4 sm:mb-6 max-w-md px-4 md:hidden">
+                    <p class="text-text-secondary text-xs sm:text-sm">
+                        Get the <span class="text-yellow-400 font-semibold">GOAL</span> block out through the bottom opening.
+                        Drag blocks to slide them.
+                    </p>
+                </div>
+                
+                <!-- Desktop layout: Game + Stats side by side -->
+                <div class="hidden md:flex items-start justify-center gap-8 lg:gap-12">
+                    <!-- Game area -->
+                    <div class="flex flex-col items-center">
+                        <!-- Desktop Instructions -->
+                        <div class="text-center mb-6 max-w-md">
+                            <p class="text-text-secondary text-sm">
+                                Get the <span class="text-yellow-400 font-semibold">GOAL</span> block out through the bottom opening.
+                                Drag blocks to slide them.
+                            </p>
+                        </div>
+                        
+                        <!-- Game grid -->
+                        <div id="gameGrid" class="game-grid" role="grid" aria-label="Klotski 4x5 puzzle grid">
+                            <!-- Grid cells will be generated here -->
+                        </div>
+                        
+                    </div>
+                    
+                    <!-- Stats sidebar for desktop -->
+                    <div class="flex flex-col gap-6 pt-12">
+                        <div class="bg-surface-secondary rounded-xl p-6 border border-surface-border">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-text-primary" id="moveCounter">0</div>
+                                <div class="text-sm text-text-secondary mt-1">Moves</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-surface-secondary rounded-xl p-6 border border-surface-border">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-text-primary" id="timer">00:00</div>
+                                <div class="text-sm text-text-secondary mt-1">Time</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Difficulty selector for desktop -->
+                        <div class="bg-surface-secondary rounded-xl p-6 border border-surface-border">
+                            <h3 class="text-sm font-semibold text-text-primary mb-3">Difficulty</h3>
+                            <select id="puzzleSelectDesktop" class="w-full bg-surface-secondary border border-surface-border text-text-primary rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                <option value="beginner">Beginner</option>
+                                <option value="classic">Classic Klotski</option>
+                                <option value="expert">Expert</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile layout: Stacked vertically -->
+                <div class="md:hidden flex flex-col items-center">
+                    <!-- Game grid -->
+                    <div id="gameGridMobile" class="game-grid" role="grid" aria-label="Klotski 4x5 puzzle grid">
+                        <!-- Grid cells will be generated here -->
+                    </div>
+                    
+                    <!-- Puzzle selector -->
+                    <div class="mt-4">
+                        <label for="puzzleSelectMobile" class="block text-text-secondary text-xs mb-1">Difficulty:</label>
+                        <select id="puzzleSelectMobile" class="bg-surface-secondary border border-surface-border text-text-primary rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            <option value="beginner">Beginner</option>
+                            <option value="classic">Classic Klotski</option>
+                            <option value="expert">Expert</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Custom Modal -->
+    <div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm mx-4 shadow-2xl">
+            <div id="modalContent" class="text-center">
+                <div id="modalIcon" class="text-4xl mb-4"></div>
+                <h3 id="modalTitle" class="text-lg font-semibold text-gray-900 dark:text-white mb-3"></h3>
+                <p id="modalMessage" class="text-gray-600 dark:text-gray-300 mb-6"></p>
+                <div id="modalButtons" class="flex gap-3 justify-center">
+                    <!-- Buttons will be added dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Disable right-click context menu on this page
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Keyboard controls for selected pieces
+        document.addEventListener('keydown', function(e) {
+            if (!selectedBlock || isPuzzleSolved) return;
+            
+            let direction = null;
+            switch(e.key) {
+                case 'ArrowLeft':
+                    direction = 'left';
+                    break;
+                case 'ArrowRight':
+                    direction = 'right';
+                    break;
+                case 'ArrowUp':
+                    direction = 'up';
+                    break;
+                case 'ArrowDown':
+                    direction = 'down';
+                    break;
+                case 'Escape':
+                    // Deselect piece
+                    clearBlockSelection();
+                    selectedBlock = null;
+                    renderGame();
+                    return;
+                default:
+                    return;
+            }
+            
+            if (direction) {
+                e.preventDefault(); // Prevent page scrolling
+                slideBlockInDirection(selectedBlock, direction);
+                triggerHapticFeedback('light');
+                renderGame();
+            }
+        });
+
+        // Game state
+        let gameState = null;
+        let gameHistory = [];
+        let selectedBlock = null;
+        let draggedBlock = null;
+        let gameTimer = null;
+        let startTime = null;
+        let isPuzzleSolved = false;
+
+        // Authentic Klotski puzzle configurations
+        const puzzleConfigs = {
+            classic: {
+                name: "Classic Klotski",
+                // Authentic traditional Huarong Dao setup - the famous 81-move puzzle
+                hero: { x: 1, y: 0 }, // 2x2 Cao Cao block at top center
+                generals: [
+                    // Four 2x1 vertical generals (traditional layout)
+                    { id: 'zhangfei', type: 'v', x: 0, y: 0 },   // Left side, top
+                    { id: 'guanyu', type: 'v', x: 3, y: 0 },    // Right side, top  
+                    { id: 'machao', type: 'v', x: 0, y: 2 },    // Left side, bottom
+                    { id: 'huangzhong', type: 'v', x: 3, y: 2 }, // Right side, bottom
+                    // One 1x2 horizontal general (traditional layout)
+                    { id: 'zhaoyun', type: 'h', x: 1, y: 2 }    // Horizontal below hero
+                ],
+                soldiers: [
+                    // Four 1x1 soldiers in traditional positions
+                    // Traditional layout has 2x1 empty space at bottom center initially
+                    { id: 'soldier1', x: 0, y: 4 }, // Bottom left corner
+                    { id: 'soldier2', x: 3, y: 4 }, // Bottom right corner
+                    { id: 'soldier3', x: 1, y: 3 }, // Above exit area left
+                    { id: 'soldier4', x: 2, y: 3 }  // Above exit area right
+                ]
+            },
+            beginner: {
+                name: "Beginner",
+                // Simpler version with fewer pieces
+                hero: { x: 1, y: 1 },
+                generals: [
+                    { id: 'gen1', type: 'v', x: 0, y: 0 },
+                    { id: 'gen2', type: 'v', x: 3, y: 0 }
+                ],
+                soldiers: [
+                    { id: 'sol1', x: 1, y: 0 },
+                    { id: 'sol2', x: 2, y: 0 },
+                    { id: 'sol3', x: 0, y: 3 },
+                    { id: 'sol4', x: 3, y: 3 }
+                ]
+            },
+            expert: {
+                name: "Expert",
+                // More challenging starting position
+                hero: { x: 0, y: 1 }, // Hero starts at left
+                generals: [
+                    { id: 'gen1', type: 'h', x: 2, y: 0 },
+                    { id: 'gen2', type: 'v', x: 2, y: 1 },
+                    { id: 'gen3', type: 'v', x: 3, y: 1 },
+                    { id: 'gen4', type: 'h', x: 0, y: 3 }
+                ],
+                soldiers: [
+                    { id: 'sol1', x: 0, y: 0 },
+                    { id: 'sol2', x: 1, y: 0 },
+                    { id: 'sol3', x: 2, y: 4 },
+                    { id: 'sol4', x: 3, y: 4 }
+                ]
+            }
+        };
+
+        // Utility functions
+        function triggerHapticFeedback(type = 'light') {
+            if ('vibrate' in navigator) {
+                switch (type) {
+                    case 'light':
+                        navigator.vibrate(50);
+                        break;
+                    case 'medium':
+                        navigator.vibrate(100);
+                        break;
+                    case 'success':
+                        navigator.vibrate([100, 50, 100]);
+                        break;
+                    case 'error':
+                        navigator.vibrate([200, 100, 200]);
+                        break;
+                }
+            }
+        }
+
+        // Game state management
+        const STORAGE_KEY = 'klonski_game_state';
+        const STORAGE_VERSION = '1.0';
+
+        function saveGameState() {
+            if (!gameState) return;
+            
+            const gameData = {
+                version: STORAGE_VERSION,
+                timestamp: Date.now(),
+                state: gameState,
+                history: gameHistory,
+                startTime: startTime
+            };
+            
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(gameData));
+            } catch (error) {
+                console.warn('Failed to save game state:', error);
+            }
+        }
+
+        function loadGameState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (!saved) return null;
+                
+                const gameData = JSON.parse(saved);
+                
+                if (gameData.version !== STORAGE_VERSION) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    return null;
+                }
+                
+                const hoursSinceLastPlay = (Date.now() - gameData.timestamp) / (1000 * 60 * 60);
+                if (hoursSinceLastPlay > 24) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    return null;
+                }
+                
+                return gameData;
+            } catch (error) {
+                console.warn('Failed to load game state:', error);
+                localStorage.removeItem(STORAGE_KEY);
+                return null;
+            }
+        }
+
+        function clearSavedGame() {
+            localStorage.removeItem(STORAGE_KEY);
+        }
+
+        // Modal functions (same as solitaire)
+        function showModal({ title, message, icon, buttons }) {
+            const modal = document.getElementById('customModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalIcon = document.getElementById('modalIcon');
+            const modalButtons = document.getElementById('modalButtons');
+
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modalIcon.textContent = icon;
+            
+            modalButtons.innerHTML = '';
+            
+            buttons.forEach(button => {
+                const btn = document.createElement('button');
+                btn.textContent = button.text;
+                let buttonClasses = 'px-4 py-2 rounded-lg font-medium transition-colors ';
+                
+                if (button.primary) {
+                    buttonClasses += 'bg-primary-600 hover:bg-primary-700 text-white';
+                } else if (button.subtle) {
+                    buttonClasses += 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700';
+                } else {
+                    buttonClasses += 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-900 dark:text-white';
+                }
+                
+                btn.className = buttonClasses;
+                btn.onclick = () => {
+                    hideModal();
+                    if (button.action) button.action();
+                };
+                modalButtons.appendChild(btn);
+            });
+            
+            modal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        // Click outside modal to close
+        document.getElementById('customModal').addEventListener('click', (e) => {
+            if (e.target.id === 'customModal') {
+                hideModal();
+            }
+        });
+
+        // Timer functions
+        function startTimer() {
+            if (gameTimer) return; // Already running
+            
+            startTime = startTime || Date.now();
+            gameTimer = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                const timeText = `${minutes}:${seconds}`;
+                // Update both desktop and mobile timers
+                document.getElementById('timer').textContent = timeText;
+                document.getElementById('timerMobile').textContent = timeText;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (gameTimer) {
+                clearInterval(gameTimer);
+                gameTimer = null;
+            }
+        }
+
+        function resetTimer() {
+            stopTimer();
+            startTime = null;
+            document.getElementById('timer').textContent = '00:00';
+            document.getElementById('timerMobile').textContent = '00:00';
+        }
+
+        // Game initialization
+        function initializeGame(configKey = 'classic') {
+            const config = puzzleConfigs[configKey];
+            if (!config) return null;
+
+            // Create empty 4x5 grid
+            const grid = Array(5).fill(null).map(() => Array(4).fill(null));
+            
+            // Place hero block (2x2)
+            const hero = { 
+                id: 'hero', 
+                type: 'hero', 
+                x: config.hero.x, 
+                y: config.hero.y,
+                width: 2,
+                height: 2
+            };
+            
+            // Mark grid cells as occupied by hero
+            for (let dy = 0; dy < 2; dy++) {
+                for (let dx = 0; dx < 2; dx++) {
+                    grid[hero.y + dy][hero.x + dx] = 'hero';
+                }
+            }
+
+            const blocks = [hero];
+            
+            // Place general blocks
+            config.generals.forEach(gen => {
+                const block = {
+                    id: gen.id,
+                    type: gen.type === 'h' ? 'general-h' : 'general-v',
+                    x: gen.x,
+                    y: gen.y,
+                    width: gen.type === 'h' ? 2 : 1,
+                    height: gen.type === 'h' ? 1 : 2
+                };
+                
+                // Mark grid cells as occupied
+                for (let dy = 0; dy < block.height; dy++) {
+                    for (let dx = 0; dx < block.width; dx++) {
+                        grid[block.y + dy][block.x + dx] = block.id;
+                    }
+                }
+                
+                blocks.push(block);
+            });
+
+            // Place soldier blocks
+            config.soldiers.forEach(sol => {
+                const block = {
+                    id: sol.id,
+                    type: 'soldier',
+                    x: sol.x,
+                    y: sol.y,
+                    width: 1,
+                    height: 1
+                };
+                
+                grid[block.y][block.x] = block.id;
+                blocks.push(block);
+            });
+
+            return {
+                grid: grid,
+                blocks: blocks,
+                moves: 0,
+                configKey: configKey,
+                solved: false
+            };
+        }
+
+        // Move validation - checks if a block can be placed at a specific position
+        function canMoveBlock(blockId, newX, newY) {
+            if (!gameState) return false;
+            
+            const block = gameState.blocks.find(b => b.id === blockId);
+            if (!block) return false;
+            
+            // Check boundaries - ensure the entire block fits within the grid
+            // Special exception: allow hero block to exit completely (y=5 or y=6)
+            if (newX < 0 || newY < 0) {
+                return false;
+            }
+            
+            if (block.id === 'hero' && newX === 1 && newY >= 4) {
+                // Allow hero to exit - no boundary check needed for exit
+            } else if (newX + block.width > 4 || newY + block.height > 5) {
+                return false;
+            }
+            
+            // Special case: allow hero block to exit through bottom opening
+            if (block.id === 'hero' && (newY === 4 || newY === 5)) {
+                // Hero block (2x2) can exit if it's in the center columns (x=1)
+                if (newX === 1) {
+                    // For y=4 (partially out), check collisions normally for cells still in grid
+                    if (newY === 4) {
+                        // Check that the top row (y=4) can be placed
+                        for (let dx = 0; dx < block.width; dx++) {
+                            const checkX = newX + dx;
+                            const checkY = newY; // Only check y=4 row
+                            
+                            // Check for collisions with other blocks in the grid
+                            const cellContent = gameState.grid[checkY][checkX];
+                            if (cellContent !== null && cellContent !== blockId) {
+                                return false;
+                            }
+                        }
+                        return true; // Hero can move to y=4 (exit position)
+                    }
+                    
+                    // For y=5 (completely out), always allow if properly positioned
+                    if (newY === 5) {
+                        return true; // Hero exits completely
+                    }
+                }
+                return false; // Hero can only exit through center
+            }
+            
+            // Regular collision detection for all other moves
+            for (let dy = 0; dy < block.height; dy++) {
+                for (let dx = 0; dx < block.width; dx++) {
+                    const checkX = newX + dx;
+                    const checkY = newY + dy;
+                    
+                    // Ensure we're still in bounds
+                    if (checkX < 0 || checkX >= 4 || checkY < 0 || checkY >= 5) {
+                        return false;
+                    }
+                    
+                    const cellContent = gameState.grid[checkY][checkX];
+                    
+                    // Cell must be empty or occupied by the same block
+                    if (cellContent !== null && cellContent !== blockId) {
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
+        }
+
+
+        function checkWinCondition() {
+            if (isPuzzleSolved) return;
+            
+            const heroBlock = gameState.blocks.find(b => b.id === 'hero');
+            if (!heroBlock) return;
+            
+            // Win condition: hero block completely exits through the bottom opening (y=5, past the grid)
+            if (heroBlock.y >= 5) {
+                isPuzzleSolved = true;
+                stopTimer();
+                triggerHapticFeedback('success');
+                
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                const timeText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                setTimeout(() => {
+                    showModal({
+                        title: 'Puzzle Solved! 🎉',
+                        message: `Congratulations!\n\nMoves: ${gameState.moves}\nTime: ${timeText}`,
+                        icon: '🎉',
+                        buttons: [
+                            { text: 'New Puzzle', primary: true, action: () => loadNewPuzzle() },
+                            { text: 'Reset Same', primary: false, action: () => resetPuzzle() }
+                        ]
+                    });
+                }, 500);
+            }
+        }
+
+        function updateUndoButton() {
+            const undoBtn = document.getElementById('undoBtn');
+            const undoBtnDesktop = document.getElementById('undoBtnDesktop');
+            
+            if (gameHistory.length > 0) {
+                undoBtn.classList.remove('hidden');
+                undoBtnDesktop?.classList.remove('hidden');
+            } else {
+                undoBtn.classList.add('hidden');
+                undoBtnDesktop?.classList.add('hidden');
+            }
+        }
+
+        // Natural sliding movement handlers
+        let isDragging = false;
+        let dragStartPos = { x: 0, y: 0 };
+        let dragDirection = null;
+        let hasMovedInDirection = false;
+
+        function handleMouseDown(e, blockId) {
+            if (isPuzzleSolved) return;
+            
+            e.preventDefault();
+            isDragging = true;
+            draggedBlock = blockId; // Track which block is being dragged
+            dragDirection = null;
+            hasMovedInDirection = false;
+            
+            dragStartPos.x = e.clientX;
+            dragStartPos.y = e.clientY;
+            
+            // Clear any existing selection when starting a drag
+            clearBlockSelection();
+            
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+        }
+
+        function handleMouseMove(e) {
+            if (!isDragging || hasMovedInDirection) return;
+            
+            const deltaX = e.clientX - dragStartPos.x;
+            const deltaY = e.clientY - dragStartPos.y;
+            const threshold = 20; // Minimum drag distance to trigger movement
+            
+            // Determine drag direction based on which axis has more movement
+            if (Math.abs(deltaX) > threshold || Math.abs(deltaY) > threshold) {
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    // Horizontal drag
+                    dragDirection = deltaX > 0 ? 'right' : 'left';
+                } else {
+                    // Vertical drag  
+                    dragDirection = deltaY > 0 ? 'down' : 'up';
+                }
+                
+                // Try to slide the block in the determined direction
+                slideBlockInDirection(draggedBlock, dragDirection);
+                hasMovedInDirection = true;
+            }
+        }
+
+        function slideBlockInDirection(blockId, direction) {
+            const block = gameState.blocks.find(b => b.id === blockId);
+            if (!block) return;
+            
+            let deltaX = 0, deltaY = 0;
+            
+            // Determine direction vector
+            switch (direction) {
+                case 'left': deltaX = -1; break;
+                case 'right': deltaX = 1; break;
+                case 'up': deltaY = -1; break;
+                case 'down': deltaY = 1; break;
+            }
+            
+            // Check if this piece can move in this direction
+            if (!canBlockMoveInDirection(block, direction)) {
+                triggerHapticFeedback('error');
+                return;
+            }
+            
+            // Move just ONE space in the direction - precise control
+            const newX = block.x + deltaX;
+            const newY = block.y + deltaY;
+            
+            // Verify this single step is valid
+            if (canMoveBlock(blockId, newX, newY)) {
+                moveBlockWithAnimation(blockId, newX, newY);
+                triggerHapticFeedback('light');
+                // Keep the piece selected after keyboard movement
+            } else {
+                triggerHapticFeedback('error');
+            }
+        }
+
+        function canBlockMoveInDirection(block, direction) {
+            // Check if the block has space to slide in this direction
+            let deltaX = 0, deltaY = 0;
+            switch (direction) {
+                case 'left': deltaX = -1; break;
+                case 'right': deltaX = 1; break;
+                case 'up': deltaY = -1; break;
+                case 'down': deltaY = 1; break;
+            }
+            
+            // For different piece types, check the appropriate edge that needs to be clear
+            const edgeCells = getBlockEdgeCells(block, direction);
+            
+            // Check if all edge cells can move to their new positions
+            for (const cell of edgeCells) {
+                const newCellX = cell.x + deltaX;
+                const newCellY = cell.y + deltaY;
+                
+                // Check boundaries
+                if (newCellX < 0 || newCellX >= 4 || newCellY < 0 || newCellY >= 5) {
+                    // Special case: hero block can exit through bottom
+                    if (block.id === 'hero' && direction === 'down' && 
+                        (newCellY === 4 || newCellY === 5) && newCellX >= 1 && newCellX <= 2) {
+                        continue; // Allow hero to exit
+                    }
+                    return false;
+                }
+                
+                // Check for collision (only for cells within the grid)
+                if (newCellY < 5) {
+                    const cellContent = gameState.grid[newCellY][newCellX];
+                    if (cellContent !== null && cellContent !== block.id) {
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
+        }
+
+        function getBlockEdgeCells(block, direction) {
+            const cells = [];
+            
+            switch (direction) {
+                case 'left':
+                    // Check left edge - leftmost column of the block
+                    for (let dy = 0; dy < block.height; dy++) {
+                        cells.push({ x: block.x, y: block.y + dy });
+                    }
+                    break;
+                case 'right':
+                    // Check right edge - rightmost column of the block
+                    for (let dy = 0; dy < block.height; dy++) {
+                        cells.push({ x: block.x + block.width - 1, y: block.y + dy });
+                    }
+                    break;
+                case 'up':
+                    // Check top edge - topmost row of the block
+                    for (let dx = 0; dx < block.width; dx++) {
+                        cells.push({ x: block.x + dx, y: block.y });
+                    }
+                    break;
+                case 'down':
+                    // Check bottom edge - bottommost row of the block
+                    for (let dx = 0; dx < block.width; dx++) {
+                        cells.push({ x: block.x + dx, y: block.y + block.height - 1 });
+                    }
+                    break;
+            }
+            
+            return cells;
+        }
+
+        function moveBlockWithAnimation(blockId, newX, newY) {
+            if (!canMoveBlock(blockId, newX, newY)) return false;
+            
+            // Save current state for undo
+            gameHistory.push(JSON.parse(JSON.stringify(gameState)));
+            if (gameHistory.length > 50) gameHistory.shift();
+            
+            const block = gameState.blocks.find(b => b.id === blockId);
+            const element = document.querySelector(`[data-block-id="${blockId}"]`);
+            
+            // Add sliding animation
+            if (element) {
+                element.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                setTimeout(() => {
+                    element.style.transition = '';
+                }, 300);
+            }
+            
+            // Clear old position from grid
+            for (let dy = 0; dy < block.height; dy++) {
+                for (let dx = 0; dx < block.width; dx++) {
+                    gameState.grid[block.y + dy][block.x + dx] = null;
+                }
+            }
+            
+            // Update block position
+            block.x = newX;
+            block.y = newY;
+            
+            // Set new position in grid
+            for (let dy = 0; dy < block.height; dy++) {
+                for (let dx = 0; dx < block.width; dx++) {
+                    gameState.grid[newY + dy][newX + dx] = blockId;
+                }
+            }
+            
+            gameState.moves++;
+            // Update both desktop and mobile move counters
+            document.getElementById('moveCounter').textContent = gameState.moves;
+            document.getElementById('moveCounterMobile').textContent = gameState.moves;
+            updateUndoButton();
+            
+            // Start timer on first move
+            if (gameState.moves === 1) {
+                startTimer();
+            }
+            
+            // Re-render the game state
+            renderGame();
+            
+            // Check win condition
+            checkWinCondition();
+            saveGameState();
+            
+            return true;
+        }
+
+        function handleMouseUp(e) {
+            isDragging = false;
+            draggedBlock = null;
+            dragDirection = null;
+            hasMovedInDirection = false;
+            
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        }
+
+        // Touch handlers for mobile - using same natural sliding system
+        let touchStartPos = { x: 0, y: 0 };
+        let isTouchDragging = false;
+        let touchDirection = null;
+        let hasTouchMovedInDirection = false;
+
+        function handleTouchStart(e, blockId) {
+            if (isPuzzleSolved) return;
+            
+            e.preventDefault();
+            const touch = e.touches[0];
+            
+            isTouchDragging = true;
+            selectedBlock = blockId;
+            touchDirection = null;
+            hasTouchMovedInDirection = false;
+            
+            touchStartPos.x = touch.clientX;
+            touchStartPos.y = touch.clientY;
+            
+            const element = e.target.closest('.block');
+            
+            // Check for double tap on mobile
+            const now = Date.now();
+            if (element.lastTouchTime && now - element.lastTouchTime < 300) {
+                // Double tap - try to auto-move to nearest valid position
+                attemptAutoMove(blockId);
+                element.lastTouchTime = 0;
+                isTouchDragging = false;
+                return;
+            }
+            element.lastTouchTime = now;
+            
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchend', handleTouchEnd);
+        }
+
+        function handleTouchMove(e) {
+            if (!isTouchDragging || !selectedBlock || hasTouchMovedInDirection) return;
+            
+            e.preventDefault();
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - touchStartPos.x;
+            const deltaY = touch.clientY - touchStartPos.y;
+            const threshold = 30; // Slightly higher threshold for touch
+            
+            // Determine drag direction based on which axis has more movement
+            if (Math.abs(deltaX) > threshold || Math.abs(deltaY) > threshold) {
+                if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                    // Horizontal swipe
+                    touchDirection = deltaX > 0 ? 'right' : 'left';
+                } else {
+                    // Vertical swipe
+                    touchDirection = deltaY > 0 ? 'down' : 'up';
+                }
+                
+                // Try to slide the block in the determined direction
+                slideBlockInDirection(selectedBlock, touchDirection);
+                hasTouchMovedInDirection = true;
+            }
+        }
+
+        function handleTouchEnd(e) {
+            isTouchDragging = false;
+            selectedBlock = null;
+            touchDirection = null;
+            hasTouchMovedInDirection = false;
+            
+            document.removeEventListener('touchmove', handleTouchMove);
+            document.removeEventListener('touchend', handleTouchEnd);
+        }
+
+        function clearBlockSelection() {
+            document.querySelectorAll('.block').forEach(el => {
+                el.classList.remove('block-selected-mobile', 'ring-2', 'ring-primary-500', 'ring-yellow-400');
+            });
+        }
+
+        function handleBlockClick(e, blockId) {
+            if (isPuzzleSolved) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Toggle selection
+            if (selectedBlock === blockId) {
+                // Deselect if clicking the same block
+                selectedBlock = null;
+                clearBlockSelection();
+            } else {
+                // Select this block
+                selectedBlock = blockId;
+                clearBlockSelection();
+                
+                const blockElement = e.target.closest('.block');
+                if (blockElement) {
+                    // Add visual selection indicator
+                    blockElement.classList.add('ring-2', 'ring-yellow-400');
+                }
+            }
+            
+            triggerHapticFeedback('light');
+        }
+
+        function attemptAutoMove(blockId) {
+            const block = gameState.blocks.find(b => b.id === blockId);
+            if (!block) return;
+            
+            // Try moving in each direction by one step
+            const directions = [
+                { x: -1, y: 0 }, // left
+                { x: 1, y: 0 },  // right
+                { x: 0, y: -1 }, // up
+                { x: 0, y: 1 }   // down
+            ];
+            
+            for (const dir of directions) {
+                const newX = block.x + dir.x;
+                const newY = block.y + dir.y;
+                
+                if (canMoveBlock(blockId, newX, newY)) {
+                    moveBlock(blockId, newX, newY);
+                    triggerHapticFeedback('medium');
+                    renderGame();
+                    return;
+                }
+            }
+            
+            triggerHapticFeedback('error');
+        }
+
+
+        // Rendering
+        function renderGame() {
+            if (!gameState) return;
+            
+            // Render both desktop and mobile grids
+            renderGameGrid('gameGrid');
+            renderGameGrid('gameGridMobile');
+        }
+
+        function renderGameGrid(gridId) {
+            const gameGrid = document.getElementById(gridId);
+            if (!gameGrid) return;
+            gameGrid.innerHTML = '';
+            
+            // Create grid cells first
+            for (let y = 0; y < 5; y++) {
+                for (let x = 0; x < 4; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'empty-cell';
+                    cell.dataset.gridX = x;
+                    cell.dataset.gridY = y;
+                    cell.style.gridColumn = x + 1;
+                    cell.style.gridRow = y + 1;
+                    
+                    // Show opening at bottom center (where blocks can exit)
+                    if ((x === 1 || x === 2) && y === 4) {
+                        cell.classList.add('exit-area');
+                        cell.style.borderBottom = 'none'; // Remove bottom border to show opening
+                    }
+                    
+                    
+                    gameGrid.appendChild(cell);
+                }
+            }
+            
+            // Render blocks
+            gameState.blocks.forEach(block => {
+                const blockElement = document.createElement('div');
+                blockElement.className = `block block-${block.type}`;
+                blockElement.dataset.blockId = block.id;
+                blockElement.style.gridColumn = `${block.x + 1} / span ${block.width}`;
+                blockElement.style.gridRow = `${block.y + 1} / span ${block.height}`;
+                
+                // No labels needed - clean visual design
+                
+                // Add event listeners
+                blockElement.addEventListener('mousedown', (e) => handleMouseDown(e, block.id));
+                blockElement.addEventListener('click', (e) => handleBlockClick(e, block.id));
+                blockElement.addEventListener('touchstart', (e) => handleTouchStart(e, block.id));
+                
+                gameGrid.appendChild(blockElement);
+            });
+        }
+
+        // Game control functions
+        function undoMove() {
+            if (gameHistory.length === 0) return;
+            
+            gameState = gameHistory.pop();
+            document.getElementById('moveCounter').textContent = gameState.moves;
+            updateUndoButton();
+            saveGameState();
+            renderGame();
+            triggerHapticFeedback('light');
+        }
+
+        function resetPuzzle() {
+            const configKey = gameState?.configKey || 'classic';
+            gameState = initializeGame(configKey);
+            gameHistory = [];
+            isPuzzleSolved = false;
+            resetTimer();
+            document.getElementById('moveCounter').textContent = '0';
+            updateUndoButton();
+            clearSavedGame();
+            renderGame();
+        }
+
+        function loadNewPuzzle() {
+            // Get config key from whichever selector triggered the change
+            const sidebarSelect = document.getElementById('puzzleSelectDesktop');
+            const mobileSelect = document.getElementById('puzzleSelectMobile');
+            
+            let configKey = 'classic';
+            // Check desktop sidebar selector first (main selector now)
+            if (sidebarSelect) {
+                configKey = sidebarSelect.value;
+            } else if (mobileSelect) {
+                configKey = mobileSelect.value;
+            }
+            gameState = initializeGame(configKey);
+            gameHistory = [];
+            isPuzzleSolved = false;
+            resetTimer();
+            document.getElementById('moveCounter').textContent = '0';
+            updateUndoButton();
+            clearSavedGame();
+            renderGame();
+        }
+
+        // Initialize game when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Event listeners
+            document.getElementById('undoBtn').addEventListener('click', undoMove);
+            document.getElementById('undoBtnDesktop')?.addEventListener('click', undoMove);
+            document.getElementById('resetBtn').addEventListener('click', resetPuzzle);
+            document.getElementById('resetBtnDesktop').addEventListener('click', resetPuzzle);
+            document.getElementById('newPuzzleBtn').addEventListener('click', loadNewPuzzle);
+            document.getElementById('newPuzzleBtnDesktop').addEventListener('click', loadNewPuzzle);
+            document.getElementById('puzzleSelectMobile').addEventListener('change', loadNewPuzzle);
+            document.getElementById('puzzleSelectDesktop').addEventListener('change', loadNewPuzzle);
+            
+            setTimeout(() => {
+                const savedGame = loadGameState();
+                
+                if (savedGame && savedGame.state) {
+                    gameState = savedGame.state;
+                    gameHistory = savedGame.history || [];
+                    startTime = savedGame.startTime;
+                    
+                    if (startTime && !gameState.solved) {
+                        startTimer();
+                    }
+                    
+                    document.getElementById('moveCounter').textContent = gameState.moves;
+                    document.getElementById('moveCounterMobile').textContent = gameState.moves;
+                    document.getElementById('puzzleSelectMobile').value = gameState.configKey;
+                    document.getElementById('puzzleSelectDesktop').value = gameState.configKey;
+                    updateUndoButton();
+                    
+                    if (window.innerWidth <= 768) {
+                        setTimeout(() => {
+                            showModal({
+                                title: 'Game Restored',
+                                message: 'Your previous puzzle has been restored. Continue playing or start fresh.',
+                                icon: '🔄',
+                                buttons: [
+                                    { text: 'Continue', primary: true },
+                                    { text: 'New Puzzle', primary: false, action: loadNewPuzzle }
+                                ]
+                            });
+                        }, 500);
+                    }
+                } else {
+                    gameState = initializeGame('classic');
+                    gameHistory = [];
+                    document.getElementById('moveCounter').textContent = '0';
+                    document.getElementById('moveCounterMobile').textContent = '0';
+                    document.getElementById('puzzleSelectMobile').value = 'classic';
+                    document.getElementById('puzzleSelectDesktop').value = 'classic';
+                }
+                
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('gameBoard').classList.remove('hidden');
+                renderGame();
+            }, 1000);
+        });
+    </script>
+</body>
+
+</html>
