@@ -113,25 +113,42 @@
 
         @media (max-width: 480px) {
             .game-grid {
-                max-width: min(280px, 95vw);
-                padding: 8px;
-                gap: 2px;
+                max-width: min(300px, 98vw);
+                padding: 6px;
+                gap: 1px;
                 border-radius: 8px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .game-grid {
+                max-width: min(280px, 98vw);
+                padding: 4px;
+                gap: 1px;
+                border-radius: 6px;
             }
         }
 
         @media (max-height: 700px) {
             .game-grid {
-                max-width: min(300px, 85vw);
-                padding: 10px;
+                max-width: min(280px, 90vw);
+                padding: 8px;
             }
         }
 
         @media (max-height: 600px) {
             .game-grid {
-                max-width: min(250px, 90vw);
-                padding: 8px;
-                gap: 2px;
+                max-width: min(240px, 92vw);
+                padding: 6px;
+                gap: 1px;
+            }
+        }
+
+        @media (max-height: 550px) {
+            .game-grid {
+                max-width: min(220px, 95vw);
+                padding: 4px;
+                gap: 1px;
             }
         }
 
@@ -166,89 +183,99 @@
             }
         }
 
-        /* Hero block (2x2) - Main piece, distinctive but simple */
+        /* Hero block (2x2) - Main piece, distinctive with higher contrast */
         .block-hero {
             grid-column: span 2;
             grid-row: span 2;
-            background: white;
-            border: 2px solid #ef4444; /* red-500 for prominence */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: #fef2f2; /* red-50 - light red tint */
+            border: 2px solid #dc2626; /* red-600 for higher contrast */
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
         }
 
         .dark .block-hero {
-            background: rgb(31 41 55); /* gray-800 */
-            border-color: #f87171; /* red-400 */
+            background: rgb(23 23 23); /* darker than gray-800 */
+            border-color: #f87171; /* red-400 - brighter in dark mode */
+            box-shadow: 0 2px 8px rgba(248, 113, 113, 0.3);
         }
 
         .block-hero:hover {
             transform: scale(1.02);
-            border-color: #dc2626; /* red-600 */
+            border-color: #b91c1c; /* red-700 - even darker on hover */
+            background: #fecaca; /* red-100 - slightly darker tint */
         }
 
         .dark .block-hero:hover {
-            border-color: #ef4444; /* red-500 */
+            border-color: #fca5a5; /* red-300 - brighter on hover */
+            background: rgb(15 15 15); /* even darker */
         }
 
-        /* General blocks horizontal (1x2) - Standard pieces */
+        /* General blocks horizontal (1x2) - Standard pieces with better contrast */
         .block-general-h {
             grid-column: span 2;
             grid-row: span 1;
-            background: white;
-            border: 1px solid rgb(209 213 219); /* gray-300 */
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            background: #f8fafc; /* slate-50 - subtle tint */
+            border: 2px solid rgb(71 85 105); /* slate-600 for higher contrast */
+            box-shadow: 0 2px 4px rgba(71, 85, 105, 0.15);
         }
 
         .dark .block-general-h {
-            background: rgb(31 41 55); /* gray-800 */
-            border-color: rgb(75 85 99); /* gray-600 */
+            background: rgb(30 41 59); /* slate-800 */
+            border-color: rgb(148 163 184); /* slate-400 - brighter border */
+            box-shadow: 0 2px 4px rgba(148, 163, 184, 0.2);
         }
 
-        /* General blocks vertical (2x1) - Standard pieces */
+        /* General blocks vertical (2x1) - Standard pieces with better contrast */
         .block-general-v {
             grid-column: span 1;
             grid-row: span 2;
-            background: white;
-            border: 1px solid rgb(209 213 219); /* gray-300 */
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            background: #f8fafc; /* slate-50 - subtle tint */
+            border: 2px solid rgb(71 85 105); /* slate-600 for higher contrast */
+            box-shadow: 0 2px 4px rgba(71, 85, 105, 0.15);
         }
 
         .dark .block-general-v {
-            background: rgb(31 41 55); /* gray-800 */
-            border-color: rgb(75 85 99); /* gray-600 */
+            background: rgb(30 41 59); /* slate-800 */
+            border-color: rgb(148 163 184); /* slate-400 - brighter border */
+            box-shadow: 0 2px 4px rgba(148, 163, 184, 0.2);
         }
 
         .block-general-h:hover,
         .block-general-v:hover {
             transform: scale(1.05);
-            border-color: rgb(156 163 175); /* gray-400 */
+            border-color: rgb(51 65 85); /* slate-700 - darker on hover */
+            background: #e2e8f0; /* slate-200 - more visible change */
         }
 
         .dark .block-general-h:hover,
         .dark .block-general-v:hover {
-            border-color: rgb(107 114 128); /* gray-500 */
+            border-color: rgb(203 213 225); /* slate-300 - brighter on hover */
+            background: rgb(51 65 85); /* slate-700 - lighter on hover */
         }
 
-        /* Soldier blocks (1x1) - Small pieces */
+        /* Soldier blocks (1x1) - Small pieces with better contrast */
         .block-soldier {
             grid-column: span 1;
             grid-row: span 1;
-            background: white;
-            border: 1px solid rgb(209 213 219); /* gray-300 */
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            background: #f1f5f9; /* slate-100 - light but noticeable */
+            border: 2px solid rgb(100 116 139); /* slate-500 for better contrast */
+            box-shadow: 0 1px 3px rgba(100, 116, 139, 0.2);
         }
 
         .dark .block-soldier {
-            background: rgb(31 41 55); /* gray-800 */
-            border-color: rgb(75 85 99); /* gray-600 */
+            background: rgb(39 39 42); /* zinc-800 - distinct from generals */
+            border-color: rgb(161 161 170); /* zinc-400 - good contrast */
+            box-shadow: 0 1px 3px rgba(161, 161, 170, 0.25);
         }
 
         .block-soldier:hover {
             transform: scale(1.08);
-            border-color: rgb(156 163 175); /* gray-400 */
+            border-color: rgb(71 85 105); /* slate-600 - darker on hover */
+            background: #cbd5e1; /* slate-300 - more noticeable change */
         }
 
         .dark .block-soldier:hover {
-            border-color: rgb(107 114 128); /* gray-500 */
+            border-color: rgb(212 212 216); /* zinc-300 - brighter on hover */
+            background: rgb(63 63 70); /* zinc-700 - lighter on hover */
         }
 
         /* Empty cell styling */
@@ -264,22 +291,34 @@
             background-color: rgba(59, 130, 246, 0.1);
         }
 
-        /* Exit area highlighting */
+        /* Exit area - remove individual cell borders in exit area */
         .exit-area {
-            background-color: rgba(34, 197, 94, 0.2) !important;
-            border-color: rgb(34, 197, 94) !important;
-            position: relative;
+            background-color: transparent !important;
         }
 
-        .exit-area::after {
-            content: '⬇';
+        /* Game grid with exit opening in border */
+        .game-grid {
+            position: relative;
+            border: 2px solid rgb(71 85 105); /* slate-600 - match block borders */
+        }
+
+        .dark .game-grid {
+            border-color: rgb(148 163 184); /* slate-400 for dark mode */
+        }
+
+        /* Exit opening indicator on bottom border */
+        .game-grid::after {
+            content: '';
             position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgb(34, 197, 94);
-            font-size: 1.5rem;
-            text-shadow: 0 0 4px rgba(34, 197, 94, 0.5);
+            bottom: -2px; /* Position on the border itself */
+            left: 25%; /* Center 2 columns out of 4 */
+            width: 50%; /* Span 2 columns */
+            height: 2px;
+            background-color: #22c55e; /* green-500 for exit indication */
+        }
+
+        .dark .game-grid::after {
+            background-color: #4ade80; /* green-400 for dark mode */
         }
 
         /* Block dragging states */
@@ -356,28 +395,45 @@
         @media (max-width: 768px) {
             .game-controls {
                 position: fixed;
-                bottom: 20px;
-                right: 20px;
+                bottom: 16px;
+                right: 16px;
                 display: flex;
-                gap: 12px;
+                gap: 8px;
                 z-index: 40;
             }
             
             .game-controls button {
                 min-width: 44px;
                 min-height: 44px;
-                padding: 12px 16px;
+                padding: 8px 12px;
                 border-radius: 12px;
                 background-color: rgb(55 65 81);
                 color: white;
                 border: 1px solid rgb(75 85 99);
                 transition: all 0.2s ease;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+                font-size: 0.75rem;
             }
             
             .game-controls button:hover {
                 background-color: rgb(75 85 99);
                 transform: scale(1.05);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-controls {
+                bottom: 12px;
+                right: 12px;
+                gap: 6px;
+            }
+            
+            .game-controls button {
+                min-width: 40px;
+                min-height: 40px;
+                padding: 6px 10px;
+                border-radius: 10px;
+                font-size: 0.7rem;
             }
         }
     </style>
@@ -413,11 +469,11 @@
         </nav>
     </header>
 
-    <div class="h-20 sm:h-24"></div>
+    <div class="h-16 sm:h-20 md:h-24"></div>
     <main class="py-1 sm:py-2 md:py-4" role="main">
-        <div class="max-w-7xl mx-auto px-2 sm:px-4">
+        <div class="max-w-7xl mx-auto px-1 sm:px-2 md:px-4">
             <!-- Header -->
-            <div class="flex justify-between items-center mb-3 sm:mb-6 gap-3">
+            <div class="flex justify-between items-center mb-2 sm:mb-4 md:mb-6 gap-2 sm:gap-3">
                 <h1 class="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-text-primary">Klotski Puzzle</h1>
                 
                 <!-- Desktop controls -->
@@ -452,13 +508,13 @@
             </div>
 
             <!-- Game stats - Mobile only -->
-            <div class="md:hidden flex justify-center gap-6 mb-4">
+            <div class="md:hidden flex justify-center gap-4 mb-2 sm:mb-3">
                 <div class="text-center">
-                    <div class="text-xl font-bold text-text-primary" id="moveCounterMobile">0</div>
+                    <div class="text-lg font-bold text-text-primary" id="moveCounterMobile">0</div>
                     <div class="text-xs text-text-secondary">Moves</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-xl font-bold text-text-primary" id="timerMobile">00:00</div>
+                    <div class="text-lg font-bold text-text-primary" id="timerMobile">00:00</div>
                     <div class="text-xs text-text-secondary">Time</div>
                 </div>
             </div>
@@ -474,10 +530,9 @@
             <!-- Game board -->
             <div id="gameBoard" class="hidden" role="application" aria-label="Klotski sliding block puzzle">
                 <!-- Instructions -->
-                <div class="text-center mb-4 sm:mb-6 max-w-md px-4 md:hidden">
-                    <p class="text-text-secondary text-xs sm:text-sm">
-                        Get the <span class="text-yellow-400 font-semibold">GOAL</span> block out through the bottom opening.
-                        Drag blocks to slide them.
+                <div class="text-center mb-2 sm:mb-3 max-w-md px-2 md:hidden">
+                    <p class="text-text-secondary text-xs">
+                        Get the <span class="text-red-400 font-semibold">red</span> block out through the bottom opening.
                     </p>
                 </div>
                 
@@ -536,9 +591,9 @@
                     </div>
                     
                     <!-- Puzzle selector -->
-                    <div class="mt-4">
+                    <div class="mt-2 sm:mt-3">
                         <label for="puzzleSelectMobile" class="block text-text-secondary text-xs mb-1">Difficulty:</label>
-                        <select id="puzzleSelectMobile" class="bg-surface-secondary border border-surface-border text-text-primary rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                        <select id="puzzleSelectMobile" class="w-full bg-surface-secondary border border-surface-border text-text-primary rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent max-w-48 mx-auto">
                             <option value="beginner">Beginner</option>
                             <option value="classic">Classic Klotski</option>
                             <option value="expert">Expert</option>
@@ -1391,7 +1446,6 @@
                     // Show opening at bottom center (where blocks can exit)
                     if ((x === 1 || x === 2) && y === 4) {
                         cell.classList.add('exit-area');
-                        cell.style.borderBottom = 'none'; // Remove bottom border to show opening
                     }
                     
                     
