@@ -9,7 +9,8 @@
     <link rel="icon" type="image/x-icon" href="favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital,wght@0,400;1,400&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital,wght@0,400;1,400&display=swap"
         rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
@@ -183,7 +184,7 @@
             background: transparent;
             border-radius: 0;
             opacity: 1;
-            box-shadow: 
+            box-shadow:
                 0 0 25px 10px rgba(59, 130, 246, 0.2),
                 0 0 50px 20px rgba(59, 130, 246, 0.1),
                 0 0 100px 30px rgba(59, 130, 246, 0.05),
@@ -224,7 +225,7 @@
         }
 
         .toc:not(.expanded):hover::before {
-            box-shadow: 
+            box-shadow:
                 0 0 30px 12px rgba(59, 130, 246, 0.3),
                 0 0 60px 25px rgba(59, 130, 246, 0.15),
                 0 0 120px 35px rgba(59, 130, 246, 0.08),
@@ -244,15 +245,15 @@
             white-space: nowrap;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.1s, 
-                        visibility 0s 0.4s;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.1s,
+                visibility 0s 0.4s;
         }
 
         .toc.expanded .toc-link {
             opacity: 1;
             visibility: visible;
-            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.1s, 
-                        visibility 0s 0s;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.1s,
+                visibility 0s 0s;
         }
 
         .toc-link:hover {
@@ -328,7 +329,7 @@
 
         /* Dark theme glow */
         .dark .toc::before {
-            box-shadow: 
+            box-shadow:
                 0 0 25px 10px rgba(59, 130, 246, 0.2),
                 0 0 50px 20px rgba(59, 130, 246, 0.1),
                 0 0 100px 30px rgba(59, 130, 246, 0.05),
@@ -337,7 +338,7 @@
         }
 
         .dark .toc:not(.expanded):hover::before {
-            box-shadow: 
+            box-shadow:
                 0 0 30px 12px rgba(59, 130, 246, 0.3),
                 0 0 60px 25px rgba(59, 130, 246, 0.15),
                 0 0 120px 35px rgba(59, 130, 246, 0.08),
@@ -356,12 +357,12 @@
                 right: 1rem;
                 width: 10rem;
             }
-            
+
             .toc-text {
                 font-size: 0.75rem;
             }
         }
-        
+
         /* Neural connection lines */
         .neural-connection {
             position: absolute;
@@ -369,12 +370,19 @@
             background: linear-gradient(to bottom, transparent, rgba(6, 182, 212, 0.3), transparent);
             animation: pulse-glow 3s ease-in-out infinite;
         }
-        
+
         @keyframes pulse-glow {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.8; }
+
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
         }
-        
+
         /* Floating particles */
         .floating-particle {
             position: absolute;
@@ -384,23 +392,34 @@
             border-radius: 50%;
             animation: particle-float 12s linear infinite;
         }
-        
+
         .floating-particle:nth-child(odd) {
             background: radial-gradient(circle, rgba(139, 92, 246, 0.8), transparent);
             animation-duration: 15s;
         }
-        
+
         @keyframes particle-float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-30px) rotate(120deg); }
-            66% { transform: translateY(15px) rotate(240deg); }
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            33% {
+                transform: translateY(-30px) rotate(120deg);
+            }
+
+            66% {
+                transform: translateY(15px) rotate(240deg);
+            }
         }
     </style>
 
 
 </head>
 
-<body class="bg-surface-primary min-h-screen font-['Inter',system-ui,sans-serif] antialiased particle-bg overflow-x-hidden">
+<body
+    class="bg-surface-primary min-h-screen font-['Inter',system-ui,sans-serif] antialiased particle-bg overflow-x-hidden">
     <!-- Floating particles background -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden">
         <div class="floating-particle" style="left: 10%; top: 20%; animation-delay: 0s;"></div>
@@ -431,11 +450,13 @@
             <div class="toc-dot" aria-hidden="true"></div>
             <span class="toc-text">Summary</span>
         </a>
-        <a href="#proficiencies" class="toc-link" data-section="proficiencies" aria-label="Navigate to Proficiencies section">
+        <a href="#proficiencies" class="toc-link" data-section="proficiencies"
+            aria-label="Navigate to Proficiencies section">
             <div class="toc-dot" aria-hidden="true"></div>
             <span class="toc-text">Proficiencies</span>
         </a>
-        <a href="#work-history" class="toc-link" data-section="work-history" aria-label="Navigate to Work History section">
+        <a href="#work-history" class="toc-link" data-section="work-history"
+            aria-label="Navigate to Work History section">
             <div class="toc-dot" aria-hidden="true"></div>
             <span class="toc-text">Work History</span>
         </a>
@@ -443,13 +464,15 @@
             <div class="toc-dot" aria-hidden="true"></div>
             <span class="toc-text">Education</span>
         </a>
-        <a href="#recognitions" class="toc-link" data-section="recognitions" aria-label="Navigate to Recognitions section">
+        <a href="#recognitions" class="toc-link" data-section="recognitions"
+            aria-label="Navigate to Recognitions section">
             <div class="toc-dot" aria-hidden="true"></div>
             <span class="toc-text">Recognitions</span>
         </a>
     </nav>
     <header class="fixed top-4 sm:top-6 left-0 right-0 z-50 px-2 sm:px-4" role="banner">
-        <nav class="bg-surface-secondary/95 backdrop-blur-md rounded-full shadow-lg hover:shadow-xl transition-all duration-300 max-w-fit mx-auto border border-surface-border/50" role="navigation" aria-label="Main navigation">
+        <nav class="bg-surface-secondary/95 backdrop-blur-md rounded-full shadow-lg hover:shadow-xl transition-all duration-300 max-w-fit mx-auto border border-surface-border/50"
+            role="navigation" aria-label="Main navigation">
             <div class="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2">
                 <!-- Logo -->
                 <a href="about.html" class="flex-shrink-0" aria-label="Home - Mark Rood Portfolio">
@@ -518,8 +541,10 @@
                             <span
                                 class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">API</span>
                             <span
-                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">Tailwind
-                            </span>
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">Claude
+                                Code</span>
+                            <span
+                                class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-primary-light hover:text-white dark:hover:bg-primary-dark transition-colors duration-300">Vercel</span>
                         </div>
                     </div>
 
@@ -587,268 +612,273 @@
 
             <section id="work-history" class="mb-8">
                 <h2 class="text-2xl sm:text-3xl mb-2 text-text-primary font-semibold"><strong>Work History</strong></h2>
-            <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
-                <strong>Product Manager</strong> | <strong>PDQ </strong> |
-                <em>10/2024 to Current</em>
-            </p>
-            <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
-                <li>Own product development for the PDQ Package Library, a catalog of 3rd party applications used by IT teams to deploy and patch software efficiently.</li>
-                <li>Benchmarked competitors and maintained an internal comparison matrix to identify product gaps and opportunities.</li>
+                <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
+                    <strong>Product Manager</strong> | <strong>PDQ </strong> |
+                    <em>10/2024 to Current</em>
+                </p>
+                <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
+                    <li>Own product development for the PDQ Package Library, a catalog of 3rd party applications used by
+                        IT teams to deploy and patch software efficiently.</li>
+                    <li>Rapidly prototype AI features to figure out what works, easier to learn from something you can
+                        click through than a spec doc.</li>
 
-            </ul>
-            <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
-                <strong>Systems Engineer</strong> | <strong>PDQ </strong> |
-                <em>05/2023 to 9/2024</em>
-            </p>
-            <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
-                <li>Managed help centers for five products, enhancing self-help resources and reducing support requests
-                    by 5%.</li>
-                <li>Developed custom utilities and tools for internal and public use</li>
-                <li>Led the redesign and rearchitecture of customer support forms, resulting in improved user experience
-                    and streamlined issue resolution</li>
-                <li>Developed and implemented a streamlined feedback system to accelerate product iteration cycles and
-                    enhance user experience</li>
-                <li>Created and maintained a product discovery and education platform</li>
-            </ul>
-            <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
-                <strong>Solutions Engineer</strong> | <strong>PDQ </strong> |
-                <em>10/2022 to 05/2023</em>
-            </p>
-            <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
-                <li>Assist customers with technical issues and inquiries via the Zendesk ticketing system</li>
-                <li>Collaborate with cross-functional internal teams and departments</li>
-                <li>Create and maintain product's technical documentation</li>
-            </ul>
-            <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
-                <strong>System Administrator</strong> |
-                <strong>Western Partitions, Inc, </strong> |
-                <em>06/2022 to 10/2022</em>
-            </p>
-            <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
-                <li>Reconfigure/maintain patching and updating infrastructure</li>
-                <li>Maintain device security policies with EDR solution</li>
-                <li>Establish device source-of-truth in dynamic industry</li>
-                <li>Maintain MDM solution for Windows, macOS, iOS and Android</li>
-                <li>Establish documentation practices</li>
-            </ul>
-            <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
-                <strong>System Administrator</strong> |
-                <strong>Majoris Health Systems</strong> | <em>10/2019 to 05/2022</em>
-            </p>
-            <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
-                <li>Optimized system availability (averaging 99.95% uptime)</li>
-                <li>Migrated company to MS365</li>
-                <li>Implemented MFA throughout company</li>
-                <li>
-                    Conducted security awareness training and education for all company
-                    employees
-                </li>
-                <li>
-                    Wrote and maintained training documentation reducing trouble tickets
-                    by 25%
-                </li>
-                <li>Applied security hardening baselines and policies</li>
-                <li>
-                    Created and maintained company policies, standards and IT budget
-                </li>
-                <li>
-                    Maintained and optimized Document Management System and SQL server
-                </li>
-                <li>Created end-user guides and educational documentation</li>
-            </ul>
-            <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
-                <strong>System Administrator</strong> |
-                <strong>Bishop Creek Services</strong> | <em>08/2016 to 10/2019</em>
-            </p>
-            <p class="text-gray-600 dark:text-gray-400 mb-2">
-                <em>Contract with Majoris Health Systems ended in October 2019 at which
-                    time I was hired as a full-time employee.</em>
-            </p>
-            <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
-                <li>
-                    Maintained 2 client infrastructures (Cummins Goodman, PC and Majoris
-                    Health Systems)
-                </li>
-                <li>
-                    Developed and implemented policies in compliance with HIPAA and
-                    ISO27001
-                </li>
-                <li>
-                    Documented and maintained IT procedures of client's IT
-                    infrastructure and workflow
-                </li>
-                <li>
-                    Investigate and resolve end user PC problems and application issues
-                    through ticketing system
-                </li>
-                <li>
-                    Collaborated with the CFO to develop justifications and cost/benefit
-                    analysis for IT initiatives
-                </li>
-                <li>Restructured existing Active Directory and GPOs</li>
-                <li>Automated all applicable repeatable tasks</li>
-                <li>Installed patches/upgrades to infrastructure</li>
-            </ul>
-            <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
-                <strong>Assistant Data Chief</strong> |
-                <strong>United States Marine Corps</strong> |
-                <em>07/2012 to 09/2016</em>
-            </p>
-            <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
-                <li>Administered Windows Environment</li>
-                <li>Managed 5 junior administrators</li>
-                <li>
-                    Designed, implemented and maintained equipment configuration
-                    prototypes, including network hardware, software and servers
-                </li>
-                <li>
-                    Operated and maintained Mobile Modular Command &amp; Control (M2C2)
-                    system
-                </li>
-                <li>
-                    Acted as Information Security Coordinator (coordinated to higher
-                    echelon units)
-                </li>
-            </ul>
+                </ul>
+                <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
+                    <strong>Systems Engineer</strong> | <strong>PDQ </strong> |
+                    <em>05/2023 to 9/2024</em>
+                </p>
+                <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
+                    <li>Managed help centers for five products, enhancing self-help resources and reducing support
+                        requests
+                        by 5%.</li>
+                    <li>Developed custom utilities and tools for internal and public use</li>
+                    <li>Led the redesign and rearchitecture of customer support forms, resulting in improved user
+                        experience
+                        and streamlined issue resolution</li>
+                    <li>Developed and implemented a streamlined feedback system to accelerate product iteration cycles
+                        and
+                        enhance user experience</li>
+                    <li>Created and maintained a product discovery and education platform</li>
+                </ul>
+                <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
+                    <strong>Solutions Engineer</strong> | <strong>PDQ </strong> |
+                    <em>10/2022 to 05/2023</em>
+                </p>
+                <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
+                    <li>Assist customers with technical issues and inquiries via the Zendesk ticketing system</li>
+                    <li>Collaborate with cross-functional internal teams and departments</li>
+                    <li>Create and maintain product's technical documentation</li>
+                </ul>
+                <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
+                    <strong>System Administrator</strong> |
+                    <strong>Western Partitions, Inc, </strong> |
+                    <em>06/2022 to 10/2022</em>
+                </p>
+                <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
+                    <li>Reconfigure/maintain patching and updating infrastructure</li>
+                    <li>Maintain device security policies with EDR solution</li>
+                    <li>Establish device source-of-truth in dynamic industry</li>
+                    <li>Maintain MDM solution for Windows, macOS, iOS and Android</li>
+                    <li>Establish documentation practices</li>
+                </ul>
+                <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
+                    <strong>System Administrator</strong> |
+                    <strong>Majoris Health Systems</strong> | <em>10/2019 to 05/2022</em>
+                </p>
+                <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
+                    <li>Optimized system availability (averaging 99.95% uptime)</li>
+                    <li>Migrated company to MS365</li>
+                    <li>Implemented MFA throughout company</li>
+                    <li>
+                        Conducted security awareness training and education for all company
+                        employees
+                    </li>
+                    <li>
+                        Wrote and maintained training documentation reducing trouble tickets
+                        by 25%
+                    </li>
+                    <li>Applied security hardening baselines and policies</li>
+                    <li>
+                        Created and maintained company policies, standards and IT budget
+                    </li>
+                    <li>
+                        Maintained and optimized Document Management System and SQL server
+                    </li>
+                    <li>Created end-user guides and educational documentation</li>
+                </ul>
+                <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
+                    <strong>System Administrator</strong> |
+                    <strong>Bishop Creek Services</strong> | <em>08/2016 to 10/2019</em>
+                </p>
+                <p class="text-gray-600 dark:text-gray-400 mb-2">
+                    <em>Contract with Majoris Health Systems ended in October 2019 at which
+                        time I was hired as a full-time employee.</em>
+                </p>
+                <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
+                    <li>
+                        Maintained 2 client infrastructures (Cummins Goodman, PC and Majoris
+                        Health Systems)
+                    </li>
+                    <li>
+                        Developed and implemented policies in compliance with HIPAA and
+                        ISO27001
+                    </li>
+                    <li>
+                        Documented and maintained IT procedures of client's IT
+                        infrastructure and workflow
+                    </li>
+                    <li>
+                        Investigate and resolve end user PC problems and application issues
+                        through ticketing system
+                    </li>
+                    <li>
+                        Collaborated with the CFO to develop justifications and cost/benefit
+                        analysis for IT initiatives
+                    </li>
+                    <li>Restructured existing Active Directory and GPOs</li>
+                    <li>Automated all applicable repeatable tasks</li>
+                    <li>Installed patches/upgrades to infrastructure</li>
+                </ul>
+                <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
+                    <strong>Assistant Data Chief</strong> |
+                    <strong>United States Marine Corps</strong> |
+                    <em>07/2012 to 09/2016</em>
+                </p>
+                <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
+                    <li>Administered Windows Environment</li>
+                    <li>Managed 5 junior administrators</li>
+                    <li>
+                        Designed, implemented and maintained equipment configuration
+                        prototypes, including network hardware, software and servers
+                    </li>
+                    <li>
+                        Operated and maintained Mobile Modular Command &amp; Control (M2C2)
+                        system
+                    </li>
+                    <li>
+                        Acted as Information Security Coordinator (coordinated to higher
+                        echelon units)
+                    </li>
+                </ul>
             </section>
 
             <section id="education" class="mb-8">
                 <h2 class="text-2xl sm:text-3xl mb-2 text-text-primary font-semibold">
                     <strong>Education</strong>
                 </h2>
-            <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
-                <strong>Certificate of Completion</strong> |
-                <strong>Marine Corps Communications-Electronics School</strong> |
-                <em>2012</em>
-            </p>
-            <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
-                <li>Coursework in network / system administration</li>
-                <li>
-                    Computer / server hardware and software installation and maintenance
-                </li>
-                <li>
-                    Coursework in information technology and computer applications
-                </li>
-            </ul>
+                <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
+                    <strong>Certificate of Completion</strong> |
+                    <strong>Marine Corps Communications-Electronics School</strong> |
+                    <em>2012</em>
+                </p>
+                <ul class="mb-4 text-gray-600 dark:text-gray-400 list-disc pl-5">
+                    <li>Coursework in network / system administration</li>
+                    <li>
+                        Computer / server hardware and software installation and maintenance
+                    </li>
+                    <li>
+                        Coursework in information technology and computer applications
+                    </li>
+                </ul>
             </section>
 
             <section id="recognitions" class="mb-8">
                 <h2 class="text-2xl sm:text-3xl mb-2 text-text-primary font-semibold">
                     <strong>Recognitions</strong>
                 </h2>
-            <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
-                <strong>Navy and Marine Corps Achievement Medal</strong> |
-                <em>1 April 2016</em>
-            </p>
-            <p class="mb-4 text-gray-600 dark:text-gray-400">
-                Awarded in recognition of duty while maintaining the billet of
-                Assistant Data Network Chief by providing users enhanced capabilities
-                allowing the battalion to operate at maximum efficiency. Provided
-                critical communications support to an amphibious landing exercise in
-                support of Operation Inherent Resolve.
-            </p>
-            <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
-                <strong>Navy and Marine Corps Achievement Medal</strong> |
-                <em>11 March 2014</em>
-            </p>
-            <p class="mb-4 text-gray-600 dark:text-gray-400">
-                Awarded in recognition of technical proficiency while operating in a
-                deployed environment. Supporting up to but not limited to 1,000+ users
-                across two tactical networks. While also operating and maintaining a
-                vehicle based transmission system, Mobile Modular Command Center
-                (M2C2) in support of Operation Enduring Freedom.
-            </p>
+                <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
+                    <strong>Navy and Marine Corps Achievement Medal</strong> |
+                    <em>1 April 2016</em>
+                </p>
+                <p class="mb-4 text-gray-600 dark:text-gray-400">
+                    Awarded in recognition of duty while maintaining the billet of
+                    Assistant Data Network Chief by providing users enhanced capabilities
+                    allowing the battalion to operate at maximum efficiency. Provided
+                    critical communications support to an amphibious landing exercise in
+                    support of Operation Inherent Resolve.
+                </p>
+                <p class="text-xl mb-2 text-gray-600 dark:text-gray-300">
+                    <strong>Navy and Marine Corps Achievement Medal</strong> |
+                    <em>11 March 2014</em>
+                </p>
+                <p class="mb-4 text-gray-600 dark:text-gray-400">
+                    Awarded in recognition of technical proficiency while operating in a
+                    deployed environment. Supporting up to but not limited to 1,000+ users
+                    across two tactical networks. While also operating and maintaining a
+                    vehicle based transmission system, Mobile Modular Command Center
+                    (M2C2) in support of Operation Enduring Freedom.
+                </p>
             </section>
         </div>
-    </section>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const sections = document.querySelectorAll('section[id]');
-            const tocLinks = document.querySelectorAll('.toc-link');
-            const toc = document.querySelector('.toc');
-            let scrollTimeout = null;
+        </section>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const sections = document.querySelectorAll('section[id]');
+                const tocLinks = document.querySelectorAll('.toc-link');
+                const toc = document.querySelector('.toc');
+                let scrollTimeout = null;
 
-            // Check if TOC elements exist
-            if (!sections.length || !tocLinks.length || !toc) {
-                console.warn('TOC elements not found, skipping TOC functionality');
-                return;
-            }
-
-            // TOC toggle functionality
-            function toggleTOC(e) {
-                // Only toggle if clicking on the collapsed TOC (not on links when expanded)
-                if (!toc.classList.contains('expanded') || e.target === toc || e.target === toc.querySelector('::before')) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toc.classList.toggle('expanded');
+                // Check if TOC elements exist
+                if (!sections.length || !tocLinks.length || !toc) {
+                    console.warn('TOC elements not found, skipping TOC functionality');
+                    return;
                 }
-            }
 
-            // Close TOC when clicking outside
-            function closeTOC(e) {
-                if (toc.classList.contains('expanded') && !toc.contains(e.target)) {
-                    toc.classList.remove('expanded');
-                }
-            }
-
-            // Add click handlers
-            toc.addEventListener('click', toggleTOC);
-            document.addEventListener('click', closeTOC);
-
-            // Throttled scroll handler
-            function throttledUpdateActiveSection() {
-                if (scrollTimeout) return;
-                scrollTimeout = setTimeout(() => {
-                    updateActiveSection();
-                    scrollTimeout = null;
-                }, 16); // ~60fps
-            }
-
-            // Update active section
-            function updateActiveSection() {
-                let currentSection = null;
-                const fromTop = window.scrollY + window.innerHeight / 3;
-
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    const sectionHeight = section.offsetHeight;
-
-                    if (fromTop >= sectionTop && fromTop <= sectionTop + sectionHeight) {
-                        currentSection = section.getAttribute('id');
+                // TOC toggle functionality
+                function toggleTOC(e) {
+                    // Only toggle if clicking on the collapsed TOC (not on links when expanded)
+                    if (!toc.classList.contains('expanded') || e.target === toc || e.target === toc.querySelector('::before')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toc.classList.toggle('expanded');
                     }
-                });
+                }
 
+                // Close TOC when clicking outside
+                function closeTOC(e) {
+                    if (toc.classList.contains('expanded') && !toc.contains(e.target)) {
+                        toc.classList.remove('expanded');
+                    }
+                }
+
+                // Add click handlers
+                toc.addEventListener('click', toggleTOC);
+                document.addEventListener('click', closeTOC);
+
+                // Throttled scroll handler
+                function throttledUpdateActiveSection() {
+                    if (scrollTimeout) return;
+                    scrollTimeout = setTimeout(() => {
+                        updateActiveSection();
+                        scrollTimeout = null;
+                    }, 16); // ~60fps
+                }
+
+                // Update active section
+                function updateActiveSection() {
+                    let currentSection = null;
+                    const fromTop = window.scrollY + window.innerHeight / 3;
+
+                    sections.forEach(section => {
+                        const sectionTop = section.offsetTop;
+                        const sectionHeight = section.offsetHeight;
+
+                        if (fromTop >= sectionTop && fromTop <= sectionTop + sectionHeight) {
+                            currentSection = section.getAttribute('id');
+                        }
+                    });
+
+                    tocLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${currentSection}`) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+
+                // Smooth scroll to section
                 tocLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === `#${currentSection}`) {
-                        link.classList.add('active');
-                    }
-                });
-            }
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetId = link.getAttribute('href');
+                        const targetSection = document.querySelector(targetId);
 
-            // Smooth scroll to section
-            tocLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const targetId = link.getAttribute('href');
-                    const targetSection = document.querySelector(targetId);
-
-                    if (targetSection) {
-                        targetSection.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
+                        if (targetSection) {
+                            targetSection.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    });
                 });
+
+                // Update on scroll with throttling
+                window.addEventListener('scroll', throttledUpdateActiveSection, { passive: true });
+
+                // Initial update
+                updateActiveSection();
             });
-
-            // Update on scroll with throttling
-            window.addEventListener('scroll', throttledUpdateActiveSection, { passive: true });
-
-            // Initial update
-            updateActiveSection();
-        });
-    </script>
+        </script>
 
 </body>
 
