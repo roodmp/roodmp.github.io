@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand & Design System | Mark Rood</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans/style.min.css" rel="stylesheet">
+    <style>
+        /* ============================================
+           MARK ROOD DESIGN SYSTEM v2
+           ============================================
+
+           Brand Essence:
+           - Engineer/Builder with precision and craft
+           - Curious & Exploratory mindset
+           - Red Panda as signature warmth element
+           - Geometric precision in visual language
+
+           Colors:
+           - Primary BG: #262624 (Warm Charcoal)
+           - Accent: #4A6785 (Deep Muted Blue)
+
+           Personality:
+           "Approachable technical excellence"
+           ============================================ */
+
+        :root {
+            /* === COLOR TOKENS === */
+
+            /* Primary Background Scale (Warm Charcoal) */
+            --bg-primary: #262624;
+            --bg-secondary: #2E2E2B;
+            --bg-tertiary: #363633;
+            --bg-elevated: #3E3E3A;
+            --bg-hover: #464642;
+
+            /* Surface Colors */
+            --surface-primary: #2E2E2B;
+            --surface-secondary: #363633;
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --surface-border-subtle: rgba(255, 255, 255, 0.04);
+            --surface-border-accent: rgba(74, 103, 133, 0.3);
+
+            /* Accent Color Scale (Deep Muted Blue) */
+            --accent-50: #F0F4F7;
+            --accent-100: #DCE4EB;
+            --accent-200: #B9C9D7;
+            --accent-300: #8BA7BD;
+            --accent-400: #6B8CAE;
+            --accent-500: #4A6785;  /* PRIMARY ACCENT */
+            --accent-600: #3D566E;
+            --accent-700: #324758;
+            --accent-800: #283844;
+            --accent-900: #1F2B34;
+
+            /* Red Panda Accent (Signature Warmth) */
+            --panda-50: #FEF6F3;
+            --panda-100: #FCE8E1;
+            --panda-200: #F9D0C2;
+            --panda-300: #F4A989;
+            --panda-400: #E8845A;  /* Primary panda orange */
+            --panda-500: #D4693D;
+            --panda-600: #B54E2A;
+            --panda-700: #8F3D22;
+            --panda-800: #6B2F1B;
+            --panda-900: #4A2114;
+
+            /* Text Colors */
+            --text-primary: #F5F5F4;
+            --text-secondary: #A8A8A4;
+            --text-tertiary: #6B6B67;
+            --text-accent: #8BA7BD;
+            --text-inverse: #262624;
+
+            /* Semantic Colors */
+            --success: #7CB97E;
+            --success-muted: rgba(124, 185, 126, 0.12);
+            --warning: #D4A857;
+            --warning-muted: rgba(212, 168, 87, 0.12);
+            --error: #C97373;
+            --error-muted: rgba(201, 115, 115, 0.12);
+
+            /* === TYPOGRAPHY === */
+            --font-sans: 'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            --font-serif: 'Source Serif 4', Georgia, serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+            /* Font Sizes */
+            --text-xs: 0.75rem;
+            --text-sm: 0.875rem;
+            --text-base: 1rem;
+            --text-lg: 1.125rem;
+            --text-xl: 1.25rem;
+            --text-2xl: 1.5rem;
+            --text-3xl: 1.875rem;
+            --text-4xl: 2.25rem;
+            --text-5xl: 3rem;
+
+            /* === SPACING === */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --space-16: 4rem;
+            --space-20: 5rem;
+            --space-24: 6rem;
+
+            /* === EFFECTS === */
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.25);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            --shadow-accent: 0 4px 20px -4px rgba(74, 103, 133, 0.35);
+            --shadow-panda: 0 4px 20px -4px rgba(232, 132, 90, 0.25);
+
+            --radius-sm: 4px;
+            --radius-md: 6px;
+            --radius-lg: 10px;
+            --radius-xl: 14px;
+            --radius-full: 9999px;
+
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* === GEOMETRIC GRID === */
+            --grid-unit: 8px;
+        }
+
+        /* === RESET & BASE === */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-sans);
+            font-size: var(--text-base);
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+        }
+
+        /* === GEOMETRIC BACKGROUND PATTERN === */
+        .geo-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        .geo-pattern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(rgba(74, 103, 133, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(74, 103, 133, 0.03) 1px, transparent 1px);
+            background-size: 48px 48px;
+        }
+
+        /* === LAYOUT === */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 var(--space-6);
+        }
+
+        .section {
+            padding: var(--space-20) 0;
+            border-bottom: 1px solid var(--surface-border-subtle);
+        }
+
+        /* === HEADER === */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: var(--space-4) 0;
+            background-color: rgba(38, 38, 36, 0.9);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--surface-border-subtle);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* === LOGO MARK (Geometric + Panda) === */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-mark {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Geometric outer shape */
+        .logo-mark::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-700));
+            border-radius: var(--radius-lg);
+            transform: rotate(0deg);
+            transition: transform var(--transition-normal);
+        }
+
+        .logo:hover .logo-mark::before {
+            transform: rotate(3deg);
+        }
+
+        /* Panda accent dot */
+        .logo-mark::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            width: 10px;
+            height: 10px;
+            background: var(--panda-400);
+            border-radius: 50%;
+            border: 2px solid var(--bg-primary);
+        }
+
+        .logo-text {
+            position: relative;
+            z-index: 1;
+            font-weight: 700;
+            font-size: var(--text-sm);
+            color: white;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-name {
+            font-weight: 600;
+            font-size: var(--text-base);
+            letter-spacing: -0.01em;
+        }
+
+        /* === NAVIGATION === */
+        .nav {
+            display: flex;
+            gap: var(--space-1);
+        }
+
+        .nav-link {
+            position: relative;
+            padding: var(--space-2) var(--space-4);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--text-sm);
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            background-color: var(--bg-hover);
+        }
+
+        .nav-link.active {
+            color: var(--text-primary);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--panda-400);
+            border-radius: 50%;
+        }
+
+        /* === HERO === */
+        .hero {
+            padding: var(--space-24) 0;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-4);
+            background: var(--surface-primary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-full);
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-6);
+        }
+
+        .hero-badge-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--panda-400);
+            border-radius: 50%;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, var(--text-5xl));
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin: 0 0 var(--space-6);
+        }
+
+        .hero-title-accent {
+            color: var(--accent-300);
+        }
+
+        .hero-subtitle {
+            font-family: var(--font-serif);
+            font-size: var(--text-xl);
+            color: var(--text-secondary);
+            max-width: 560px;
+            margin: 0 auto var(--space-8);
+            font-style: italic;
+        }
+
+        /* === SECTION HEADERS === */
+        .section-header {
+            margin-bottom: var(--space-10);
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-xs);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: var(--space-3);
+        }
+
+        .section-label::before {
+            content: '';
+            width: 12px;
+            height: 2px;
+            background: var(--panda-400);
+            border-radius: 1px;
+        }
+
+        .section-title {
+            font-size: var(--text-3xl);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin: 0 0 var(--space-3);
+        }
+
+        .section-desc {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0;
+        }
+
+        /* === BRAND PERSONALITY CARDS === */
+        .personality-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-6);
+            margin-top: var(--space-8);
+        }
+
+        .personality-card {
+            position: relative;
+            padding: var(--space-8);
+            background: var(--surface-primary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            transition: all var(--transition-normal);
+        }
+
+        .personality-card:hover {
+            border-color: var(--surface-border-accent);
+            transform: translateY(-2px);
+        }
+
+        .personality-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-500), var(--panda-400));
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+        }
+
+        .personality-card:hover::before {
+            opacity: 1;
+        }
+
+        .personality-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-4);
+            font-size: 24px;
+        }
+
+        .personality-title {
+            font-size: var(--text-lg);
+            font-weight: 600;
+            margin: 0 0 var(--space-2);
+        }
+
+        .personality-desc {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* === COLOR PALETTE === */
+        .palette-section {
+            margin-top: var(--space-8);
+        }
+
+        .palette-title {
+            font-size: var(--text-base);
+            font-weight: 600;
+            margin: 0 0 var(--space-4);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: var(--space-3);
+        }
+
+        .swatch {
+            aspect-ratio: 1;
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: var(--space-2);
+            font-size: var(--text-xs);
+            transition: transform var(--transition-fast);
+            border: 1px solid var(--surface-border);
+        }
+
+        .swatch:hover {
+            transform: scale(1.05);
+        }
+
+        .swatch-label {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .swatch-value {
+            font-family: var(--font-mono);
+            opacity: 0.8;
+            font-size: 10px;
+        }
+
+        .swatch.light { color: var(--text-primary); }
+        .swatch.dark { color: var(--text-inverse); }
+
+        /* === SIGNATURE ELEMENTS === */
+        .signature-showcase {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-6);
+            margin-top: var(--space-8);
+        }
+
+        .signature-item {
+            padding: var(--space-8);
+            background: var(--surface-primary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-xl);
+            text-align: center;
+        }
+
+        .signature-item h4 {
+            font-size: var(--text-sm);
+            font-weight: 600;
+            margin: var(--space-4) 0 var(--space-2);
+        }
+
+        .signature-item p {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+            margin: 0;
+        }
+
+        /* Red Panda Mark */
+        .panda-mark {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .panda-mark-base {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--panda-400), var(--panda-600));
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .panda-mark-base::before,
+        .panda-mark-base::after {
+            content: '';
+            position: absolute;
+            background: var(--panda-300);
+            border-radius: 50%;
+        }
+
+        .panda-mark-base::before {
+            width: 20px;
+            height: 20px;
+            top: -4px;
+            left: 6px;
+            transform: rotate(-20deg);
+            border-radius: 50% 50% 50% 20%;
+        }
+
+        .panda-mark-base::after {
+            width: 20px;
+            height: 20px;
+            top: -4px;
+            right: 6px;
+            transform: rotate(20deg);
+            border-radius: 50% 50% 20% 50%;
+        }
+
+        /* Geometric Grid */
+        .geo-grid-demo {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+        }
+
+        .geo-grid-demo span {
+            background: var(--accent-500);
+            border-radius: 2px;
+            opacity: 0.3;
+        }
+
+        .geo-grid-demo span:nth-child(1),
+        .geo-grid-demo span:nth-child(5),
+        .geo-grid-demo span:nth-child(9) {
+            opacity: 1;
+        }
+
+        .geo-grid-demo span:nth-child(3),
+        .geo-grid-demo span:nth-child(7) {
+            opacity: 0.6;
+        }
+
+        /* Accent Line */
+        .accent-line-demo {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .accent-line-demo::before {
+            content: '';
+            width: 48px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-500), var(--panda-400));
+            border-radius: 2px;
+        }
+
+        /* === BUTTONS === */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            padding: var(--space-3) var(--space-5);
+            font-family: var(--font-sans);
+            font-size: var(--text-sm);
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            border: none;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-primary {
+            background: var(--accent-500);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-600);
+            box-shadow: var(--shadow-accent);
+        }
+
+        .btn-secondary {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--surface-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-500);
+            background: var(--bg-hover);
+        }
+
+        .btn-panda {
+            background: var(--panda-400);
+            color: white;
+        }
+
+        .btn-panda:hover {
+            background: var(--panda-500);
+            box-shadow: var(--shadow-panda);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: var(--space-3);
+            flex-wrap: wrap;
+        }
+
+        /* === TYPOGRAPHY SHOWCASE === */
+        .type-showcase {
+            margin-top: var(--space-8);
+        }
+
+        .type-sample {
+            padding: var(--space-6);
+            background: var(--surface-primary);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-4);
+        }
+
+        .type-sample:last-child {
+            margin-bottom: 0;
+        }
+
+        .type-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-3);
+            padding-bottom: var(--space-3);
+            border-bottom: 1px solid var(--surface-border-subtle);
+        }
+
+        .type-label {
+            font-size: var(--text-xs);
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .type-spec {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+        }
+
+        .type-display {
+            font-size: var(--text-4xl);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin: 0;
+        }
+
+        .type-heading {
+            font-size: var(--text-2xl);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+
+        .type-body {
+            font-family: var(--font-serif);
+            font-size: var(--text-lg);
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .type-mono {
+            font-family: var(--font-mono);
+            font-size: var(--text-sm);
+            color: var(--accent-300);
+            margin: 0;
+        }
+
+        /* === COMPONENT CARDS === */
+        .card {
+            background: var(--surface-primary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            transition: all var(--transition-normal);
+        }
+
+        .card:hover {
+            border-color: var(--surface-border-accent);
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--space-5);
+            margin-top: var(--space-6);
+        }
+
+        .card-title {
+            font-size: var(--text-base);
+            font-weight: 600;
+            margin: 0 0 var(--space-2);
+        }
+
+        .card-desc {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* === BADGES === */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-1);
+            padding: var(--space-1) var(--space-3);
+            font-size: var(--text-xs);
+            font-weight: 500;
+            border-radius: var(--radius-full);
+            background: rgba(74, 103, 133, 0.15);
+            color: var(--accent-300);
+        }
+
+        .badge-panda {
+            background: rgba(232, 132, 90, 0.15);
+            color: var(--panda-300);
+        }
+
+        .badge::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            background: currentColor;
+            border-radius: 50%;
+        }
+
+        /* === QUOTE === */
+        .quote {
+            position: relative;
+            font-family: var(--font-serif);
+            font-size: var(--text-xl);
+            font-style: italic;
+            color: var(--text-secondary);
+            padding-left: var(--space-8);
+            margin: var(--space-12) 0;
+        }
+
+        .quote::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--accent-500), var(--panda-400));
+            border-radius: 2px;
+        }
+
+        /* === PRINCIPLES === */
+        .principles-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-4);
+            margin-top: var(--space-8);
+        }
+
+        .principle {
+            padding: var(--space-5);
+            background: var(--surface-primary);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-lg);
+            text-align: center;
+        }
+
+        .principle-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: var(--accent-500);
+            color: white;
+            font-size: var(--text-xs);
+            font-weight: 700;
+            border-radius: 50%;
+            margin-bottom: var(--space-3);
+        }
+
+        .principle-title {
+            font-size: var(--text-sm);
+            font-weight: 600;
+            margin: 0 0 var(--space-2);
+        }
+
+        .principle-desc {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+            margin: 0;
+        }
+
+        /* === FOOTER === */
+        .footer {
+            padding: var(--space-12) 0;
+            text-align: center;
+            border-top: 1px solid var(--surface-border-subtle);
+        }
+
+        .footer-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-4);
+        }
+
+        .footer-mark {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-500), var(--accent-700));
+            border-radius: var(--radius-md);
+            position: relative;
+        }
+
+        .footer-mark::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: var(--panda-400);
+            border-radius: 50%;
+            border: 2px solid var(--bg-primary);
+        }
+
+        .footer p {
+            font-size: var(--text-sm);
+            color: var(--text-tertiary);
+            margin: 0;
+        }
+
+        /* === UTILITIES === */
+        .text-center { text-align: center; }
+        .mt-4 { margin-top: var(--space-4); }
+        .mt-6 { margin-top: var(--space-6); }
+        .mt-8 { margin-top: var(--space-8); }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 900px) {
+            .personality-grid,
+            .signature-showcase,
+            .principles-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .personality-grid,
+            .signature-showcase,
+            .principles-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav {
+                display: none;
+            }
+        }
+
+        /* === SELECTION === */
+        ::selection {
+            background: var(--panda-400);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="geo-pattern"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-content">
+            <a href="#" class="logo">
+                <span class="logo-mark">
+                    <span class="logo-text">MR</span>
+                </span>
+                <span class="logo-name">Mark Rood</span>
+            </a>
+            <nav class="nav">
+                <a href="#personality" class="nav-link active">Brand</a>
+                <a href="#colors" class="nav-link">Colors</a>
+                <a href="#typography" class="nav-link">Type</a>
+                <a href="#components" class="nav-link">Elements</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">
+                <span class="hero-badge-dot"></span>
+                Design System v2
+            </div>
+            <h1 class="hero-title">
+                Approachable<br>
+                <span class="hero-title-accent">Technical Excellence</span>
+            </h1>
+            <p class="hero-subtitle">
+                A design language that balances engineering precision with warmth and curiosity
+            </p>
+            <div class="btn-group" style="justify-content: center;">
+                <a href="#personality" class="btn btn-primary">Explore Brand</a>
+                <a href="#colors" class="btn btn-secondary">View System</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Brand Personality -->
+    <section id="personality" class="section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Foundation</div>
+                <h2 class="section-title">Brand Personality</h2>
+                <p class="section-desc">Four pillars that define how the Mark Rood brand looks, feels, and communicates.</p>
+            </div>
+
+            <div class="personality-grid">
+                <div class="personality-card">
+                    <div class="personality-icon">&#x1F527;</div>
+                    <h3 class="personality-title">Engineer & Builder</h3>
+                    <p class="personality-desc">Creates, codes, and ships with technical credibility. Every design decision is intentional and purposeful, reflecting the precision of engineering craft.</p>
+                </div>
+                <div class="personality-card">
+                    <div class="personality-icon">&#x1F50D;</div>
+                    <h3 class="personality-title">Curious & Exploratory</h3>
+                    <p class="personality-desc">Always learning, always questioning. The voice invites discovery rather than dictating answers. Questions are celebrated as much as solutions.</p>
+                </div>
+                <div class="personality-card">
+                    <div class="personality-icon">&#x1F4D0;</div>
+                    <h3 class="personality-title">Geometric Precision</h3>
+                    <p class="personality-desc">Clean lines, mathematical relationships, and intentional spacing. The visual language communicates order and thoughtfulness through structure.</p>
+                </div>
+                <div class="personality-card">
+                    <div class="personality-icon">&#x1F9E1;</div>
+                    <h3 class="personality-title">Warm & Approachable</h3>
+                    <p class="personality-desc">The red panda brings unexpected warmth to technical excellence. Playful without being frivolous. Human in a world of cold technology.</p>
+                </div>
+            </div>
+
+            <div class="quote">
+                "Technical rigor doesn't have to mean cold and distant. The best tools feel like they were made by someone who cares."
+            </div>
+        </div>
+    </section>
+
+    <!-- Signature Elements -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Identity</div>
+                <h2 class="section-title">Signature Elements</h2>
+                <p class="section-desc">Distinctive visual markers that make Mark Rood's work instantly recognizable.</p>
+            </div>
+
+            <div class="signature-showcase">
+                <div class="signature-item">
+                    <div class="panda-mark">
+                        <div class="panda-mark-base"></div>
+                    </div>
+                    <h4>Red Panda Accent</h4>
+                    <p>The warm orange brings humanity to technical work</p>
+                </div>
+                <div class="signature-item">
+                    <div class="geo-grid-demo">
+                        <span></span><span></span><span></span>
+                        <span></span><span></span><span></span>
+                        <span></span><span></span><span></span>
+                    </div>
+                    <h4>Geometric Grid</h4>
+                    <p>Subtle precision underlying every layout</p>
+                </div>
+                <div class="signature-item">
+                    <div class="accent-line-demo"></div>
+                    <h4>Gradient Line</h4>
+                    <p>Blue-to-orange transition as section marker</p>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <h4 style="font-size: var(--text-base); margin-bottom: var(--space-4);">Logo Mark Variations</h4>
+                <div class="btn-group">
+                    <span class="logo-mark" style="width: 48px; height: 48px;">
+                        <span class="logo-text" style="font-size: var(--text-base);">MR</span>
+                    </span>
+                    <span class="logo-mark" style="width: 36px; height: 36px;">
+                        <span class="logo-text" style="font-size: var(--text-xs);">MR</span>
+                    </span>
+                    <span class="logo-mark" style="width: 28px; height: 28px;">
+                        <span class="logo-text" style="font-size: 10px;">MR</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Colors -->
+    <section id="colors" class="section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Visual</div>
+                <h2 class="section-title">Color System</h2>
+                <p class="section-desc">A warm, sophisticated palette anchored in charcoal with deep blue and panda orange accents.</p>
+            </div>
+
+            <div class="palette-section">
+                <h4 class="palette-title">
+                    <span style="width: 12px; height: 12px; background: var(--bg-primary); border-radius: 2px; border: 1px solid var(--surface-border);"></span>
+                    Background Scale
+                </h4>
+                <div class="palette-grid">
+                    <div class="swatch light" style="background: #262624;">
+                        <span class="swatch-label">Primary</span>
+                        <span class="swatch-value">#262624</span>
+                    </div>
+                    <div class="swatch light" style="background: #2E2E2B;">
+                        <span class="swatch-label">Secondary</span>
+                        <span class="swatch-value">#2E2E2B</span>
+                    </div>
+                    <div class="swatch light" style="background: #363633;">
+                        <span class="swatch-label">Tertiary</span>
+                        <span class="swatch-value">#363633</span>
+                    </div>
+                    <div class="swatch light" style="background: #3E3E3A;">
+                        <span class="swatch-label">Elevated</span>
+                        <span class="swatch-value">#3E3E3A</span>
+                    </div>
+                    <div class="swatch light" style="background: #464642;">
+                        <span class="swatch-label">Hover</span>
+                        <span class="swatch-value">#464642</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="palette-section">
+                <h4 class="palette-title">
+                    <span style="width: 12px; height: 12px; background: var(--accent-500); border-radius: 2px;"></span>
+                    Accent Blue
+                </h4>
+                <div class="palette-grid">
+                    <div class="swatch dark" style="background: #F0F4F7;">
+                        <span class="swatch-label">50</span>
+                        <span class="swatch-value">#F0F4F7</span>
+                    </div>
+                    <div class="swatch dark" style="background: #B9C9D7;">
+                        <span class="swatch-label">200</span>
+                        <span class="swatch-value">#B9C9D7</span>
+                    </div>
+                    <div class="swatch dark" style="background: #8BA7BD;">
+                        <span class="swatch-label">300</span>
+                        <span class="swatch-value">#8BA7BD</span>
+                    </div>
+                    <div class="swatch light" style="background: #6B8CAE;">
+                        <span class="swatch-label">400</span>
+                        <span class="swatch-value">#6B8CAE</span>
+                    </div>
+                    <div class="swatch light" style="background: #4A6785; border: 2px solid var(--panda-400);">
+                        <span class="swatch-label">500 ★</span>
+                        <span class="swatch-value">#4A6785</span>
+                    </div>
+                    <div class="swatch light" style="background: #3D566E;">
+                        <span class="swatch-label">600</span>
+                        <span class="swatch-value">#3D566E</span>
+                    </div>
+                    <div class="swatch light" style="background: #324758;">
+                        <span class="swatch-label">700</span>
+                        <span class="swatch-value">#324758</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="palette-section">
+                <h4 class="palette-title">
+                    <span style="width: 12px; height: 12px; background: var(--panda-400); border-radius: 2px;"></span>
+                    Panda Orange (Signature)
+                </h4>
+                <div class="palette-grid">
+                    <div class="swatch dark" style="background: #FEF6F3;">
+                        <span class="swatch-label">50</span>
+                        <span class="swatch-value">#FEF6F3</span>
+                    </div>
+                    <div class="swatch dark" style="background: #F9D0C2;">
+                        <span class="swatch-label">200</span>
+                        <span class="swatch-value">#F9D0C2</span>
+                    </div>
+                    <div class="swatch dark" style="background: #F4A989;">
+                        <span class="swatch-label">300</span>
+                        <span class="swatch-value">#F4A989</span>
+                    </div>
+                    <div class="swatch light" style="background: #E8845A; border: 2px solid var(--accent-500);">
+                        <span class="swatch-label">400 ★</span>
+                        <span class="swatch-value">#E8845A</span>
+                    </div>
+                    <div class="swatch light" style="background: #D4693D;">
+                        <span class="swatch-label">500</span>
+                        <span class="swatch-value">#D4693D</span>
+                    </div>
+                    <div class="swatch light" style="background: #B54E2A;">
+                        <span class="swatch-label">600</span>
+                        <span class="swatch-value">#B54E2A</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Typography -->
+    <section id="typography" class="section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Communication</div>
+                <h2 class="section-title">Typography</h2>
+                <p class="section-desc">A three-font system: Geist for interface, Source Serif for editorial warmth, JetBrains Mono for code.</p>
+            </div>
+
+            <div class="type-showcase">
+                <div class="type-sample">
+                    <div class="type-meta">
+                        <span class="type-label">Display</span>
+                        <span class="type-spec">Geist 700 / -0.03em / 1.1</span>
+                    </div>
+                    <h1 class="type-display">Building with intention</h1>
+                </div>
+
+                <div class="type-sample">
+                    <div class="type-meta">
+                        <span class="type-label">Heading</span>
+                        <span class="type-spec">Geist 600 / -0.02em / 1.25</span>
+                    </div>
+                    <h2 class="type-heading">The details reveal the care</h2>
+                </div>
+
+                <div class="type-sample">
+                    <div class="type-meta">
+                        <span class="type-label">Body Serif</span>
+                        <span class="type-spec">Source Serif 4 / 400 / 1.7</span>
+                    </div>
+                    <p class="type-body">Great engineering emerges from genuine curiosity—the desire to understand how things work and the drive to make them work better. Every line of code, every design decision, every interaction should reflect that spirit of exploration.</p>
+                </div>
+
+                <div class="type-sample">
+                    <div class="type-meta">
+                        <span class="type-label">Code</span>
+                        <span class="type-spec">JetBrains Mono 400</span>
+                    </div>
+                    <p class="type-mono">const buildWithCare = (idea) => craft(idea, { precision: true, warmth: true });</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Components -->
+    <section id="components" class="section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Elements</div>
+                <h2 class="section-title">Components</h2>
+                <p class="section-desc">Building blocks that carry the brand personality through every interaction.</p>
+            </div>
+
+            <h4 style="margin-top: var(--space-8); margin-bottom: var(--space-4);">Buttons</h4>
+            <div class="btn-group">
+                <button class="btn btn-primary">Primary Action</button>
+                <button class="btn btn-panda">Panda Accent</button>
+                <button class="btn btn-secondary">Secondary</button>
+                <button class="btn btn-ghost">Ghost</button>
+            </div>
+
+            <h4 style="margin-top: var(--space-8); margin-bottom: var(--space-4);">Badges</h4>
+            <div class="btn-group">
+                <span class="badge">Engineering</span>
+                <span class="badge">Design Systems</span>
+                <span class="badge badge-panda">Featured</span>
+                <span class="badge badge-panda">New</span>
+            </div>
+
+            <h4 style="margin-top: var(--space-8); margin-bottom: var(--space-4);">Cards</h4>
+            <div class="card-grid">
+                <div class="card">
+                    <h3 class="card-title">Project Card</h3>
+                    <p class="card-desc">A container for work samples and case studies. Subtle border glow on hover invites exploration.</p>
+                    <div class="mt-4">
+                        <span class="badge">React</span>
+                        <span class="badge" style="margin-left: var(--space-2);">TypeScript</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Content Card</h3>
+                    <p class="card-desc">For blog posts, notes, and explorations. The curious mind documented.</p>
+                    <button class="btn btn-ghost" style="margin-top: var(--space-3); padding-left: 0;">Read more →</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Principles -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Philosophy</div>
+                <h2 class="section-title">Design Principles</h2>
+                <p class="section-desc">The guiding ideas behind every design decision.</p>
+            </div>
+
+            <div class="principles-grid">
+                <div class="principle">
+                    <span class="principle-number">1</span>
+                    <h4 class="principle-title">Precision</h4>
+                    <p class="principle-desc">Every element is intentional</p>
+                </div>
+                <div class="principle">
+                    <span class="principle-number">2</span>
+                    <h4 class="principle-title">Warmth</h4>
+                    <p class="principle-desc">Technology with humanity</p>
+                </div>
+                <div class="principle">
+                    <span class="principle-number">3</span>
+                    <h4 class="principle-title">Clarity</h4>
+                    <p class="principle-desc">Communicate, don't decorate</p>
+                </div>
+                <div class="principle">
+                    <span class="principle-number">4</span>
+                    <h4 class="principle-title">Curiosity</h4>
+                    <p class="principle-desc">Invite exploration</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-logo">
+                <span class="footer-mark"></span>
+            </div>
+            <p>Mark Rood Design System v2.0</p>
+        </div>
+    </footer>
+</body>
+</html>
