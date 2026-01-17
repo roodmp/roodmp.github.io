@@ -231,6 +231,154 @@
                 min-height: 44px;
                 padding: 12px 16px;
             }
+        }
+
+        /* Modal animations */
+        @keyframes modal-backdrop-enter {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modal-backdrop-exit {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        @keyframes modal-panel-enter {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes modal-panel-exit {
+            from {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+        }
+
+        .modal-backdrop-enter {
+            animation: modal-backdrop-enter 0.2s ease-out forwards;
+        }
+
+        .modal-backdrop-exit {
+            animation: modal-backdrop-exit 0.15s ease-in forwards;
+        }
+
+        .modal-panel-enter {
+            animation: modal-panel-enter 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .modal-panel-exit {
+            animation: modal-panel-exit 0.2s ease-in forwards;
+        }
+
+        /* Modal button styles */
+        .modal-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 120px;
+        }
+
+        .modal-btn-primary {
+            background: linear-gradient(135deg, #2563EB, #1E40AF);
+            color: white;
+            box-shadow: 0 2px 8px -2px rgba(37, 99, 235, 0.25);
+        }
+
+        .modal-btn-primary:hover {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.35);
+        }
+
+        .modal-btn-accent {
+            background: linear-gradient(135deg, #06B6D4, #0891B2);
+            color: white;
+            box-shadow: 0 2px 8px -2px rgba(6, 182, 212, 0.25);
+        }
+
+        .modal-btn-accent:hover {
+            background: linear-gradient(135deg, #22D3EE, #06B6D4);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px -2px rgba(6, 182, 212, 0.35);
+        }
+
+        .modal-btn-secondary {
+            background: #262626;
+            color: #E2E8F0;
+            border: 1px solid #404040;
+        }
+
+        .modal-btn-secondary:hover {
+            background: #404040;
+            border-color: #525252;
+        }
+
+        .modal-btn-ghost {
+            background: transparent;
+            color: #94A3B8;
+        }
+
+        .modal-btn-ghost:hover {
+            color: #E2E8F0;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Animated rotating border */
+        .modal-border-glow {
+            position: absolute;
+            inset: 0;
+            border-radius: 1rem;
+            padding: 2px;
+            background: conic-gradient(
+                from var(--border-angle, 0deg),
+                #2563EB,
+                #06B6D4,
+                #8B5CF6,
+                #2563EB
+            );
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: rotate-border 4s linear infinite;
+        }
+
+        @keyframes rotate-border {
+            to {
+                --border-angle: 360deg;
+            }
+        }
+
+        @property --border-angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        @media (max-width: 768px) {
+            .modal-btn {
+                width: 100%;
+            }
             
             /* Enhanced undo button for mobile thumb access */
             #undoBtn {
@@ -306,6 +454,7 @@
     </header>
 
     <div class="h-24"></div>
+
     <main class="py-2 md:py-5" role="main">
         <div class="max-w-7xl mx-auto px-0 sm:px-4">
             <!-- Header -->
@@ -379,14 +528,40 @@
     </main>
 
     <!-- Custom Modal -->
-    <div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm mx-4 shadow-2xl">
-            <div id="modalContent" class="text-center">
-                <div id="modalIcon" class="text-4xl mb-4"></div>
-                <h3 id="modalTitle" class="text-lg font-semibold text-gray-900 dark:text-white mb-3"></h3>
-                <p id="modalMessage" class="text-gray-600 dark:text-gray-300 mb-6"></p>
-                <div id="modalButtons" class="flex gap-3 justify-center">
-                    <!-- Buttons will be added dynamically -->
+    <div id="customModal" class="fixed inset-0 z-50 hidden">
+        <!-- Backdrop with blur -->
+        <div id="modalBackdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm modal-backdrop-enter"></div>
+
+        <!-- Modal container -->
+        <div class="absolute inset-0 flex items-center justify-center p-4">
+            <div id="modalPanel" class="relative w-full max-w-md modal-panel-enter">
+                <!-- Animated rotating border -->
+                <div class="modal-border-glow"></div>
+
+                <!-- Gradient glow effect -->
+                <div class="absolute -inset-4 bg-gradient-to-r from-primary-500 via-ai-cyan to-ai-purple rounded-3xl opacity-[0.08] blur-2xl"></div>
+
+                <!-- Modal content -->
+                <div class="relative bg-surface-secondary rounded-2xl overflow-hidden">
+                    <div id="modalContent" class="p-8 text-center">
+                        <!-- Icon container with glow -->
+                        <div class="relative inline-flex items-center justify-center w-16 h-16 mb-6">
+                            <div id="modalIconGlow" class="absolute inset-0 rounded-full opacity-20 blur-lg"></div>
+                            <div id="modalIconBg" class="absolute inset-0 rounded-full opacity-[0.08]"></div>
+                            <div id="modalIcon" class="relative w-8 h-8"></div>
+                        </div>
+
+                        <!-- Title -->
+                        <h3 id="modalTitle" class="text-2xl font-bold text-text-primary mb-3 tracking-tight"></h3>
+
+                        <!-- Message -->
+                        <p id="modalMessage" class="text-text-tertiary text-base leading-relaxed mb-8"></p>
+
+                        <!-- Buttons container -->
+                        <div id="modalButtons" class="flex flex-col sm:flex-row gap-3 justify-center">
+                            <!-- Buttons will be added dynamically -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -526,35 +701,95 @@
             swipeTarget = null;
         }
 
+        // Modal icon SVGs
+        const modalIcons = {
+            trophy: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                <path d="M4 22h16"></path>
+                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+            </svg>`,
+            sparkles: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
+                <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path>
+                <path d="M5 3v4"></path>
+                <path d="M19 17v4"></path>
+                <path d="M3 5h4"></path>
+                <path d="M17 19h4"></path>
+            </svg>`,
+            xCircle: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="m15 9-6 6"></path>
+                <path d="m9 9 6 6"></path>
+            </svg>`,
+            plus: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
+                <path d="M5 12h14"></path>
+                <path d="M12 5v14"></path>
+            </svg>`,
+            refresh: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                <path d="M21 3v5h-5"></path>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                <path d="M8 16H3v5"></path>
+            </svg>`
+        };
+
+        // Icon color mapping
+        const iconColors = {
+            trophy: '#06B6D4',    // Cyan for win
+            sparkles: '#8B5CF6', // Purple for auto-solve
+            xCircle: '#EF4444',  // Red for error
+            plus: '#2563EB',     // Primary blue for new
+            refresh: '#06B6D4'   // Cyan for restore
+        };
+
         // Modal functions
-        function showModal({ title, message, icon, buttons }) {
+        function showModal({ title, message, icon, buttons, type = 'default' }) {
             const modal = document.getElementById('customModal');
+            const modalBackdrop = document.getElementById('modalBackdrop');
+            const modalPanel = document.getElementById('modalPanel');
             const modalTitle = document.getElementById('modalTitle');
             const modalMessage = document.getElementById('modalMessage');
-            const modalIcon = document.getElementById('modalIcon');
+            const modalIconEl = document.getElementById('modalIcon');
+            const modalIconGlow = document.getElementById('modalIconGlow');
+            const modalIconBg = document.getElementById('modalIconBg');
             const modalButtons = document.getElementById('modalButtons');
 
             modalTitle.textContent = title;
             modalMessage.textContent = message;
-            modalIcon.textContent = icon;
-            
+
+            // Set icon SVG and color
+            const iconSvg = modalIcons[icon] || modalIcons.sparkles;
+            const iconColor = iconColors[icon] || '#06B6D4';
+            modalIconEl.innerHTML = iconSvg;
+            modalIconEl.style.color = iconColor;
+            modalIconGlow.style.background = iconColor;
+            modalIconBg.style.background = iconColor;
+
             // Clear existing buttons
             modalButtons.innerHTML = '';
-            
-            // Add new buttons
-            buttons.forEach(button => {
+
+            // Add new buttons with modern styling
+            buttons.forEach((button, index) => {
                 const btn = document.createElement('button');
                 btn.textContent = button.text;
-                let buttonClasses = 'px-4 py-2 rounded-lg font-medium transition-colors ';
-                
+
+                let buttonClasses = 'modal-btn ';
+
                 if (button.primary) {
-                    buttonClasses += 'bg-primary-600 hover:bg-primary-700 text-white';
+                    // Use accent (cyan) for success states, primary blue otherwise
+                    if (icon === 'trophy' || icon === 'refresh') {
+                        buttonClasses += 'modal-btn-accent';
+                    } else {
+                        buttonClasses += 'modal-btn-primary';
+                    }
                 } else if (button.subtle) {
-                    buttonClasses += 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700';
+                    buttonClasses += 'modal-btn-ghost';
                 } else {
-                    buttonClasses += 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-900 dark:text-white';
+                    buttonClasses += 'modal-btn-secondary';
                 }
-                
+
                 btn.className = buttonClasses;
                 btn.onclick = () => {
                     hideModal();
@@ -562,20 +797,35 @@
                 };
                 modalButtons.appendChild(btn);
             });
-            
+
+            // Reset animation classes
+            modalBackdrop.classList.remove('modal-backdrop-exit');
+            modalBackdrop.classList.add('modal-backdrop-enter');
+            modalPanel.classList.remove('modal-panel-exit');
+            modalPanel.classList.add('modal-panel-enter');
+
             modal.classList.remove('hidden');
         }
 
         function hideModal() {
-            document.getElementById('customModal').classList.add('hidden');
+            const modal = document.getElementById('customModal');
+            const modalBackdrop = document.getElementById('modalBackdrop');
+            const modalPanel = document.getElementById('modalPanel');
+
+            // Trigger exit animations
+            modalBackdrop.classList.remove('modal-backdrop-enter');
+            modalBackdrop.classList.add('modal-backdrop-exit');
+            modalPanel.classList.remove('modal-panel-enter');
+            modalPanel.classList.add('modal-panel-exit');
+
+            // Hide modal after animation completes
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
         }
 
         // Click outside modal to close
-        document.getElementById('customModal').addEventListener('click', (e) => {
-            if (e.target.id === 'customModal') {
-                hideModal();
-            }
-        });
+        document.getElementById('modalBackdrop').addEventListener('click', hideModal);
 
         // Card creation and game logic
         function createDeck() {
@@ -827,8 +1077,8 @@
                 setTimeout(() => {
                     showModal({
                         title: 'Congratulations!',
-                        message: `You won! 🎉\n\nMoves: ${gameState.moves}`,
-                        icon: '🎉',
+                        message: `You won! Moves: ${gameState.moves}`,
+                        icon: 'trophy',
                         buttons: [
                             { text: 'New Game', primary: true, action: startNewGame },
                             { text: 'Close', primary: false, subtle: true }
@@ -837,18 +1087,18 @@
                 }, 500);
                 return;
             }
-            
+
             // Check if all tableau cards are face up (potential auto-solve condition)
-            const allTableauFaceUp = gameState.tableau.every(column => 
+            const allTableauFaceUp = gameState.tableau.every(column =>
                 column.every(card => card.faceUp)
             );
-            
+
             if (allTableauFaceUp && gameState.stock.length === 0 && canAutoSolve()) {
                 setTimeout(() => {
                     showModal({
                         title: 'Auto-Solve Available',
                         message: 'All cards are revealed! Would you like to auto-solve the remaining moves?',
-                        icon: '🤖',
+                        icon: 'sparkles',
                         buttons: [
                             { text: 'Auto-Solve', primary: true, action: autoSolve },
                             { text: 'Continue Playing', primary: false }
@@ -859,8 +1109,8 @@
                 setTimeout(() => {
                     showModal({
                         title: 'Game Unwinnable',
-                        message: 'This game cannot be won with the current card arrangement! 😞\n\nWould you like to start a new game?',
-                        icon: '😞',
+                        message: 'This game cannot be won with the current card arrangement. Would you like to start a new game?',
+                        icon: 'xCircle',
                         buttons: [
                             { text: 'New Game', primary: true, action: startNewGame },
                             { text: 'Close', primary: false }
@@ -1289,7 +1539,7 @@
                 showModal({
                     title: 'New Game',
                     message: 'Are you sure you want to start a new game? Your current progress will be lost.',
-                    icon: '🆕',
+                    icon: 'plus',
                     buttons: [
                         { text: 'Start New Game', primary: true, action: startNewGame },
                         { text: 'Cancel', primary: false }
@@ -1817,7 +2067,7 @@
                             showModal({
                                 title: 'Game Restored',
                                 message: 'Your previous game has been restored. Continue playing or start a new game.',
-                                icon: '🔄',
+                                icon: 'refresh',
                                 buttons: [
                                     { text: 'Continue', primary: true },
                                     { text: 'New Game', primary: false, action: startNewGame }
