@@ -152,12 +152,6 @@
             font-weight: 500;
         }
 
-        .hud-combo {
-            font-weight: 700;
-            font-size: 14px;
-            line-height: 1;
-        }
-
         .hud-lives {
             color: #E8845A;
             font-size: 14px;
@@ -305,7 +299,6 @@
             <div class="game-hud-top" id="hudTop">
                 <div class="hud-left">
                     <span class="hud-score" id="hudScore">0</span>
-                    <span class="hud-combo" id="hudCombo"></span>
                 </div>
                 <div class="hud-center">
                     <span class="hud-level" id="hudLevel">Level 1</span>
@@ -372,7 +365,6 @@
         const hudTop = document.getElementById('hudTop');
         const hudScore = document.getElementById('hudScore');
         const hudLevel = document.getElementById('hudLevel');
-        const hudCombo = document.getElementById('hudCombo');
         const hudLives = document.getElementById('hudLives');
 
         const BASE_W = 800;
@@ -417,16 +409,16 @@
 
         // --- Powerup definitions ---
         const POWERUP_TYPES = {
-            slow:      { color: '#5B8CB8', label: 'SLOW' },
-            wide:      { color: '#5BB87A', label: 'WIDE' },
-            extraBall: { color: '#E8845A', label: '+BALL' },
-            extraLife: { color: '#B85B5B', label: '+LIFE' },
-            fireball:  { color: '#FF6B35', label: 'FIRE' },
-            laser:     { color: '#C084FC', label: 'LASER' },
-            blast:     { color: '#FFA500', label: 'BLAST' },
-            shield:    { color: '#00CED1', label: 'SHLD' },
-            magnet:    { color: '#FF69B4', label: 'MAGNT' },
-            missile:   { color: '#FFD700', label: 'MSLE' },
+            slow:      { color: '#5B8CB8' },
+            wide:      { color: '#5BB87A' },
+            extraBall: { color: '#E8845A' },
+            extraLife: { color: '#B85B5B' },
+            fireball:  { color: '#FF6B35' },
+            laser:     { color: '#C084FC' },
+            blast:     { color: '#FFA500' },
+            shield:    { color: '#00CED1' },
+
+            missile:   { color: '#FFD700' },
         };
 
         // --- Game state ---
@@ -501,9 +493,6 @@
             }
         }
 
-        // Combo system
-        let combo = { count: 0, displayTimer: 0 };
-
         // Lasers
         let lasers = [];
         let laserCooldown = 0;
@@ -524,8 +513,6 @@
             fallingCapsule = null;
             lasers = [];
             laserCooldown = 0;
-            combo.count = 0;
-            combo.displayTimer = 0;
             shieldState = { active: false, broken: false, regenTimer: 0, hitFlashTimer: 0 };
             missiles = [];
             missileCooldown = 0;
@@ -669,7 +656,7 @@
             if (roll < 0.03) {
                 type = 'extraLife';
             } else {
-                const remaining = ['slow', 'wide', 'extraBall', 'fireball', 'laser', 'blast', 'shield', 'magnet', 'missile'];
+                const remaining = ['slow', 'wide', 'extraBall', 'fireball', 'laser', 'blast', 'shield', 'missile'];
                 type = remaining[Math.floor(Math.random() * remaining.length)];
             }
 
@@ -710,7 +697,7 @@
                     shieldState.regenTimer = 0;
                     shieldState.hitFlashTimer = 0;
                 }
-            } else if (type === 'slow' || type === 'fireball' || type === 'blast' || type === 'magnet') {
+            } else if (type === 'slow' || type === 'fireball' || type === 'blast') {
                 if (ballPowerup.type === type) {
                     ballPowerup.level = Math.min(ballPowerup.level + 1, 3);
                 } else {
@@ -787,13 +774,6 @@
 
             fallingCapsule.y += fallingCapsule.speed;
 
-            // Magnet lv3: pull capsule toward paddle
-            if (ballPowerup.type === 'magnet' && ballPowerup.level >= 3) {
-                const pw = getPaddleWidth();
-                const paddleCenterX = paddle.x + pw / 2;
-                fallingCapsule.x += (paddleCenterX - fallingCapsule.x) * 0.08;
-            }
-
             // Off screen
             if (fallingCapsule.y > BASE_H + 20) {
                 fallingCapsule = null;
@@ -831,7 +811,7 @@
                 const speedMult = getBallSpeedMultiplier();
 
                 // Trail
-                const maxTrail = combo.count >= 5 ? 14 : 8;
+                const maxTrail = 8;
                 b.trail.push({ x: b.x, y: b.y });
                 if (b.trail.length > maxTrail) b.trail.shift();
 
@@ -846,42 +826,6 @@
                     createParticles(b.x, b.y, Math.random() > 0.5 ? '#FFA500' : '#FF8C00', 1);
                 }
 
-                // Magnet homing particles
-                if (ballPowerup.type === 'magnet' && frameCount % 4 === 0) {
-                    createParticles(b.x, b.y, '#FF69B4', 1);
-                }
-
-                // Magnet: curve toward nearest alive brick
-                if (ballPowerup.type === 'magnet') {
-                    const pullStrength = [0, 0.08, 0.15, 0.25][ballPowerup.level];
-                    let nearestBrick = null;
-                    let nearestDist = Infinity;
-                    for (const br of bricks) {
-                        if (!br.alive) continue;
-                        const bcx = br.x + br.width / 2;
-                        const bcy = br.y + br.height / 2;
-                        const dist = Math.sqrt((b.x - bcx) * (b.x - bcx) + (b.y - bcy) * (b.y - bcy));
-                        if (dist < nearestDist) {
-                            nearestDist = dist;
-                            nearestBrick = br;
-                        }
-                    }
-                    if (nearestBrick && nearestDist > 0) {
-                        const bcx = nearestBrick.x + nearestBrick.width / 2;
-                        const bcy = nearestBrick.y + nearestBrick.height / 2;
-                        const dirX = (bcx - b.x) / nearestDist;
-                        const dirY = (bcy - b.y) / nearestDist;
-                        b.dx += dirX * pullStrength;
-                        b.dy += dirY * pullStrength;
-                        // Renormalize to maintain speed
-                        const currentMag = Math.sqrt(b.dx * b.dx + b.dy * b.dy);
-                        if (currentMag > 0) {
-                            const targetSpeed = baseBallSpeed * speedMult;
-                            b.dx = (b.dx / currentMag) * targetSpeed;
-                            b.dy = (b.dy / currentMag) * targetSpeed;
-                        }
-                    }
-                }
 
                 // Keep direction unit vector, apply current effective speed
                 const mag = Math.sqrt(b.dx * b.dx + b.dy * b.dy);
@@ -949,7 +893,6 @@
                     b.dx = Math.sin(angle) * speed;
                     b.dy = -Math.cos(angle) * speed;
 
-                    combo.count = 0;
                 }
 
                 // Brick collisions
@@ -965,13 +908,9 @@
                         } else {
                             br.hits--;
                         }
-                        combo.count++;
-                        combo.displayTimer = 90;
-                        const multiplier = Math.max(1, combo.count);
-
                         if (br.hits <= 0) {
                             br.alive = false;
-                            score += br.maxHits * 10 * multiplier;
+                            score += br.maxHits * 10;
                             trySpawnCapsule(br);
                             // Particles on destroy — more with fireball, scaled by level
                             const brickColor = br.maxHits >= 3 ? COLORS.brickTriple : br.maxHits === 2 ? COLORS.brickDouble : COLORS.brickSingle;
@@ -993,7 +932,7 @@
                                         target.hits--;
                                         if (target.hits <= 0) {
                                             target.alive = false;
-                                            score += target.maxHits * 5 * multiplier;
+                                            score += target.maxHits * 5;
                                             trySpawnCapsule(target);
                                             const tColor = target.maxHits >= 3 ? COLORS.brickTriple : target.maxHits === 2 ? COLORS.brickDouble : COLORS.brickSingle;
                                             createParticles(tcx, tcy, tColor, 6);
@@ -1006,7 +945,7 @@
                                 }
                             }
                         } else {
-                            score += 5 * multiplier;
+                            score += 5;
                         }
 
                         if (isFireball) {
@@ -1072,10 +1011,6 @@
             }
         }
 
-        function updateCombo() {
-            if (combo.displayTimer > 0) combo.displayTimer--;
-        }
-
         function updateLasers() {
             const pw = getPaddleWidth();
 
@@ -1112,17 +1047,14 @@
                     if (!br.alive) continue;
                     if (l.x >= br.x && l.x <= br.x + br.width && l.y >= br.y && l.y <= br.y + br.height) {
                         br.hits--;
-                        combo.count++;
-                        combo.displayTimer = 90;
-                        const multiplier = Math.max(1, combo.count);
                         if (br.hits <= 0) {
                             br.alive = false;
-                            score += br.maxHits * 10 * multiplier;
+                            score += br.maxHits * 10;
                             trySpawnCapsule(br);
                             const brickColor = br.maxHits >= 3 ? COLORS.brickTriple : br.maxHits === 2 ? COLORS.brickDouble : COLORS.brickSingle;
                             createParticles(br.x + br.width / 2, br.y + br.height / 2, brickColor, 8);
                         } else {
-                            score += 5 * multiplier;
+                            score += 5;
                         }
                         hit = true;
                         break;
@@ -1217,17 +1149,14 @@
                     if (!br.alive) continue;
                     if (m.x >= br.x && m.x <= br.x + br.width && m.y >= br.y && m.y <= br.y + br.height) {
                         br.hits--;
-                        combo.count++;
-                        combo.displayTimer = 90;
-                        const multiplier = Math.max(1, combo.count);
                         if (br.hits <= 0) {
                             br.alive = false;
-                            score += br.maxHits * 10 * multiplier;
+                            score += br.maxHits * 10;
                             trySpawnCapsule(br);
                             const brickColor = br.maxHits >= 3 ? COLORS.brickTriple : br.maxHits === 2 ? COLORS.brickDouble : COLORS.brickSingle;
                             createParticles(br.x + br.width / 2, br.y + br.height / 2, brickColor, 8);
                         } else {
-                            score += 5 * multiplier;
+                            score += 5;
                         }
                         hit = true;
                         break;
@@ -1252,7 +1181,6 @@
                 const entry = blastQueue[i];
                 entry.delay--;
                 if (entry.delay <= 0) {
-                    const multiplier = Math.max(1, combo.count);
                     for (const target of bricks) {
                         if (!target.alive) continue;
                         const tcx = target.x + target.width / 2;
@@ -1262,7 +1190,7 @@
                             target.hits--;
                             if (target.hits <= 0) {
                                 target.alive = false;
-                                score += target.maxHits * 5 * multiplier;
+                                score += target.maxHits * 5;
                                 trySpawnCapsule(target);
                                 const tColor = target.maxHits >= 3 ? COLORS.brickTriple : target.maxHits === 2 ? COLORS.brickDouble : COLORS.brickSingle;
                                 createParticles(tcx, tcy, tColor, 6);
@@ -1294,20 +1222,6 @@
 
             // Lives
             hudLives.textContent = '❤ '.repeat(lives).trim();
-
-            // Combo (shown next to score)
-            if (combo.displayTimer > 0 && combo.count >= 2) {
-                const t = Math.min(combo.count / 10, 1);
-                const r = 245;
-                const g = Math.round(245 - t * 100);
-                const b = Math.round(244 - t * 200);
-                const pulse = 0.7 + 0.3 * Math.sin(frameCount * 0.15);
-                hudCombo.textContent = 'x' + combo.count;
-                hudCombo.style.color = `rgb(${r}, ${g}, ${Math.max(0, b)})`;
-                hudCombo.style.opacity = pulse;
-            } else {
-                hudCombo.textContent = '';
-            }
         }
 
         // --- Draw ---
@@ -1476,7 +1390,7 @@
         }
 
         function drawBalls() {
-            const glowBlur = combo.count >= 8 ? 20 : 10;
+            const glowBlur = 10;
             const bType = ballPowerup.type;
             const bLevel = ballPowerup.level;
             // Visual radius scale by fireball level
@@ -1554,43 +1468,6 @@
                     ctx.fillStyle = 'rgba(255, 220, 150, 0.6)';
                     ctx.fill();
                     ctx.shadowBlur = 0;
-                } else if (bType === 'magnet') {
-                    // Magnet: pink trail
-                    for (let i = 0; i < b.trail.length; i++) {
-                        const t = b.trail[i];
-                        const progress = i / b.trail.length;
-                        const alpha = progress * 0.25;
-                        const size = b.radius * (0.4 + progress * 0.6);
-                        ctx.beginPath();
-                        ctx.arc(t.x, t.y, size, 0, Math.PI * 2);
-                        ctx.fillStyle = `rgba(255, 105, 180, ${alpha})`;
-                        ctx.fill();
-                    }
-
-                    // Pulsing field rings (count = level)
-                    for (let r = 0; r < bLevel; r++) {
-                        const phase = frameCount * 0.06 + r * 1.5;
-                        const ringSize = b.radius * (2 + r * 0.7) + Math.sin(phase) * 2;
-                        const ringAlpha = 0.12 + Math.sin(phase * 1.3) * 0.08;
-                        ctx.beginPath();
-                        ctx.arc(b.x, b.y, ringSize, 0, Math.PI * 2);
-                        ctx.strokeStyle = `rgba(255, 105, 180, ${ringAlpha})`;
-                        ctx.lineWidth = 1;
-                        ctx.stroke();
-                    }
-
-                    // Pink ball
-                    ctx.shadowColor = 'rgba(255, 105, 180, 0.6)';
-                    ctx.shadowBlur = 10 + bLevel * 3;
-                    ctx.beginPath();
-                    ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
-                    ctx.fillStyle = '#FF69B4';
-                    ctx.fill();
-                    ctx.beginPath();
-                    ctx.arc(b.x, b.y, b.radius * 0.45, 0, Math.PI * 2);
-                    ctx.fillStyle = 'rgba(255, 200, 230, 0.6)';
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
                 } else if (bType === 'slow') {
                     // Slow: cool blue trail with time-warp ripple
                     for (let i = 0; i < b.trail.length; i++) {
@@ -1645,6 +1522,199 @@
             }
         }
 
+        // --- Powerup icon draw functions ---
+        function drawIconClock(ctx, x, y, color) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(x, y, 6, 0, Math.PI * 2);
+            ctx.stroke();
+            // Hour hand
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x, y - 4);
+            ctx.stroke();
+            // Minute hand
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + 3, y);
+            ctx.stroke();
+        }
+
+        function drawIconExpand(ctx, x, y, color) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            // Left arrow
+            ctx.beginPath();
+            ctx.moveTo(x - 2, y);
+            ctx.lineTo(x - 7, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x - 5, y - 3);
+            ctx.lineTo(x - 7, y);
+            ctx.lineTo(x - 5, y + 3);
+            ctx.stroke();
+            // Right arrow
+            ctx.beginPath();
+            ctx.moveTo(x + 2, y);
+            ctx.lineTo(x + 7, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + 5, y - 3);
+            ctx.lineTo(x + 7, y);
+            ctx.lineTo(x + 5, y + 3);
+            ctx.stroke();
+        }
+
+        function drawIconExtraBall(ctx, x, y, color) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(x - 2, y, 4, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(x + 3, y - 1, 4, 0, Math.PI * 2);
+            ctx.stroke();
+            // Plus sign
+            ctx.beginPath();
+            ctx.moveTo(x + 6, y - 5);
+            ctx.lineTo(x + 6, y - 1);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + 4, y - 3);
+            ctx.lineTo(x + 8, y - 3);
+            ctx.stroke();
+        }
+
+        function drawIconHeart(ctx, x, y, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x, y + 4);
+            ctx.bezierCurveTo(x - 7, y - 1, x - 7, y - 6, x - 3.5, y - 6);
+            ctx.bezierCurveTo(x - 1, y - 6, x, y - 4, x, y - 3);
+            ctx.bezierCurveTo(x, y - 4, x + 1, y - 6, x + 3.5, y - 6);
+            ctx.bezierCurveTo(x + 7, y - 6, x + 7, y - 1, x, y + 4);
+            ctx.fill();
+        }
+
+        function drawIconFlame(ctx, x, y, color) {
+            // Outer flame
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x, y - 7);
+            ctx.bezierCurveTo(x + 4, y - 3, x + 5, y + 2, x + 3, y + 5);
+            ctx.quadraticCurveTo(x, y + 3, x, y + 6);
+            ctx.quadraticCurveTo(x, y + 3, x - 3, y + 5);
+            ctx.bezierCurveTo(x - 5, y + 2, x - 4, y - 3, x, y - 7);
+            ctx.fill();
+            // Inner bright core
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.moveTo(x, y - 3);
+            ctx.bezierCurveTo(x + 2, y - 1, x + 2.5, y + 1, x + 1.5, y + 3);
+            ctx.quadraticCurveTo(x, y + 2, x, y + 4);
+            ctx.quadraticCurveTo(x, y + 2, x - 1.5, y + 3);
+            ctx.bezierCurveTo(x - 2.5, y + 1, x - 2, y - 1, x, y - 3);
+            ctx.fill();
+        }
+
+        function drawIconLaser(ctx, x, y, color) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            // Vertical beam
+            ctx.beginPath();
+            ctx.moveTo(x, y - 7);
+            ctx.lineTo(x, y + 7);
+            ctx.stroke();
+            // Emission ticks
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(x - 4, y - 2);
+            ctx.lineTo(x + 4, y - 2);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x - 3, y + 2);
+            ctx.lineTo(x + 3, y + 2);
+            ctx.stroke();
+        }
+
+        function drawIconStarburst(ctx, x, y, color) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            const rays = 6;
+            for (let i = 0; i < rays; i++) {
+                const angle = (i / rays) * Math.PI * 2;
+                ctx.beginPath();
+                ctx.moveTo(x + Math.cos(angle) * 2, y + Math.sin(angle) * 2);
+                ctx.lineTo(x + Math.cos(angle) * 7, y + Math.sin(angle) * 7);
+                ctx.stroke();
+            }
+            // Center dot
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawIconShield(ctx, x, y, color) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(x, y - 7);
+            ctx.lineTo(x + 6, y - 4);
+            ctx.lineTo(x + 6, y + 1);
+            ctx.quadraticCurveTo(x + 5, y + 5, x, y + 7);
+            ctx.quadraticCurveTo(x - 5, y + 5, x - 6, y + 1);
+            ctx.lineTo(x - 6, y - 4);
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        function drawIconRocket(ctx, x, y, color) {
+            ctx.fillStyle = color;
+            // Body
+            ctx.beginPath();
+            ctx.moveTo(x, y - 7);
+            ctx.lineTo(x + 3, y + 2);
+            ctx.lineTo(x - 3, y + 2);
+            ctx.closePath();
+            ctx.fill();
+            // Fins
+            ctx.beginPath();
+            ctx.moveTo(x - 3, y + 1);
+            ctx.lineTo(x - 5, y + 5);
+            ctx.lineTo(x - 1, y + 3);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(x + 3, y + 1);
+            ctx.lineTo(x + 5, y + 5);
+            ctx.lineTo(x + 1, y + 3);
+            ctx.closePath();
+            ctx.fill();
+            // Exhaust
+            ctx.fillStyle = '#FF4500';
+            ctx.beginPath();
+            ctx.moveTo(x - 1.5, y + 3);
+            ctx.lineTo(x, y + 7);
+            ctx.lineTo(x + 1.5, y + 3);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        const POWERUP_ICON_DRAWERS = {
+            slow: drawIconClock,
+            wide: drawIconExpand,
+            extraBall: drawIconExtraBall,
+            extraLife: drawIconHeart,
+            fireball: drawIconFlame,
+            laser: drawIconLaser,
+            blast: drawIconStarburst,
+            shield: drawIconShield,
+
+            missile: drawIconRocket,
+        };
+
         function drawCapsule() {
             if (!fallingCapsule) return;
 
@@ -1663,12 +1733,13 @@
             roundRect(ctx, cx, cy, capW, capH, 10);
             ctx.stroke();
 
-            // Label
-            ctx.fillStyle = def.color;
-            ctx.font = '600 9px Geist, system-ui, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(def.label, fallingCapsule.x, fallingCapsule.y);
+            // Icon
+            const drawIcon = POWERUP_ICON_DRAWERS[fallingCapsule.type];
+            if (drawIcon) {
+                ctx.save();
+                drawIcon(ctx, fallingCapsule.x, fallingCapsule.y, def.color);
+                ctx.restore();
+            }
         }
 
 
@@ -1810,7 +1881,7 @@
                 updateLasers();
                 updateShield();
                 updateMissiles();
-                updateCombo();
+
             }
             draw();
             updateHUD();
