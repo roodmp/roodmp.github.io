@@ -6,6 +6,20 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mark Rood - Resources</title>
+  <meta name="description" content="Tools, apps, and resources I use daily for development, productivity, and staying informed.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Mark Rood - Resources">
+  <meta property="og:description" content="Tools, apps, and resources I use daily for development, productivity, and staying informed.">
+  <meta property="og:image" content="https://roodmp.github.io/assets/image/me_dog.png">
+  <meta property="og:url" content="https://roodmp.github.io/resources.html">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Mark Rood - Resources">
+  <meta name="twitter:description" content="Tools, apps, and resources I use daily for development, productivity, and staying informed.">
+
   <link rel="icon" type="image/x-icon" href="favicon.png" />
 
   <!-- Fonts -->
@@ -18,7 +32,12 @@
   <link rel="stylesheet" href="design-system.css" />
 
   <!-- Icons -->
-  <script src="https://unpkg.com/feather-icons"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js"
+      integrity="sha512-7x3zila4t2qNycrtZ31HO0NnJr8kg2VI67YLoRSyi9hGhRN66FHYWr7Axa9Y1J9tGYHVBPqIjSE1ogHrJTz51g=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+
+  <!-- Main JS -->
+  <script src="main.js" defer></script>
 
   <style>
     /* Page container */
@@ -140,7 +159,7 @@
       padding: var(--space-2) var(--space-4);
       background: var(--bg-secondary);
       border: 1px solid var(--surface-border);
-      border-radius: var(--radius-full);
+      border-radius: 4px;
       color: var(--text-secondary);
       text-decoration: none;
       transition: all var(--transition-fast);
@@ -196,14 +215,33 @@
         <a href="index.html" class="nav-link">Resumé</a>
         <a href="resources.html" class="nav-link active">Resources</a>
       </div>
+      <button class="mobile-menu-btn" aria-label="Open menu">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
     </nav>
   </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu">
+    <button class="mobile-menu-close" aria-label="Close menu">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+    <a href="about.html" class="nav-link">About</a>
+    <a href="index.html" class="nav-link">Resumé</a>
+    <a href="resources.html" class="nav-link active">Resources</a>
+  </div>
 
   <!-- Spacer for fixed nav -->
   <div style="height: 80px;"></div>
 
   <!-- Main Content -->
   <main id="main-content" class="resources-container">
+    <p style="color: var(--text-secondary); font-size: var(--text-base); line-height: 1.6; margin-bottom: var(--space-8); max-width: 900px;">Tools and resources I keep coming back to.</p>
+
     <!-- Featured: Daily Drivers -->
     <section class="featured-section">
       <div class="featured-label">Daily Drivers</div>
@@ -244,6 +282,18 @@
           </a>
           <a href="https://warp.dev" class="pill-link" target="_blank" rel="noopener noreferrer">
             Warp
+            <i data-feather="arrow-right"></i>
+          </a>
+          <a href="https://claude.ai/code" class="pill-link" target="_blank" rel="noopener noreferrer">
+            Claude Code
+            <i data-feather="arrow-right"></i>
+          </a>
+          <a href="https://mobbin.com" class="pill-link" target="_blank" rel="noopener noreferrer">
+            Mobbin
+            <i data-feather="arrow-right"></i>
+          </a>
+          <a href="https://openai.com/codex/" class="pill-link" target="_blank" rel="noopener noreferrer">
+            Codex
             <i data-feather="arrow-right"></i>
           </a>
         </div>
@@ -329,15 +379,16 @@
             Solitaire
             <i data-feather="arrow-right"></i>
           </a>
+          <a href="brick-breaker.html" class="pill-link my-build">
+            Brick Breaker
+            <i data-feather="arrow-right"></i>
+          </a>
         </div>
       </div>
 
     </section>
   </main>
 
-  <script>
-    feather.replace();
-  </script>
 </body>
 
 </html>

@@ -4,7 +4,11 @@
       "Bash(npm run dev:*)",
       "Bash(npx serve:*)",
       "Bash(findstr:*)",
-      "WebFetch(domain:en.wikipedia.org)"
+      "WebFetch(domain:en.wikipedia.org)",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "Bash(grep:*)",
+      "Bash(curl:*)"
     ],
     "defaultMode": "acceptEdits"
   }

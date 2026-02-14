@@ -36,12 +36,13 @@ function triggerEasterEgg() {
     
     // Create modal container
     const modal = document.createElement('div');
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     modal.style.cssText = `
-        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-        background: linear-gradient(135deg, #2563EB, #4F9FFF); 
-        color: white; padding: 30px; border-radius: 20px; 
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, #2563EB, #4F9FFF);
+        color: white; padding: 30px; border-radius: 20px;
         text-align: center; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        animation: bounceIn 0.6s ease-out;
+        ${prefersReducedMotion ? '' : 'animation: bounceIn 0.6s ease-out;'}
     `;
     
     // Create title
@@ -106,8 +107,13 @@ function triggerEasterEgg() {
 }
 
 function createConfetti() {
+    // Respect reduced motion preferences
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+    }
+
     const colors = ['#2563EB', '#4F9FFF', '#7AB8FF', '#A6D0FF', '#D1E7FF'];
-    
+
     for (let i = 0; i < 50; i++) {
         const confetti = document.createElement('div');
         confetti.style.cssText = `
@@ -158,5 +164,38 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }
   });
 
+  // Mobile menu functionality
+  const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+  const mobileMenu = document.querySelector('.mobile-menu');
+  const mobileMenuClose = document.querySelector('.mobile-menu-close');
 
+  if (mobileMenuBtn && mobileMenu) {
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+
+    if (mobileMenuClose) {
+      mobileMenuClose.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    }
+
+    // Close on nav link click
+    mobileMenu.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+
+    // Close on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && mobileMenu.classList.contains('open')) {
+        mobileMenu.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+  }
 });

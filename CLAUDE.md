@@ -22,15 +22,19 @@ This is a personal portfolio website for Mark Rood (roodmp.github.io) deployed v
 **Key Files:**
 - `index.html` - Resume/CV page (default page per _config.yml)
 - `about.html` - About page set as index_page in Jekyll config
-- `main.js` - Core JavaScript for theme switching, navigation, and easter egg functionality
+- `main.js` - Core JavaScript for navigation, mobile menu, and easter egg functionality
 - `_config.yml` - Jekyll/GitHub Pages configuration
 - `.github/workflows/pages.yml` - GitHub Actions deployment workflow
 
-**Theme System:**
-- Implements light/dark/system theme switching
-- Uses Tailwind's dark mode with CSS custom properties
-- Theme preference stored in localStorage
-- System theme detection via `prefers-color-scheme` media query
+**Theme:**
+- Dark-only design using Tailwind's `class="dark"` on the `<html>` element
+- No theme toggle or light mode switching
+
+**Mobile Menu System:**
+- Slide-in mobile menu triggered by `.mobile-menu-btn` hamburger button
+- Closed via `.mobile-menu-close` button, Escape key, or clicking a nav link
+- Uses `.open` class toggle with CSS transitions
+- Logic lives in `main.js` (DOMContentLoaded handler)
 
 **Easter Egg System:**
 - Konami code and "PANDA" key sequence detection in main.js
@@ -82,7 +86,7 @@ npx serve . -p 3000
 **JavaScript:**
 - ES6+ features used throughout
 - Event-driven architecture for UI interactions
-- Modular functions for theme management and easter egg features
+- Modular functions for mobile menu and easter egg features
 
 **CSS:**
 - Tailwind utility-first approach
@@ -102,12 +106,12 @@ npx serve . -p 3000
 - Each page contains ~50 lines of identical navigation code
 
 **Navigation Update Checklist:**
-When updating navigation items, logos, or theme toggle:
+When updating navigation items, logos, or mobile menu:
 1. Update `index.html` navigation section
-2. Update `about.html` navigation section  
+2. Update `about.html` navigation section
 3. Update `resources.html` navigation section
 4. Update `powershell.html` navigation section
-5. Test theme toggle functionality on all pages
+5. Verify mobile menu opens/closes correctly on all pages
 6. Verify responsive behavior across pages
 
 **Future Componentization Consideration:**
@@ -119,6 +123,6 @@ Consider moving to a component-based navigation when:
 
 **Navigation Sections to Keep in Sync:**
 - Header navigation (`<header>` with logo and nav links)
-- Theme toggle button (`#themeToggle` with Material Icons)
+- Mobile menu markup (`.mobile-menu` panel with `.mobile-menu-btn` and `.mobile-menu-close`)
 - Mobile responsiveness classes
 - ARIA accessibility attributes
