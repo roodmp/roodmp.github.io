@@ -8,7 +8,8 @@
       "Bash(ls:*)",
       "Bash(wc:*)",
       "Bash(grep:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "WebFetch(domain:woshub.com)"
     ],
     "defaultMode": "acceptEdits"
   }

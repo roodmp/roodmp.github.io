@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PSWindowsUpdate Command Builder - Mark Rood</title>
+  <meta name="description"
+    content="Interactive command builder for the PSWindowsUpdate PowerShell module. Select cmdlets, configure parameters, and copy ready-to-run commands.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="PSWindowsUpdate Command Builder">
+  <meta property="og:description"
+    content="Interactive command builder for the PSWindowsUpdate PowerShell module.">
+  <meta property="og:image" content="https://roodmp.github.io/assets/image/me_dog.png">
+  <meta property="og:url" content="https://roodmp.github.io/pswindowsupdate.html">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="PSWindowsUpdate Command Builder">
+  <meta name="twitter:description"
+    content="Interactive command builder for the PSWindowsUpdate PowerShell module.">
+
+  <link rel="icon" type="image/x-icon" href="favicon.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans/style.min.css" rel="stylesheet" />
+
+  <!-- Design System -->
+  <link rel="stylesheet" href="design-system.css" />
+
+  <!-- Icons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js"
+    integrity="sha512-7x3zila4t2qNycrtZ31HO0NnJr8kg2VI67YLoRSyi9hGhRN66FHYWr7Axa9Y1J9tGYHVBPqIjSE1ogHrJTz51g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+
+  <!-- Main JS -->
+  <script src="main.js" defer></script>
+
+  <style>
+    .builder-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: var(--space-8) var(--space-6);
+      padding-bottom: 120px;
+    }
+
+    /* Page header */
+    .page-header {
+      margin-bottom: var(--space-8);
+    }
+
+    .page-header h1 {
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      margin-bottom: var(--space-2);
+    }
+
+    .page-header p {
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .module-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+      padding: var(--space-1) var(--space-3);
+      font-size: var(--text-xs);
+      font-family: var(--font-mono);
+      background: rgba(74, 103, 133, 0.12);
+      color: var(--accent-300);
+      border-radius: var(--radius-full);
+    }
+
+    /* Cmdlet selector */
+    .cmdlet-selector {
+      margin-bottom: var(--space-6);
+    }
+
+    .cmdlet-selector label {
+      display: block;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--panda-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: var(--space-2);
+    }
+
+    /* Custom dropdown */
+    .cmdlet-dropdown {
+      position: relative;
+    }
+
+    .cmdlet-dropdown-trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3) var(--space-4);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-align: left;
+    }
+
+    .cmdlet-dropdown-trigger:hover {
+      border-color: var(--surface-border-accent);
+    }
+
+    .cmdlet-dropdown-trigger:focus {
+      outline: none;
+      border-color: var(--accent-500);
+      box-shadow: 0 0 0 3px rgba(74, 103, 133, 0.15);
+    }
+
+    .cmdlet-dropdown-trigger .placeholder {
+      color: var(--text-tertiary);
+    }
+
+    .cmdlet-dropdown-trigger .selected-name {
+      color: var(--text-primary);
+    }
+
+    .cmdlet-dropdown-trigger .selected-desc {
+      color: var(--text-tertiary);
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      margin-left: var(--space-3);
+    }
+
+    .cmdlet-dropdown-trigger .chevron {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      color: var(--text-tertiary);
+      transition: transform var(--transition-fast);
+    }
+
+    .cmdlet-dropdown.open .cmdlet-dropdown-trigger .chevron {
+      transform: rotate(180deg);
+    }
+
+    .cmdlet-dropdown-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + var(--space-2));
+      left: 0;
+      right: 0;
+      z-index: 60;
+      max-height: 420px;
+      overflow-y: auto;
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: var(--space-2);
+    }
+
+    .cmdlet-dropdown.open .cmdlet-dropdown-panel {
+      display: block;
+    }
+
+    .cmdlet-dropdown-group-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: var(--space-3) var(--space-3) var(--space-1);
+    }
+
+    .cmdlet-dropdown-option {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: var(--space-2) var(--space-3);
+      background: none;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .cmdlet-dropdown-option:hover {
+      background: var(--bg-hover);
+    }
+
+    .cmdlet-dropdown-option.selected {
+      background: rgba(74, 103, 133, 0.12);
+    }
+
+    .cmdlet-dropdown-option .option-name {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .cmdlet-dropdown-option .option-desc {
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      line-height: 1.4;
+      margin-top: 1px;
+    }
+
+    /* Parameters section */
+    .params-section {
+      margin-bottom: var(--space-8);
+    }
+
+    .params-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--panda-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: var(--space-4);
+    }
+
+    .params-empty {
+      font-size: var(--text-sm);
+      color: var(--text-tertiary);
+      font-style: italic;
+    }
+
+    .params-grid {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    /* Parameter row */
+    .param-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding: var(--space-3) var(--space-4);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      transition: border-color var(--transition-fast);
+    }
+
+    .param-row.active {
+      border-color: var(--accent-500);
+    }
+
+    .param-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .param-name {
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+    }
+
+    .param-name .required {
+      color: var(--panda-400);
+      font-size: var(--text-xs);
+      font-family: var(--font-sans);
+      margin-left: var(--space-1);
+    }
+
+    .param-desc {
+      font-size: var(--text-xs);
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    .param-control {
+      flex-shrink: 0;
+    }
+
+    /* Toggle switch */
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+      cursor: pointer;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-full);
+      transition: all var(--transition-fast);
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      background: var(--text-tertiary);
+      border-radius: 50%;
+      transition: all var(--transition-fast);
+    }
+
+    .toggle input:checked+.toggle-track {
+      background: var(--accent-500);
+      border-color: var(--accent-500);
+    }
+
+    .toggle input:checked+.toggle-track .toggle-thumb {
+      transform: translateX(18px);
+      background: white;
+    }
+
+    /* Text input in param row */
+    .param-input {
+      width: 200px;
+      padding: var(--space-2) var(--space-3);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-primary);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .param-input:focus {
+      outline: none;
+      border-color: var(--accent-500);
+      box-shadow: 0 0 0 2px rgba(74, 103, 133, 0.1);
+    }
+
+    .param-input::placeholder {
+      color: var(--text-tertiary);
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+    }
+
+    /* Select in param row */
+    .param-select {
+      width: 200px;
+      padding: var(--space-2) var(--space-3);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-primary);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B6B67' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 28px;
+    }
+
+    .param-select:focus {
+      outline: none;
+      border-color: var(--accent-500);
+    }
+
+    .param-select option {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    /* Sticky command preview bar */
+    .preview-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: rgba(46, 46, 43, 0.97);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--surface-border);
+      padding: var(--space-4) var(--space-6);
+    }
+
+    .preview-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .preview-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    .preview-command {
+      flex: 1;
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      overflow-x: auto;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    .preview-command .cmd-name {
+      color: var(--panda-400);
+    }
+
+    .preview-command .cmd-param {
+      color: var(--text-secondary);
+    }
+
+    .preview-command .cmd-value {
+      color: var(--accent-300);
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: white;
+      background: var(--accent-500);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+    }
+
+    .copy-btn:hover {
+      background: var(--accent-600);
+      box-shadow: var(--shadow-accent);
+    }
+
+    .copy-btn.copied {
+      background: var(--success);
+    }
+
+    .copy-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Install section */
+    .install-section {
+      margin-top: var(--space-8);
+      padding-top: var(--space-8);
+      border-top: 1px solid var(--surface-border-subtle);
+    }
+
+    .install-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-3);
+    }
+
+    .install-card {
+      padding: var(--space-4) var(--space-5);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+    }
+
+    .install-card code {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--accent-300);
+      padding: 0;
+      background: none;
+    }
+
+    .install-card p {
+      font-size: var(--text-sm);
+      color: var(--text-tertiary);
+      margin: var(--space-2) 0 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .param-row {
+        flex-wrap: wrap;
+        gap: var(--space-2);
+      }
+
+      .param-input,
+      .param-select {
+        width: 100%;
+      }
+
+      .preview-inner {
+        flex-wrap: wrap;
+      }
+
+      .preview-label {
+        width: 100%;
+      }
+
+      .preview-command {
+        font-size: var(--text-xs);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Skip link for accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Geometric Background -->
+  <div class="geo-bg"></div>
+
+  <!-- Floating Navigation -->
+  <header class="floating-header">
+    <nav class="floating-nav">
+      <a href="about.html" class="nav-logo">
+        <img src="favicon.png" alt="Mark Rood" />
+      </a>
+      <div class="nav-links">
+        <a href="about.html" class="nav-link">About</a>
+        <a href="index.html" class="nav-link">Resum&eacute;</a>
+        <a href="resources.html" class="nav-link">Resources</a>
+      </div>
+      <button class="mobile-menu-btn" aria-label="Open menu">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu">
+    <button class="mobile-menu-close" aria-label="Close menu">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+    <a href="about.html" class="nav-link">About</a>
+    <a href="index.html" class="nav-link">Resum&eacute;</a>
+    <a href="resources.html" class="nav-link">Resources</a>
+  </div>
+
+  <!-- Spacer for fixed nav -->
+  <div style="height: 80px;"></div>
+
+  <!-- Main Content -->
+  <main id="main-content" class="builder-container">
+    <div class="page-header">
+      <h1>PSWindowsUpdate Builder</h1>
+      <p>Select a cmdlet, configure parameters, and copy the command.</p>
+      <span class="module-badge">PSWindowsUpdate v2.2.0.3</span>
+    </div>
+
+    <!-- Install Section -->
+    <div class="install-section" style="margin-top: 0; padding-top: 0; border-top: none; margin-bottom: var(--space-8);">
+      <div class="install-label">Installation</div>
+      <div class="install-card">
+        <code>Install-Module -Name PSWindowsUpdate -Force</code>
+        <p>Run as Administrator. Requires PowerShell 5.1+ and the NuGet provider.</p>
+      </div>
+    </div>
+
+    <!-- Cmdlet Selector -->
+    <div class="cmdlet-selector">
+      <label>Cmdlet</label>
+      <div class="cmdlet-dropdown" id="cmdlet-dropdown">
+        <button type="button" class="cmdlet-dropdown-trigger" id="cmdlet-trigger">
+          <span class="placeholder">Select a cmdlet&hellip;</span>
+          <svg class="chevron" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="cmdlet-dropdown-panel" id="cmdlet-panel"></div>
+      </div>
+    </div>
+
+    <!-- Parameters -->
+    <div id="params-section" class="params-section" style="display: none;">
+      <div class="params-label">Parameters</div>
+      <div id="params-grid" class="params-grid"></div>
+    </div>
+
+  </main>
+
+  <!-- Sticky Command Preview -->
+  <div id="preview-bar" class="preview-bar" style="display: none;">
+    <div class="preview-inner">
+      <span class="preview-label">Command</span>
+      <div id="preview-command" class="preview-command"></div>
+      <button id="copy-btn" class="copy-btn" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        Copy
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ── Cmdlet Definitions ──
+    const CMDLETS = {
+      'Get-WindowsUpdate': {
+        desc: 'Gets a list of available updates that meet specified criteria.',
+        params: [
+          { name: 'MicrosoftUpdate', type: 'switch', desc: 'Use Microsoft Update instead of Windows Update' },
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+          { name: 'KBArticleID', type: 'text', desc: 'Filter by KB Article ID', placeholder: 'KB5001234' },
+          { name: 'NotKBArticle', type: 'text', desc: 'Exclude specific KB article(s)', placeholder: 'KB5001234' },
+          { name: 'Category', type: 'select', desc: 'Filter by update category', options: ['Critical Updates', 'Security Updates', 'Definition Updates', 'Update Rollups', 'Service Packs', 'Feature Packs', 'Drivers', 'Tools', 'Updates'] },
+          { name: 'NotCategory', type: 'select', desc: 'Exclude update category', options: ['Critical Updates', 'Security Updates', 'Definition Updates', 'Update Rollups', 'Service Packs', 'Feature Packs', 'Drivers', 'Tools', 'Updates'] },
+          { name: 'Title', type: 'text', desc: 'Filter updates matching title', placeholder: 'Cumulative' },
+          { name: 'NotTitle', type: 'text', desc: 'Exclude updates matching title', placeholder: 'Preview' },
+          { name: 'WithHidden', type: 'switch', desc: 'Include hidden updates in results' },
+          { name: 'Verbose', type: 'switch', desc: 'Show detailed output' },
+        ]
+      },
+      'Install-WindowsUpdate': {
+        desc: 'Downloads and installs updates that meet specified criteria.',
+        params: [
+          { name: 'MicrosoftUpdate', type: 'switch', desc: 'Use Microsoft Update instead of Windows Update' },
+          { name: 'AcceptAll', type: 'switch', desc: 'Accept all updates automatically' },
+          { name: 'AutoReboot', type: 'switch', desc: 'Automatically reboot if required' },
+          { name: 'IgnoreReboot', type: 'switch', desc: 'Suppress reboot even if required' },
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+          { name: 'KBArticleID', type: 'text', desc: 'Install specific KB article(s)', placeholder: 'KB5001234' },
+          { name: 'NotKBArticle', type: 'text', desc: 'Exclude specific KB article(s)', placeholder: 'KB5001234' },
+          { name: 'Category', type: 'select', desc: 'Filter by update category', options: ['Critical Updates', 'Security Updates', 'Definition Updates', 'Update Rollups', 'Service Packs', 'Feature Packs', 'Drivers', 'Tools', 'Updates'] },
+          { name: 'NotCategory', type: 'select', desc: 'Exclude update category', options: ['Critical Updates', 'Security Updates', 'Definition Updates', 'Update Rollups', 'Service Packs', 'Feature Packs', 'Drivers', 'Tools', 'Updates'] },
+          { name: 'Title', type: 'text', desc: 'Filter updates matching title', placeholder: 'Cumulative' },
+          { name: 'NotTitle', type: 'text', desc: 'Exclude updates matching title', placeholder: 'Preview' },
+          { name: 'ScheduleJob', type: 'text', desc: 'Schedule install at specific time', placeholder: '2025-01-15 03:00' },
+          { name: 'RecurseCycle', type: 'text', desc: 'Number of recursive update cycles', placeholder: '3' },
+          { name: 'Verbose', type: 'switch', desc: 'Show detailed output' },
+        ]
+      },
+      'Download-WindowsUpdate': {
+        desc: 'Downloads updates without installing them.',
+        params: [
+          { name: 'MicrosoftUpdate', type: 'switch', desc: 'Use Microsoft Update instead of Windows Update' },
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+          { name: 'KBArticleID', type: 'text', desc: 'Download specific KB article(s)', placeholder: 'KB5001234' },
+          { name: 'NotKBArticle', type: 'text', desc: 'Exclude specific KB article(s)', placeholder: 'KB5001234' },
+          { name: 'Category', type: 'select', desc: 'Filter by update category', options: ['Critical Updates', 'Security Updates', 'Definition Updates', 'Update Rollups', 'Service Packs', 'Feature Packs', 'Drivers', 'Tools', 'Updates'] },
+          { name: 'NotCategory', type: 'select', desc: 'Exclude update category', options: ['Critical Updates', 'Security Updates', 'Definition Updates', 'Update Rollups', 'Service Packs', 'Feature Packs', 'Drivers', 'Tools', 'Updates'] },
+          { name: 'Title', type: 'text', desc: 'Filter updates matching title', placeholder: 'Cumulative' },
+          { name: 'NotTitle', type: 'text', desc: 'Exclude updates matching title', placeholder: 'Preview' },
+          { name: 'AcceptAll', type: 'switch', desc: 'Accept all updates automatically' },
+          { name: 'Verbose', type: 'switch', desc: 'Show detailed output' },
+        ]
+      },
+      'Hide-WindowsUpdate': {
+        desc: 'Hides specified updates so they will not be installed.',
+        params: [
+          { name: 'KBArticleID', type: 'text', desc: 'KB article to hide', placeholder: 'KB5001234' },
+          { name: 'Title', type: 'text', desc: 'Hide updates matching title', placeholder: 'Preview' },
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+          { name: 'Verbose', type: 'switch', desc: 'Show detailed output' },
+        ]
+      },
+      'Show-WindowsUpdate': {
+        desc: 'Unhides previously hidden updates so they can be installed.',
+        params: [
+          { name: 'KBArticleID', type: 'text', desc: 'KB article to unhide', placeholder: 'KB5001234' },
+          { name: 'Title', type: 'text', desc: 'Unhide updates matching title', placeholder: 'Preview' },
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+          { name: 'Verbose', type: 'switch', desc: 'Show detailed output' },
+        ]
+      },
+      'Remove-WindowsUpdate': {
+        desc: 'Uninstalls a previously installed update by KB Article ID.',
+        params: [
+          { name: 'KBArticleID', type: 'text', desc: 'KB article to remove', placeholder: 'KB5001234', required: true },
+          { name: 'NoRestart', type: 'switch', desc: 'Suppress automatic restart' },
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+          { name: 'Verbose', type: 'switch', desc: 'Show detailed output' },
+        ]
+      },
+      'Get-WUHistory': {
+        desc: 'Gets a list of previously installed updates from update history.',
+        params: [
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+          { name: 'MaxDate', type: 'text', desc: 'Show updates installed before this date', placeholder: '2025-01-15' },
+          { name: 'Last', type: 'text', desc: 'Number of recent updates to return', placeholder: '10' },
+          { name: 'Verbose', type: 'switch', desc: 'Show detailed output' },
+        ]
+      },
+      'Get-WULastResults': {
+        desc: 'Gets the dates and status of the last update search and installation.',
+        params: [
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+        ]
+      },
+      'Get-WURebootStatus': {
+        desc: 'Checks whether a reboot is required to complete update installation.',
+        params: [
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+          { name: 'Silent', type: 'switch', desc: 'Return boolean without text output' },
+        ]
+      },
+      'Get-WUInstallerStatus': {
+        desc: 'Checks whether the Windows Update installer is currently busy.',
+        params: [
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+        ]
+      },
+      'Get-WUSettings': {
+        desc: 'Gets the current Windows Update client configuration settings.',
+        params: [
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+        ]
+      },
+      'Set-WUSettings': {
+        desc: 'Configures Windows Update client settings, including target release version.',
+        params: [
+          { name: 'TargetReleaseVersion', type: 'switch', desc: 'Enable targeting a specific release version' },
+          { name: 'TargetReleaseVersionInfo', type: 'text', desc: 'Target OS release version', placeholder: '22H2' },
+          { name: 'ProductVersion', type: 'text', desc: 'Target product version string', placeholder: 'Windows 11' },
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+        ]
+      },
+      'Get-WUServiceManager': {
+        desc: 'Gets a list of registered update service managers.',
+        params: [
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+        ]
+      },
+      'Add-WUServiceManager': {
+        desc: 'Registers a new Windows Update service manager.',
+        params: [
+          { name: 'ServiceID', type: 'text', desc: 'GUID of the update service', placeholder: '7971f918-a847-4430-9279-4a52d1efe18d', required: true },
+          { name: 'AddServiceFlag', type: 'text', desc: 'Service registration flag value', placeholder: '7' },
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+        ]
+      },
+      'Remove-WUServiceManager': {
+        desc: 'Unregisters a Windows Update service manager by service ID.',
+        params: [
+          { name: 'ServiceID', type: 'text', desc: 'GUID of the service to remove', placeholder: '7971f918-a847-4430-9279-4a52d1efe18d', required: true },
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+        ]
+      },
+      'Invoke-WUJob': {
+        desc: 'Creates a scheduled task to run Windows Update on remote computers using PSWindowsUpdate.',
+        params: [
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02', required: true },
+          { name: 'Script', type: 'text', desc: 'Script block or command to run', placeholder: 'ipmo PSWindowsUpdate; Install-WindowsUpdate -AcceptAll' },
+          { name: 'RunNow', type: 'switch', desc: 'Run the task immediately' },
+          { name: 'TriggerDate', type: 'text', desc: 'Date and time to trigger the task', placeholder: '2025-01-15 03:00' },
+          { name: 'Verbose', type: 'switch', desc: 'Show detailed output' },
+        ]
+      },
+      'Get-WUJob': {
+        desc: 'Gets the status of PSWindowsUpdate scheduled tasks on remote computers.',
+        params: [
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+          { name: 'Verbose', type: 'switch', desc: 'Show detailed output' },
+        ]
+      },
+      'Enable-WURemoting': {
+        desc: 'Enables firewall rules required for remote PSWindowsUpdate operations.',
+        params: []
+      },
+      'Reset-WUComponents': {
+        desc: 'Resets Windows Update agent components to their default state.',
+        params: [
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+          { name: 'Verbose', type: 'switch', desc: 'Show detailed output' },
+        ]
+      },
+      'Get-WUOfflineMSU': {
+        desc: 'Gets details about an offline MSU update package file.',
+        params: [
+          { name: 'Path', type: 'text', desc: 'Path to the MSU file', placeholder: 'C:\\Updates\\update.msu', required: true },
+        ]
+      },
+      'Update-WUModule': {
+        desc: 'Updates the PSWindowsUpdate module on local or remote computers.',
+        params: [
+          { name: 'ComputerName', type: 'text', desc: 'Target remote computer(s)', placeholder: 'Server01, Server02' },
+          { name: 'Verbose', type: 'switch', desc: 'Show detailed output' },
+        ]
+      },
+      'Get-WUApiVersion': {
+        desc: 'Gets the version of the Windows Update Agent API.',
+        params: []
+      },
+      'Set-PSWUSettings': {
+        desc: 'Saves PSWindowsUpdate module configuration settings for the current user.',
+        params: [
+          { name: 'SmtpServer', type: 'text', desc: 'SMTP server for email notifications', placeholder: 'smtp.example.com' },
+          { name: 'SmtpPort', type: 'text', desc: 'SMTP server port', placeholder: '587' },
+          { name: 'SmtpTo', type: 'text', desc: 'Email notification recipient', placeholder: 'admin@example.com' },
+          { name: 'SmtpFrom', type: 'text', desc: 'Email notification sender', placeholder: 'updates@example.com' },
+          { name: 'SmtpSubject', type: 'text', desc: 'Email notification subject', placeholder: 'Windows Update Report' },
+          { name: 'SmtpEnableSsl', type: 'switch', desc: 'Enable SSL for SMTP connection' },
+        ]
+      },
+    };
+
+    // ── Category Ordering ──
+    const CATEGORIES = [
+      { name: 'Scan & Install', cmdlets: ['Get-WindowsUpdate', 'Install-WindowsUpdate', 'Download-WindowsUpdate'] },
+      { name: 'Hide & Unhide', cmdlets: ['Hide-WindowsUpdate', 'Show-WindowsUpdate'] },
+      { name: 'Remove', cmdlets: ['Remove-WindowsUpdate'] },
+      { name: 'History & Status', cmdlets: ['Get-WUHistory', 'Get-WULastResults', 'Get-WURebootStatus', 'Get-WUInstallerStatus'] },
+      { name: 'Settings & Services', cmdlets: ['Get-WUSettings', 'Set-WUSettings', 'Get-WUServiceManager', 'Add-WUServiceManager', 'Remove-WUServiceManager'] },
+      { name: 'Remote & Utility', cmdlets: ['Invoke-WUJob', 'Get-WUJob', 'Enable-WURemoting', 'Reset-WUComponents', 'Get-WUOfflineMSU', 'Update-WUModule', 'Get-WUApiVersion', 'Set-PSWUSettings'] },
+    ];
+
+    // ── DOM References ──
+    const dropdown = document.getElementById('cmdlet-dropdown');
+    const trigger = document.getElementById('cmdlet-trigger');
+    const panel = document.getElementById('cmdlet-panel');
+    const paramsSection = document.getElementById('params-section');
+    const paramsGrid = document.getElementById('params-grid');
+    const previewBar = document.getElementById('preview-bar');
+    const previewCommand = document.getElementById('preview-command');
+    const copyBtn = document.getElementById('copy-btn');
+
+    let currentCmdlet = null;
+
+    // ── Populate Dropdown ──
+    function populateSelect() {
+      CATEGORIES.forEach(cat => {
+        const groupLabel = document.createElement('div');
+        groupLabel.className = 'cmdlet-dropdown-group-label';
+        groupLabel.textContent = cat.name;
+        panel.appendChild(groupLabel);
+
+        cat.cmdlets.forEach(name => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'cmdlet-dropdown-option';
+          btn.dataset.cmdlet = name;
+
+          const optName = document.createElement('div');
+          optName.className = 'option-name';
+          optName.textContent = name;
+
+          const optDesc = document.createElement('div');
+          optDesc.className = 'option-desc';
+          optDesc.textContent = CMDLETS[name].desc;
+
+          btn.appendChild(optName);
+          btn.appendChild(optDesc);
+          btn.addEventListener('click', () => selectCmdlet(name));
+          panel.appendChild(btn);
+        });
+      });
+    }
+
+    // ── Toggle Dropdown ──
+    trigger.addEventListener('click', () => {
+      dropdown.classList.toggle('open');
+    });
+
+    // Close dropdown on outside click
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target)) {
+        dropdown.classList.remove('open');
+      }
+    });
+
+    // Close dropdown on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        dropdown.classList.remove('open');
+      }
+    });
+
+    // ── Render Parameters ──
+    function renderParams(params) {
+      paramsGrid.innerHTML = '';
+
+      if (!params || params.length === 0) {
+        paramsGrid.innerHTML = '<div class="params-empty">This cmdlet has no configurable parameters.</div>';
+        return;
+      }
+
+      params.forEach(p => {
+        const row = document.createElement('div');
+        row.className = 'param-row';
+        row.dataset.param = p.name;
+
+        const info = document.createElement('div');
+        info.className = 'param-info';
+
+        const nameSpan = document.createElement('div');
+        nameSpan.className = 'param-name';
+        nameSpan.textContent = '-' + p.name;
+        if (p.required) {
+          const req = document.createElement('span');
+          req.className = 'required';
+          req.textContent = '(required)';
+          nameSpan.appendChild(req);
+        }
+
+        const descSpan = document.createElement('div');
+        descSpan.className = 'param-desc';
+        descSpan.textContent = p.desc;
+
+        info.appendChild(nameSpan);
+        info.appendChild(descSpan);
+
+        const control = document.createElement('div');
+        control.className = 'param-control';
+
+        if (p.type === 'switch') {
+          const label = document.createElement('label');
+          label.className = 'toggle';
+          const input = document.createElement('input');
+          input.type = 'checkbox';
+          input.dataset.param = p.name;
+          input.dataset.ptype = 'switch';
+          input.addEventListener('change', () => {
+            row.classList.toggle('active', input.checked);
+            updatePreview();
+          });
+          const track = document.createElement('span');
+          track.className = 'toggle-track';
+          const thumb = document.createElement('span');
+          thumb.className = 'toggle-thumb';
+          track.appendChild(thumb);
+          label.appendChild(input);
+          label.appendChild(track);
+          control.appendChild(label);
+        } else if (p.type === 'select') {
+          const sel = document.createElement('select');
+          sel.className = 'param-select';
+          sel.dataset.param = p.name;
+          sel.dataset.ptype = 'select';
+          const emptyOpt = document.createElement('option');
+          emptyOpt.value = '';
+          emptyOpt.textContent = 'None';
+          sel.appendChild(emptyOpt);
+          p.options.forEach(o => {
+            const opt = document.createElement('option');
+            opt.value = o;
+            opt.textContent = o;
+            sel.appendChild(opt);
+          });
+          sel.addEventListener('change', () => {
+            row.classList.toggle('active', sel.value !== '');
+            updatePreview();
+          });
+          control.appendChild(sel);
+        } else {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'param-input';
+          input.placeholder = p.placeholder || '';
+          input.dataset.param = p.name;
+          input.dataset.ptype = 'text';
+          input.addEventListener('input', () => {
+            row.classList.toggle('active', input.value.trim() !== '');
+            updatePreview();
+          });
+          control.appendChild(input);
+        }
+
+        row.appendChild(info);
+        row.appendChild(control);
+        paramsGrid.appendChild(row);
+      });
+    }
+
+    // ── Build Command String ──
+    function buildCommand() {
+      if (!currentCmdlet) return '';
+      let parts = [currentCmdlet];
+      const controls = paramsGrid.querySelectorAll('[data-param]');
+      controls.forEach(el => {
+        const name = el.dataset.param;
+        const ptype = el.dataset.ptype;
+        if (ptype === 'switch' && el.checked) {
+          parts.push('-' + name);
+        } else if (ptype === 'text' && el.value.trim()) {
+          parts.push('-' + name + ' "' + el.value.trim() + '"');
+        } else if (ptype === 'select' && el.value) {
+          parts.push('-' + name + ' "' + el.value + '"');
+        }
+      });
+      return parts.join(' ');
+    }
+
+    // ── Build HTML Preview ──
+    function buildPreviewHTML() {
+      if (!currentCmdlet) return '';
+      let html = '<span class="cmd-name">' + currentCmdlet + '</span>';
+      const controls = paramsGrid.querySelectorAll('[data-param]');
+      controls.forEach(el => {
+        const name = el.dataset.param;
+        const ptype = el.dataset.ptype;
+        if (ptype === 'switch' && el.checked) {
+          html += ' <span class="cmd-param">-' + name + '</span>';
+        } else if (ptype === 'text' && el.value.trim()) {
+          html += ' <span class="cmd-param">-' + name + '</span> <span class="cmd-value">"' + escapeHtml(el.value.trim()) + '"</span>';
+        } else if (ptype === 'select' && el.value) {
+          html += ' <span class="cmd-param">-' + name + '</span> <span class="cmd-value">"' + escapeHtml(el.value) + '"</span>';
+        }
+      });
+      return html;
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // ── Update Preview ──
+    function updatePreview() {
+      if (!currentCmdlet) {
+        previewBar.style.display = 'none';
+        return;
+      }
+      previewBar.style.display = 'block';
+      previewCommand.innerHTML = buildPreviewHTML();
+    }
+
+    // ── Copy Command ──
+    function copyCommand() {
+      const cmd = buildCommand();
+      if (!cmd) return;
+      navigator.clipboard.writeText(cmd).then(() => {
+        copyBtn.classList.add('copied');
+        copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!';
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy';
+        }, 2000);
+      });
+    }
+
+    // ── Select Cmdlet ──
+    function selectCmdlet(name) {
+      if (!name || !CMDLETS[name]) return;
+
+      currentCmdlet = name;
+      const cmdlet = CMDLETS[name];
+
+      // Update trigger display
+      trigger.innerHTML = '';
+      const selName = document.createElement('span');
+      selName.className = 'selected-name';
+      selName.textContent = name;
+      const selDesc = document.createElement('span');
+      selDesc.className = 'selected-desc';
+      selDesc.textContent = cmdlet.desc;
+      const chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      chevron.setAttribute('class', 'chevron');
+      chevron.setAttribute('viewBox', '0 0 24 24');
+      chevron.setAttribute('fill', 'none');
+      chevron.setAttribute('stroke', 'currentColor');
+      chevron.setAttribute('stroke-width', '2');
+      chevron.setAttribute('stroke-linecap', 'round');
+      chevron.setAttribute('stroke-linejoin', 'round');
+      const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+      poly.setAttribute('points', '6 9 12 15 18 9');
+      chevron.appendChild(poly);
+      trigger.appendChild(selName);
+      trigger.appendChild(selDesc);
+      trigger.appendChild(chevron);
+
+      // Highlight selected option
+      panel.querySelectorAll('.cmdlet-dropdown-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.cmdlet === name);
+      });
+
+      // Close dropdown
+      dropdown.classList.remove('open');
+
+      paramsSection.style.display = 'block';
+      renderParams(cmdlet.params);
+      updatePreview();
+    }
+
+    // ── Event: Copy Button ──
+    copyBtn.addEventListener('click', copyCommand);
+
+    // ── Init ──
+    populateSelect();
+  </script>
+</body>
+
+</html>

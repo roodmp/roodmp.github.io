@@ -1,1525 +1,2583 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wedding Seat Planner - Mark Rood</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <link rel="icon" type="image/x-icon" href="favicon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital,wght@0,400;1,400&display=swap"
-        rel="stylesheet" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js"
-        integrity="sha512-7x3zila4t2qNycrtZ31HO0NnJr8kg2VI67YLoRSyi9hGhRN66FHYWr7Axa9Y1J9tGYHVBPqIjSE1ogHrJTz51g=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <script src="main.js"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        // AI-focused futuristic palette
-                        primary: {
-                            50: '#EBF4FF',
-                            100: '#D1E7FF',
-                            200: '#A6D0FF',
-                            300: '#7AB8FF',
-                            400: '#4F9FFF',
-                            500: '#2563EB',
-                            600: '#1E40AF',
-                            700: '#1E3A8A',
-                            800: '#1E2A69',
-                            900: '#1A1F37'
-                        },
-                        ai: {
-                            cyan: '#06B6D4',
-                            purple: '#8B5CF6',
-                            blue: '#3B82F6',
-                            indigo: '#6366F1',
-                            violet: '#7C3AED'
-                        },
-                        surface: {
-                            primary: '#0F0F0F',
-                            secondary: '#1A1A1A',
-                            tertiary: '#262626',
-                            border: '#404040'
-                        },
-                        text: {
-                            primary: '#FFFFFF',
-                            secondary: '#E2E8F0',
-                            tertiary: '#CBD5E1'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        @keyframes single-pulse-glow {
-            0%, 100% {
-                border-color: rgb(156 163 175);
-                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-            }
-            50% {
-                border-color: rgb(59 130 246);
-                box-shadow: 0 0 8px 2px rgba(59, 130, 246, 0.4);
-            }
-        }
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seat Planner - Mark Rood</title>
+  <meta name="description"
+    content="Interactive seating arrangement planner with drag-and-drop, constraint rules, and auto-arrange. Organize guests across tables with ease.">
 
-        @media (prefers-color-scheme: dark) {
-            @keyframes single-pulse-glow {
-                0%, 100% {
-                    border-color: rgb(75 85 99);
-                    box-shadow: 0 0 0 0 rgba(147, 197, 253, 0);
-                }
-                50% {
-                    border-color: rgb(147 197 253);
-                    box-shadow: 0 0 8px 2px rgba(147, 197, 253, 0.4);
-                }
-            }
-        }
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Seat Planner">
+  <meta property="og:description"
+    content="Interactive seating arrangement planner with drag-and-drop and constraint-based auto-arrange.">
+  <meta property="og:image" content="https://roodmp.github.io/assets/image/me_dog.png">
+  <meta property="og:url" content="https://roodmp.github.io/seat-planner.html">
 
-        .animate-single-pulse-glow {
-            animation: single-pulse-glow 2.5s ease-in-out;
-        }
+  <link rel="icon" type="image/x-icon" href="favicon.png" />
 
-        .floating-particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: radial-gradient(circle, rgba(6, 182, 212, 0.8), transparent);
-            border-radius: 50%;
-            animation: particle-float 12s linear infinite;
-        }
-        
-        .floating-particle:nth-child(odd) {
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.8), transparent);
-            animation-duration: 15s;
-        }
-        
-        @keyframes particle-float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-30px) rotate(120deg); }
-            66% { transform: translateY(15px) rotate(240deg); }
-        }
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans/style.min.css" rel="stylesheet" />
 
-        .theme-logo {
-            transition: all 0.3s ease;
-            filter: invert(1) brightness(1.2) drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
-        }
+  <!-- Design System -->
+  <link rel="stylesheet" href="design-system.css" />
 
-        .theme-logo:hover {
-            transform: scale(1.05);
-            filter: invert(1) brightness(1.3) drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
-        }
+  <!-- Icons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js"
+    integrity="sha512-7x3zila4t2qNycrtZ31HO0NnJr8kg2VI67YLoRSyi9hGhRN66FHYWr7Axa9Y1J9tGYHVBPqIjSE1ogHrJTz51g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
 
-        .nav-link {
-            color: #E2E8F0;
-            transition: all 0.2s ease;
-            padding: 0.5rem;
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
-        }
+  <!-- Main JS -->
+  <script src="main.js" defer></script>
 
-        .nav-link:hover {
-            color: #FFFFFF;
-            transform: scale(1.05);
-        }
-        
-        .table-circle {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            position: relative;
-            transition: all 0.3s ease;
-            margin: 2rem;
-            padding: 1rem;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-        
-        .seat {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            position: absolute;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid transparent;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -khtml-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-        
-        .seat:hover {
-            transform: scale(1.08);
-            opacity: 0.8;
-        }
-        
-        .seat-0 { top: -14px; left: 46px; } /* 12 o'clock */
-        .seat-1 { top: 14px; right: -14px; } /* 2 o'clock */
-        .seat-2 { bottom: 14px; right: -14px; } /* 4 o'clock */
-        .seat-3 { bottom: -14px; left: 46px; } /* 6 o'clock */
-        .seat-4 { bottom: 14px; left: -14px; } /* 8 o'clock */
-        .seat-5 { top: 14px; left: -14px; } /* 10 o'clock */
-        
-        .guest-item {
-            cursor: grab;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 0.75rem;
-        }
-        
-        .guest-item:hover {
-            background: rgba(255, 255, 255, 0.08);
-        }
-        
-        .guest-item:active {
-            cursor: grabbing;
-            transform: scale(0.98);
-        }
-        
-        .guest-item.dragging {
-            opacity: 0.6;
-            transform: rotate(5deg) scale(1.05);
-        }
-        
-        .table-circle.drop-target {
-            transform: scale(1.02);
-            box-shadow: 0 0 0 2px #2563eb;
-            border-color: #2563eb;
-        }
-        
-        
-        /* Notion-style button system */
-        .btn {
-            padding: 0.5rem 0.875rem;
-            border-radius: 0.375rem;
-            font-weight: 500;
-            font-size: 0.875rem;
-            transition: all 0.15s ease;
-            border: 1px solid transparent;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.375rem;
-        }
-        
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-            border-color: #2563eb;
-        }
-        
-        .btn-primary:hover {
-            background: #1d4ed8;
-            border-color: #1d4ed8;
-        }
-        
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: #e2e8f0;
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-        
-        .btn-ghost {
-            background: transparent;
-            color: #94a3b8;
-            border-color: transparent;
-        }
-        
-        .btn-ghost:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: #e2e8f0;
-        }
-        
-        .btn-sm {
-            padding: 0.375rem 0.75rem;
-            font-size: 0.8125rem;
-        }
-        
-        .btn-icon {
-            padding: 0.5rem;
-            min-width: 2rem;
-            min-height: 2rem;
-        }
-        
-        /* Dropdown menu */
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            z-index: 50;
-            min-width: 12rem;
-            padding: 0.25rem;
-            margin-top: 0.25rem;
-            background: rgba(26, 26, 26, 0.95);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(64, 64, 64, 0.5);
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.2s ease;
-        }
-        
-        .dropdown-menu.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-        
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            width: 100%;
-            padding: 0.5rem 0.75rem;
-            border: none;
-            background: transparent;
-            color: #e2e8f0;
-            font-size: 0.875rem;
-            text-align: left;
-            border-radius: 0.25rem;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-        
-        .dropdown-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: #ffffff;
-        }
-        
-        .dropdown-divider {
-            height: 1px;
-            margin: 0.25rem 0;
-            background: rgba(64, 64, 64, 0.5);
-        }
-        
-        /* Multi-select styles */
-        .multi-select {
-            position: relative;
-        }
-        
-        .multi-select-button {
-            width: 100%;
-            min-height: 2.5rem;
-            padding: 0.5rem 0.75rem;
-            background: #262626;
-            border: 1px solid #404040;
-            border-radius: 0.5rem;
-            color: #e2e8f0;
-            font-size: 0.875rem;
-            text-align: left;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.5rem;
-            transition: all 0.15s ease;
-        }
-        
-        .multi-select-button:hover {
-            border-color: #525252;
-        }
-        
-        .multi-select-button:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        
-        .multi-select-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            z-index: 50;
-            max-height: 12rem;
-            margin-top: 0.25rem;
-            background: rgba(26, 26, 26, 0.95);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(64, 64, 64, 0.5);
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            overflow-y: auto;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.2s ease;
-        }
-        
-        .multi-select-dropdown.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-        
-        .multi-select-option {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.5rem 0.75rem;
-            color: #e2e8f0;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-        
-        .multi-select-option:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        .multi-select-option input[type="checkbox"] {
-            width: 1rem;
-            height: 1rem;
-            accent-color: #2563eb;
-        }
-        
-        .selected-guests {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.25rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .selected-guest-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.125rem 0.5rem;
-            background: rgba(37, 99, 235, 0.2);
-            border: 1px solid rgba(37, 99, 235, 0.3);
-            border-radius: 1rem;
-            color: #93c5fd;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        
-        /* Card-like panels */
-        .card-panel {
-            background: rgba(26, 26, 26, 0.95);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(64, 64, 64, 0.5);
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .card-panel:hover {
-            border-color: rgba(64, 64, 64, 0.6);
-        }
-        
-        /* Constrain scrollable lists within viewport */
-        #guestList {
-            min-height: 0 !important;
-            max-height: 300px !important;
-            overflow-y: auto !important;
-            flex: none !important;
-        }
-        
-        #constraintsList {
-            min-height: 0 !important;
-            max-height: 250px !important;
-            overflow-y: auto !important;
-            flex: none !important;
-        }
-        
-        /* Table container spacing overrides */
-        #tablesContainer {
-            gap: 1rem !important;
-            padding: 2rem !important;
-        }
-        
-        /* Mobile responsive adjustments */
-        @media (max-width: 1024px) {
-            .table-circle {
-                margin: 1.5rem;
-            }
-            #tablesContainer {
-                padding: 1.5rem !important;
-            }
-            
-            #guestList {
-                max-height: 250px !important;
-            }
-            
-            #constraintsList {
-                max-height: 200px !important;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .table-circle {
-                width: 100px;
-                height: 100px;
-                margin: 1rem;
-                padding: 0.5rem;
-            }
-            
-            .seat {
-                width: 24px;
-                height: 24px;
-                font-size: 10px;
-            }
-            
-            .seat-0 { top: -12px; left: 38px; }
-            .seat-1 { top: 12px; right: -12px; }
-            .seat-2 { bottom: 12px; right: -12px; }
-            .seat-3 { bottom: -12px; left: 38px; }
-            .seat-4 { bottom: 12px; left: -12px; }
-            .seat-5 { top: 12px; left: -12px; }
-            
-            .table-circle {
-                margin: 1rem;
-            }
-            #tablesContainer {
-                padding: 1rem !important;
-            }
-            
-            #guestList {
-                max-height: 200px !important;
-            }
-            
-            #constraintsList {
-                max-height: 150px !important;
-            }
-            
-            .game-button {
-                padding: 0.5rem 1rem;
-                font-size: 0.875rem;
-                min-width: 44px;
-                min-height: 44px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .table-circle {
-                width: 80px;
-                height: 80px;
-                margin: 0.75rem;
-                padding: 0.25rem;
-            }
-            
-            .seat {
-                width: 20px;
-                height: 20px;
-                font-size: 9px;
-            }
-            
-            .seat-0 { top: -10px; left: 30px; }
-            .seat-1 { top: 10px; right: -10px; }
-            .seat-2 { bottom: 10px; right: -10px; }
-            .seat-3 { bottom: -10px; left: 30px; }
-            .seat-4 { bottom: 10px; left: -10px; }
-            .seat-5 { top: 10px; left: -10px; }
-            
-            .table-circle {
-                margin: 0.75rem;
-            }
-            #tablesContainer {
-                padding: 1rem !important;
-            }
-            
-            #guestList {
-                max-height: 180px !important;
-            }
-            
-            #constraintsList {
-                max-height: 120px !important;
-            }
-        }
-    </style>
+  <style>
+    /* ── Layout ── */
+    .planner-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: var(--space-6);
+    }
+
+    .page-header {
+      margin-bottom: var(--space-6);
+    }
+
+    .page-header h1 {
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      margin-bottom: var(--space-2);
+    }
+
+    .page-header p {
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    /* ── Three-Column Layout ── */
+    .planner-layout {
+      display: flex;
+      gap: var(--space-6);
+      min-height: calc(100vh - 200px);
+    }
+
+    .panel {
+      background: var(--surface-primary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .panel:hover {
+      border-color: var(--surface-border-accent);
+    }
+
+    .panel-sidebar {
+      flex: 0 0 280px;
+      max-width: 280px;
+      position: sticky;
+      top: 96px;
+      align-self: flex-start;
+      max-height: calc(100vh - 96px - var(--space-6));
+      overflow: hidden;
+    }
+
+    .panel-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .panel-title {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      margin-bottom: var(--space-4);
+    }
+
+    .panel-subtitle {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    /* ── Section Labels ── */
+    .sp-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--panda-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: var(--space-3);
+    }
+
+    /* ── Guest Input ── */
+    .guest-input {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+    }
+
+    .guest-input:focus {
+      outline: none;
+      border-color: var(--accent-500);
+      box-shadow: 0 0 0 3px rgba(74, 103, 133, 0.15);
+    }
+
+    .guest-input::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    /* ── Guest List ── */
+    .guest-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .guest-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-2) var(--space-3);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border-subtle);
+      border-radius: var(--radius-md);
+      cursor: grab;
+      transition: all var(--transition-fast);
+    }
+
+    .guest-item:hover {
+      border-color: var(--surface-border);
+      background: var(--bg-tertiary);
+    }
+
+    .guest-item:active {
+      cursor: grabbing;
+    }
+
+    .guest-item.dragging {
+      opacity: 0.5;
+      transform: rotate(2deg) scale(1.02);
+    }
+
+    .guest-info {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      min-width: 0;
+      flex: 1;
+    }
+
+    .guest-name {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .guest-table-tag {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      background: var(--bg-primary);
+      padding: 1px var(--space-2);
+      border-radius: var(--radius-full);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .guest-remove {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: none;
+      border: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .guest-remove:hover {
+      color: var(--error);
+      background: var(--error-muted);
+    }
+
+    .guest-remove svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .empty-state {
+      font-size: var(--text-sm);
+      color: var(--text-tertiary);
+      font-style: italic;
+    }
+
+    /* ── Action Bar ── */
+    .action-bar {
+      display: flex;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+    }
+
+    .btn-icon-only {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-icon-only:hover {
+      color: var(--text-primary);
+      border-color: var(--surface-border-accent);
+    }
+
+    .btn-icon-only svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ── Dropdown ── */
+    .sp-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .sp-dropdown-menu {
+      position: absolute;
+      top: calc(100% + var(--space-1));
+      right: 0;
+      z-index: 60;
+      min-width: 180px;
+      padding: var(--space-1);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px);
+      transition: all var(--transition-fast);
+    }
+
+    .sp-dropdown-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .sp-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      background: none;
+      border: none;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      text-align: left;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .sp-dropdown-item:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .sp-dropdown-item.danger {
+      color: var(--error);
+    }
+
+    .sp-dropdown-item.danger:hover {
+      background: var(--error-muted);
+    }
+
+    .sp-dropdown-item svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .sp-dropdown-divider {
+      height: 1px;
+      margin: var(--space-1) 0;
+      background: var(--surface-border);
+    }
+
+    /* ── Bulk Import ── */
+    .bulk-import {
+      display: none;
+      margin-top: var(--space-3);
+    }
+
+    .bulk-import.visible {
+      display: block;
+    }
+
+    .bulk-textarea {
+      width: 100%;
+      padding: var(--space-3);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      resize: vertical;
+      min-height: 80px;
+      transition: border-color var(--transition-fast);
+    }
+
+    .bulk-textarea:focus {
+      outline: none;
+      border-color: var(--accent-500);
+    }
+
+    .bulk-textarea::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    /* ── Seating Chart ── */
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .chart-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .tables-area {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .tables-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: var(--space-4);
+      padding: var(--space-6);
+    }
+
+    .table-wrapper {
+      text-align: center;
+    }
+
+    .table-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      position: relative;
+      transition: all var(--transition-normal);
+      margin: var(--space-6);
+      padding: var(--space-4);
+      background: var(--bg-tertiary);
+      border: 2px solid var(--surface-border);
+      user-select: none;
+    }
+
+    .table-circle:hover {
+      border-color: var(--accent-500);
+    }
+
+    .table-circle.drop-target {
+      transform: scale(1.04);
+      border-color: var(--panda-400);
+      box-shadow: var(--shadow-panda);
+    }
+
+    .table-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .table-number {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .table-count {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    /* ── Seats ── */
+    .seat {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      user-select: none;
+    }
+
+    .seat:hover {
+      transform: scale(1.12);
+    }
+
+    .seat-empty {
+      background: var(--bg-elevated);
+      color: var(--text-tertiary);
+      border: 2px solid var(--surface-border);
+    }
+
+    .seat-filled {
+      background: var(--accent-500);
+      color: white;
+      border: 2px solid var(--accent-400);
+    }
+
+    /* ── Table Shapes ── */
+    .table-square {
+      width: 120px;
+      height: 120px;
+      border-radius: var(--radius-lg);
+      position: relative;
+      transition: all var(--transition-normal);
+      margin: var(--space-6);
+      padding: var(--space-4);
+      background: var(--bg-tertiary);
+      border: 2px solid var(--surface-border);
+      user-select: none;
+    }
+
+    .table-square:hover { border-color: var(--accent-500); }
+    .table-square.drop-target { transform: scale(1.04); border-color: var(--panda-400); box-shadow: var(--shadow-panda); }
+
+    .table-rectangle {
+      width: 180px;
+      height: 100px;
+      border-radius: var(--radius-lg);
+      position: relative;
+      transition: all var(--transition-normal);
+      margin: var(--space-6);
+      padding: var(--space-4);
+      background: var(--bg-tertiary);
+      border: 2px solid var(--surface-border);
+      user-select: none;
+    }
+
+    .table-rectangle:hover { border-color: var(--accent-500); }
+    .table-rectangle.drop-target { transform: scale(1.04); border-color: var(--panda-400); box-shadow: var(--shadow-panda); }
+
+    /* ── Setup Wizard ── */
+    .wizard-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 200px);
+      padding: var(--space-6);
+    }
+
+    .wizard-panel {
+      width: 100%;
+      max-width: 520px;
+      background: var(--surface-primary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-8);
+    }
+
+    .wizard-panel h2 {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      margin-bottom: var(--space-1);
+    }
+
+    .wizard-panel .wizard-subtitle {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-8);
+    }
+
+    .wizard-section {
+      margin-bottom: var(--space-6);
+    }
+
+    .wizard-section-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--panda-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: var(--space-3);
+    }
+
+    .wizard-table-type {
+      padding: var(--space-4);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border-subtle);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-3);
+      transition: all var(--transition-fast);
+    }
+
+    .wizard-table-type:last-child {
+      margin-bottom: 0;
+    }
+
+    .wizard-type-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-3);
+    }
+
+    .wizard-type-header svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--panda-400);
+      fill: none;
+      stroke-width: 2;
+      flex-shrink: 0;
+    }
+
+    .wizard-type-header span {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .wizard-slider-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-2);
+    }
+
+    .wizard-slider-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .wizard-slider-label {
+      font-size: var(--text-xs);
+      font-weight: 500;
+      color: var(--text-secondary);
+      min-width: 48px;
+      flex-shrink: 0;
+    }
+
+    .wizard-table-type.wizard-type-disabled {
+      opacity: 0.45;
+    }
+
+    .wizard-table-type.wizard-type-disabled .wizard-slider-seats {
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .wizard-slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .wizard-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      background: var(--surface-border);
+      border-radius: var(--radius-full);
+      outline: none;
+    }
+
+    .wizard-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--panda-400);
+      cursor: pointer;
+      border: 2px solid var(--panda-300);
+      transition: transform var(--transition-fast);
+    }
+
+    .wizard-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    .wizard-slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--panda-400);
+      cursor: pointer;
+      border: 2px solid var(--panda-300);
+    }
+
+    .wizard-slider-value {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+      min-width: 80px;
+      text-align: right;
+    }
+
+    .wizard-summary {
+      padding: var(--space-4);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border-subtle);
+      border-radius: var(--radius-md);
+      text-align: center;
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-6);
+    }
+
+    .wizard-summary strong {
+      color: var(--text-primary);
+    }
+
+    .wizard-start-btn {
+      width: 100%;
+      padding: var(--space-3) var(--space-6);
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: white;
+      background: var(--panda-500);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .wizard-start-btn:hover:not(:disabled) {
+      background: var(--panda-400);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .wizard-start-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 480px) {
+      .wizard-slider-label {
+        min-width: 40px;
+      }
+      .wizard-panel {
+        padding: var(--space-5);
+      }
+    }
+
+    /* ── Status Bar ── */
+    .status-bar {
+      margin-top: var(--space-4);
+      text-align: center;
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .status-bar strong {
+      color: var(--text-primary);
+    }
+
+    .status-unassigned {
+      color: var(--warning);
+    }
+
+    .status-complete {
+      color: var(--success);
+    }
+
+    /* ── Multi-Select ── */
+    .multi-select {
+      position: relative;
+    }
+
+    .multi-select-button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-4);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-align: left;
+    }
+
+    .multi-select-button:hover {
+      border-color: var(--surface-border-accent);
+    }
+
+    .multi-select-button:focus {
+      outline: none;
+      border-color: var(--accent-500);
+      box-shadow: 0 0 0 3px rgba(74, 103, 133, 0.15);
+    }
+
+    .multi-select-button svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      transition: transform var(--transition-fast);
+    }
+
+    .multi-select-dropdown {
+      position: absolute;
+      top: calc(100% + var(--space-1));
+      left: 0;
+      right: 0;
+      z-index: 60;
+      max-height: 200px;
+      overflow-y: auto;
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px);
+      transition: all var(--transition-fast);
+    }
+
+    .multi-select-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .multi-select-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .multi-select-option:hover {
+      background: var(--bg-hover);
+    }
+
+    .multi-select-option input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent-500);
+    }
+
+    /* ── Selected Guest Tags ── */
+    .selected-guests {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-1);
+      margin-bottom: var(--space-2);
+    }
+
+    .selected-guest-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: 2px var(--space-2);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      background: rgba(74, 103, 133, 0.15);
+      color: var(--accent-300);
+      border-radius: var(--radius-full);
+    }
+
+    .selected-guest-tag button {
+      display: flex;
+      background: none;
+      border: none;
+      color: inherit;
+      cursor: pointer;
+      padding: 0;
+      opacity: 0.6;
+    }
+
+    .selected-guest-tag button:hover {
+      opacity: 1;
+      color: var(--error);
+    }
+
+    .selected-guest-tag button svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* ── Constraint Type Select ── */
+    .constraint-select {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B6B67' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+      transition: border-color var(--transition-fast);
+    }
+
+    .constraint-select:focus {
+      outline: none;
+      border-color: var(--accent-500);
+    }
+
+    .constraint-select option {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    /* ── Constraint List ── */
+    .constraint-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+
+    .constraint-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border-subtle);
+      border-radius: var(--radius-md);
+      transition: border-color var(--transition-fast);
+    }
+
+    .constraint-item:hover {
+      border-color: var(--surface-border);
+    }
+
+    .constraint-names {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .constraint-type {
+      font-size: var(--text-xs);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .constraint-together {
+      color: var(--success);
+    }
+
+    .constraint-apart {
+      color: var(--error);
+    }
+
+    /* ── Validation Status ── */
+    .validation-card {
+      margin-top: var(--space-4);
+      padding: var(--space-3) var(--space-4);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border-subtle);
+      border-radius: var(--radius-md);
+      font-size: var(--text-sm);
+      flex-shrink: 0;
+    }
+
+    .validation-ok {
+      color: var(--success);
+    }
+
+    .validation-error {
+      color: var(--error);
+    }
+
+    /* ── Toast Notification ── */
+    .sp-toast {
+      position: fixed;
+      bottom: var(--space-4);
+      right: var(--space-4);
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      z-index: 200;
+      transform: translateY(100%);
+      opacity: 0;
+      transition: all 0.2s ease;
+    }
+
+    .sp-toast.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .sp-toast.success {
+      background: var(--bg-secondary);
+      color: var(--success);
+      border: 1px solid rgba(124, 185, 126, 0.2);
+    }
+
+    .sp-toast.error {
+      background: var(--bg-secondary);
+      color: var(--error);
+      border: 1px solid rgba(201, 115, 115, 0.2);
+    }
+
+    .sp-toast.info {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--surface-border);
+    }
+
+    /* ── Table Detail Modal ── */
+    .table-detail-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      background: rgba(38, 38, 36, 0.85);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--transition-normal), visibility var(--transition-normal);
+    }
+
+    .table-detail-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .table-detail-panel {
+      width: 100%;
+      max-width: 480px;
+      max-height: calc(100vh - 80px);
+      background: var(--surface-primary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+      transform: scale(0.95) translateY(8px);
+      transition: transform var(--transition-normal);
+      overflow: hidden;
+    }
+
+    .table-detail-overlay.open .table-detail-panel {
+      transform: scale(1) translateY(0);
+    }
+
+    .table-detail-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      padding: var(--space-5);
+      border-bottom: 1px solid var(--surface-border);
+      flex-shrink: 0;
+    }
+
+    .table-detail-title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .table-detail-subtitle {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .table-detail-close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: none;
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .table-detail-close:hover {
+      color: var(--text-primary);
+      border-color: var(--surface-border-accent);
+      background: var(--bg-hover);
+    }
+
+    .table-detail-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .table-detail-seats {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-4) var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .table-detail-seat-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border-subtle);
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+    }
+
+    .table-detail-seat-row:hover {
+      border-color: var(--surface-border);
+    }
+
+    .table-detail-seat-row.dragging-over {
+      border-color: var(--panda-400);
+      background: rgba(200, 150, 110, 0.08);
+    }
+
+    .table-detail-seat-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .table-detail-seat-num.filled {
+      background: var(--accent-500);
+      color: white;
+      border: 2px solid var(--accent-400);
+    }
+
+    .table-detail-seat-num.empty {
+      background: var(--bg-elevated);
+      color: var(--text-tertiary);
+      border: 2px solid var(--surface-border);
+    }
+
+    .table-detail-seat-name {
+      flex: 1;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--text-primary);
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .table-detail-seat-name.empty-label {
+      color: var(--text-tertiary);
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    .table-detail-remove-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: none;
+      border: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .table-detail-remove-btn:hover {
+      color: var(--error);
+      background: var(--error-muted);
+    }
+
+    .table-detail-remove-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .table-detail-assign-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .table-detail-assign-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-1) var(--space-3);
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--panda-400);
+      background: rgba(200, 150, 110, 0.1);
+      border: 1px solid rgba(200, 150, 110, 0.2);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .table-detail-assign-btn:hover {
+      background: rgba(200, 150, 110, 0.18);
+      border-color: rgba(200, 150, 110, 0.35);
+    }
+
+    .table-detail-assign-btn svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .table-detail-assign-dropdown {
+      position: absolute;
+      top: calc(100% + var(--space-1));
+      right: 0;
+      z-index: 160;
+      min-width: 200px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: var(--space-1);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-6px);
+      transition: all var(--transition-fast);
+    }
+
+    .table-detail-assign-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .table-detail-assign-item {
+      display: block;
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      background: none;
+      border: none;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      text-align: left;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .table-detail-assign-item:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .table-detail-assign-empty {
+      padding: var(--space-3);
+      font-size: var(--text-sm);
+      color: var(--text-tertiary);
+      font-style: italic;
+    }
+
+    .table-detail-drag-handle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      color: var(--text-tertiary);
+      cursor: grab;
+      flex-shrink: 0;
+    }
+
+    .table-detail-drag-handle:active {
+      cursor: grabbing;
+    }
+
+    .table-detail-drag-handle svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .table-circle,
+    .table-square,
+    .table-rectangle {
+      cursor: pointer;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .planner-layout {
+        flex-direction: column;
+        min-height: auto;
+      }
+
+      .panel-sidebar {
+        flex: none;
+        max-width: none;
+        position: static;
+        max-height: none;
+        overflow: visible;
+      }
+
+      .guest-list,
+      .constraint-list {
+        max-height: 320px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .table-detail-panel {
+        max-width: none;
+        margin: var(--space-4);
+        max-height: calc(100vh - 32px);
+      }
+
+      .table-detail-drag-handle {
+        display: none;
+      }
+
+      .planner-container {
+        padding: var(--space-4);
+      }
+
+      .table-circle,
+      .table-square {
+        width: 100px;
+        height: 100px;
+        margin: var(--space-4);
+        padding: var(--space-2);
+      }
+
+      .table-rectangle {
+        width: 150px;
+        height: 84px;
+        margin: var(--space-4);
+        padding: var(--space-2);
+      }
+
+      .seat {
+        width: 24px;
+        height: 24px;
+        font-size: 10px;
+      }
+
+      .chart-header {
+        flex-direction: column;
+        gap: var(--space-2);
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .table-circle,
+      .table-square {
+        width: 84px;
+        height: 84px;
+        margin: var(--space-3);
+        padding: var(--space-1);
+      }
+
+      .table-rectangle {
+        width: 130px;
+        height: 72px;
+        margin: var(--space-3);
+        padding: var(--space-1);
+      }
+
+      .seat {
+        width: 20px;
+        height: 20px;
+        font-size: 9px;
+      }
+    }
+  </style>
 </head>
 
-<body class="bg-surface-primary min-h-screen font-['Inter',system-ui,sans-serif] antialiased overflow-x-hidden text-text-primary">
-    <!-- Floating particles background -->
-    <div class="fixed inset-0 pointer-events-none overflow-hidden">
-        <div class="floating-particle" style="left: 15%; top: 25%; animation-delay: 0s;"></div>
-        <div class="floating-particle" style="left: 85%; top: 15%; animation-delay: -4s;"></div>
-        <div class="floating-particle" style="left: 65%; top: 75%; animation-delay: -7s;"></div>
-        <div class="floating-particle" style="left: 25%; top: 85%; animation-delay: -11s;"></div>
-        <div class="floating-particle" style="left: 95%; top: 55%; animation-delay: -14s;"></div>
-        <div class="floating-particle" style="left: 35%; top: 35%; animation-delay: -18s;"></div>
-        <div class="floating-particle" style="left: 75%; top: 45%; animation-delay: -22s;"></div>
-        <div class="floating-particle" style="left: 5%; top: 65%; animation-delay: -25s;"></div>
+<body>
+  <!-- Skip link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Geometric Background -->
+  <div class="geo-bg"></div>
+
+  <!-- Floating Navigation -->
+  <header class="floating-header">
+    <nav class="floating-nav">
+      <a href="about.html" class="nav-logo">
+        <img src="favicon.png" alt="Mark Rood" />
+      </a>
+      <div class="nav-links">
+        <a href="about.html" class="nav-link">About</a>
+        <a href="index.html" class="nav-link">Resum&eacute;</a>
+        <a href="resources.html" class="nav-link">Resources</a>
+      </div>
+      <button class="mobile-menu-btn" aria-label="Open menu">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu">
+    <button class="mobile-menu-close" aria-label="Close menu">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+    <a href="about.html" class="nav-link">About</a>
+    <a href="index.html" class="nav-link">Resum&eacute;</a>
+    <a href="resources.html" class="nav-link">Resources</a>
+  </div>
+
+  <!-- Spacer -->
+  <div style="height: 80px;"></div>
+
+  <!-- Setup Wizard -->
+  <div id="setupWizard" class="wizard-container" style="display: none; position: relative; z-index: 1;">
+    <div class="wizard-panel">
+      <h2>Set Up Your Event</h2>
+      <p class="wizard-subtitle">Configure your tables before planning</p>
+
+      <div class="wizard-section" id="wizardTableTypes">
+        <div class="wizard-table-type" data-shape="circle">
+          <div class="wizard-type-header">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /></svg>
+            <span>Circle Tables</span>
+          </div>
+          <div class="wizard-slider-row">
+            <span class="wizard-slider-label">Tables</span>
+            <div class="wizard-slider-wrap">
+              <input type="range" class="wizard-slider wizard-slider-count" data-shape="circle" min="0" max="20" value="10" oninput="wizardUpdateSummary()">
+              <span class="wizard-slider-value wizard-slider-count-value">10</span>
+            </div>
+          </div>
+          <div class="wizard-slider-row">
+            <span class="wizard-slider-label">Seats</span>
+            <div class="wizard-slider-wrap">
+              <input type="range" class="wizard-slider wizard-slider-seats" data-shape="circle" min="2" max="12" step="2" value="6" oninput="wizardUpdateSummary()">
+              <span class="wizard-slider-value wizard-slider-seats-value">6</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-table-type wizard-type-disabled" data-shape="square">
+          <div class="wizard-type-header">
+            <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
+            <span>Square Tables</span>
+          </div>
+          <div class="wizard-slider-row">
+            <span class="wizard-slider-label">Tables</span>
+            <div class="wizard-slider-wrap">
+              <input type="range" class="wizard-slider wizard-slider-count" data-shape="square" min="0" max="20" value="0" oninput="wizardUpdateSummary()">
+              <span class="wizard-slider-value wizard-slider-count-value">0</span>
+            </div>
+          </div>
+          <div class="wizard-slider-row">
+            <span class="wizard-slider-label">Seats</span>
+            <div class="wizard-slider-wrap">
+              <input type="range" class="wizard-slider wizard-slider-seats" data-shape="square" min="2" max="12" step="2" value="8" oninput="wizardUpdateSummary()">
+              <span class="wizard-slider-value wizard-slider-seats-value">8</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-table-type wizard-type-disabled" data-shape="rectangle">
+          <div class="wizard-type-header">
+            <svg viewBox="0 0 28 20"><rect x="2" y="2" width="24" height="16" rx="2" /></svg>
+            <span>Rectangle Tables</span>
+          </div>
+          <div class="wizard-slider-row">
+            <span class="wizard-slider-label">Tables</span>
+            <div class="wizard-slider-wrap">
+              <input type="range" class="wizard-slider wizard-slider-count" data-shape="rectangle" min="0" max="20" value="0" oninput="wizardUpdateSummary()">
+              <span class="wizard-slider-value wizard-slider-count-value">0</span>
+            </div>
+          </div>
+          <div class="wizard-slider-row">
+            <span class="wizard-slider-label">Seats</span>
+            <div class="wizard-slider-wrap">
+              <input type="range" class="wizard-slider wizard-slider-seats" data-shape="rectangle" min="2" max="12" step="2" value="10" oninput="wizardUpdateSummary()">
+              <span class="wizard-slider-value wizard-slider-seats-value">10</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wizard-summary" id="wizardSummary">
+        <strong>10</strong> tables &middot; <strong>60</strong> total seats
+      </div>
+
+      <button type="button" class="wizard-start-btn" id="wizardStartBtn" onclick="seatPlanner.completeWizard()">Start Planning</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main id="main-content" class="planner-container" style="position: relative; z-index: 1; display: none;">
+    <div class="page-header">
+      <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-2);">
+        <h1 style="margin-bottom:0;">Seat Planner</h1>
+        <button id="settingsBtn" class="btn-icon-only" aria-label="Table settings" title="Reconfigure tables">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+          </svg>
+        </button>
+      </div>
+      <p>Add guests, set seating rules, then drag and drop or auto-arrange.</p>
     </div>
 
-    <!-- Navigation hidden for seat planner -->
-    <main id="main-content" class="min-h-screen" role="main">
-        <div class="container mx-auto px-4">
-            <!-- Header -->
-            <div class="text-center mb-8">
-                <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-text-primary my-3">Seat Planner (Updated v2.0)</h1>
-                <p class="text-lg text-text-secondary">Organize your seating arrangements with ease</p>
-            </div>
+    <div class="planner-layout">
+      <!-- Left Sidebar: Guest Management -->
+      <div class="panel panel-sidebar">
+        <div class="sp-label">Guests</div>
 
-            <!-- Main Layout -->
-            <div class="flex flex-wrap gap-6 h-[calc(100vh-8rem)] min-h-0">
-                <!-- Left Sidebar: Guest Management -->
-                <div class="w-full lg:flex-1 lg:basis-1/4 card-panel p-4 flex flex-col min-h-0">
-                    <h2 class="text-xl font-semibold mb-4 text-text-primary">Guest Management</h2>
-                    
-                    <!-- Add Guest -->
-                    <div class="mb-4">
-                        <div class="mb-2">
-                            <input type="text" id="guestNameInput" placeholder="Enter guest name and press Enter" 
-                                class="w-full px-3 py-2 bg-surface-tertiary border border-surface-border rounded-lg text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary-500">
-                        </div>
-                    </div>
-
-                    <!-- Guest List -->
-                    <div class="mb-4 flex-1 flex flex-col min-h-0 overflow-hidden">
-                        <h3 class="font-medium mb-2 text-text-primary">Guests (<span id="guestCount">0</span>)</h3>
-                        <div id="guestList" class="space-y-1">
-                            <!-- Guest items will be added here -->
-                        </div>
-                    </div>
-
-                    <!-- Bulk Import -->
-                    <div class="pb-2">
-                        <div class="flex gap-2 mb-2">
-                            <button id="bulkImportToggle" class="flex-1 btn btn-ghost btn-sm">
-                                Bulk Import
-                            </button>
-                            <div class="dropdown">
-                                <button id="guestMenuBtn" class="btn btn-ghost btn-icon btn-sm">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <circle cx="12" cy="12" r="1"></circle>
-                                        <circle cx="12" cy="5" r="1"></circle>
-                                        <circle cx="12" cy="19" r="1"></circle>
-                                    </svg>
-                                </button>
-                                <div id="guestMenu" class="dropdown-menu">
-                                    <button id="loadSampleDataBtn" class="dropdown-item">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"></path>
-                                        </svg>
-                                        Load Sample Data
-                                    </button>
-                                    <div class="dropdown-divider"></div>
-                                    <button id="clearAllGuestsBtn" class="dropdown-item text-red-400">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                        Clear All Guests
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="bulkImportSection" class="hidden mt-2">
-                            <textarea id="bulkImportText" placeholder="Paste names, one per line" 
-                                class="w-full px-3 py-2 bg-surface-tertiary border border-surface-border rounded-lg text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary-500 h-24 text-sm"></textarea>
-                            <button id="processBulkImport" class="w-full mt-2 btn btn-primary btn-sm">
-                                Import
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Center: Table Visualization -->
-                <div class="w-full lg:flex-1 lg:basis-1/2 card-panel p-8 flex flex-col min-h-0">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold text-text-primary">Seating Chart</h2>
-                        <div class="flex gap-2">
-                            <button id="autoArrangeBtn" class="btn btn-primary">
-                                Auto Arrange
-                            </button>
-                            <button id="clearAllBtn" class="btn btn-ghost">
-                                Clear All
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Tables Grid -->
-                    <div class="flex-1 overflow-y-auto overflow-x-hidden">
-                        <div id="tablesContainer" class="flex flex-wrap justify-center items-start p-4">
-                            <!-- Tables will be generated here -->
-                        </div>
-                    </div>
-                    
-                    <!-- Status -->
-                    <div class="mt-4 text-center flex-shrink-0">
-                        <div id="statusMessage" class="text-text-secondary"></div>
-                    </div>
-                </div>
-
-                <!-- Right Sidebar: Seating Rules -->
-                <div class="w-full lg:flex-1 lg:basis-1/4 card-panel p-6 flex flex-col min-h-0">
-                    <h2 class="text-xl font-semibold mb-2 text-text-primary">Seating Rules</h2>
-                    
-                    <!-- Add Seating Rule -->
-                    <div class="mb-4">
-                        <div class="mb-3">
-                            <div class="selected-guests" id="selectedGuests"></div>
-                            <div class="multi-select">
-                                <button type="button" id="guestMultiSelect" class="multi-select-button">
-                                    <span id="multiSelectText">Select guests...</span>
-                                    <svg class="w-4 h-4 transition-transform" id="multiSelectChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </button>
-                                <div id="guestMultiSelectDropdown" class="multi-select-dropdown">
-                                    <!-- Options will be populated here -->
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="multi-select mb-3">
-                            <select id="constraintType" class="multi-select-button" style="appearance: none; cursor: pointer;">
-                                <option value="must_sit_together">Must sit together</option>
-                                <option value="must_not_sit_together">Must not sit together</option>
-                            </select>
-                        </div>
-                        <button id="addConstraintBtn" class="w-full btn btn-primary">
-                            Create Rule(s)
-                        </button>
-                    </div>
-
-                    <!-- Active Seating Rules -->
-                    <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
-                        <h3 class="font-medium mb-2 text-text-primary">Active Rules (<span id="constraintCount">0</span>)</h3>
-                        <div id="constraintsList" class="space-y-2">
-                            <!-- Seating rules will be added here -->
-                        </div>
-                    </div>
-
-                    <!-- Validation Status -->
-                    <div class="mt-4 p-4 card-panel flex-shrink-0" id="validationStatus">
-                        <div class="text-sm text-text-secondary">All rules satisfied ✓</div>
-                    </div>
-                </div>
-            </div>
+        <!-- Add Guest -->
+        <div style="margin-bottom: var(--space-4);">
+          <input type="text" id="guestNameInput" placeholder="Add guest name..." class="guest-input">
         </div>
-    </main>
 
-    <script>
-        // Updated: Multi-guest selection and styling fixes - v2.0
-        // Haptic feedback utility
-        function triggerHapticFeedback(type = 'light') {
-            if ('vibrate' in navigator) {
-                switch (type) {
-                    case 'light':
-                        navigator.vibrate(50);
-                        break;
-                    case 'medium':
-                        navigator.vibrate(100);
-                        break;
-                    case 'success':
-                        navigator.vibrate([100, 50, 100]);
-                        break;
-                    case 'error':
-                        navigator.vibrate([200, 100, 200]);
-                        break;
-                }
+        <!-- Guest List -->
+        <div style="flex: 1; min-height: 0; overflow: hidden; margin-bottom: var(--space-3); display: flex; flex-direction: column;">
+          <div class="panel-subtitle">Guest List (<span id="guestCount">0</span>)</div>
+          <div id="guestList" class="guest-list"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="action-bar">
+          <button id="bulkImportToggle" class="btn btn-ghost btn-sm" style="flex: 1;">Bulk Import</button>
+          <div class="sp-dropdown">
+            <button id="guestMenuBtn" class="btn-icon-only" aria-label="Guest options">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="1"></circle>
+                <circle cx="12" cy="5" r="1"></circle>
+                <circle cx="12" cy="19" r="1"></circle>
+              </svg>
+            </button>
+            <div id="guestMenu" class="sp-dropdown-menu">
+              <button id="loadSampleDataBtn" class="sp-dropdown-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M23 21v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75"></path>
+                </svg>
+                Load Sample Data
+              </button>
+              <div class="sp-dropdown-divider"></div>
+              <button id="clearAllGuestsBtn" class="sp-dropdown-item danger">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                Clear All Guests
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bulk Import Area -->
+        <div id="bulkImportSection" class="bulk-import">
+          <textarea id="bulkImportText" placeholder="Paste names, one per line" class="bulk-textarea"></textarea>
+          <button id="processBulkImport" class="btn btn-primary btn-sm" style="width: 100%; margin-top: var(--space-2);">Import</button>
+        </div>
+      </div>
+
+      <!-- Center: Seating Chart -->
+      <div class="panel panel-main">
+        <div class="chart-header">
+          <div class="sp-label" style="margin-bottom: 0;">Seating Chart</div>
+          <div class="chart-actions">
+            <button id="autoArrangeBtn" class="btn btn-primary btn-sm">Auto Arrange</button>
+            <button id="clearAllBtn" class="btn btn-ghost btn-sm">Clear All</button>
+          </div>
+        </div>
+
+        <div class="tables-area">
+          <div id="tablesContainer" class="tables-grid"></div>
+        </div>
+
+        <div class="status-bar" id="statusMessage"></div>
+      </div>
+
+      <!-- Right Sidebar: Seating Rules -->
+      <div class="panel panel-sidebar">
+        <div class="sp-label">Seating Rules</div>
+
+        <!-- Rule Builder -->
+        <div style="margin-bottom: var(--space-4);">
+          <div class="selected-guests" id="selectedGuests"></div>
+          <div class="multi-select" style="margin-bottom: var(--space-3);">
+            <button type="button" id="guestMultiSelect" class="multi-select-button">
+              <span id="multiSelectText">Select guests...</span>
+              <svg id="multiSelectChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div id="guestMultiSelectDropdown" class="multi-select-dropdown"></div>
+          </div>
+
+          <div style="margin-bottom: var(--space-3);">
+            <select id="constraintType" class="constraint-select">
+              <option value="must_sit_together">Must sit together</option>
+              <option value="must_not_sit_together">Must not sit together</option>
+            </select>
+          </div>
+          <button id="addConstraintBtn" class="btn btn-primary btn-sm" style="width: 100%;">Create Rule(s)</button>
+        </div>
+
+        <!-- Active Rules -->
+        <div style="flex: 1; min-height: 0; overflow: hidden;">
+          <div class="panel-subtitle">Active Rules (<span id="constraintCount">0</span>)</div>
+          <div id="constraintsList" class="constraint-list"></div>
+        </div>
+
+        <!-- Validation -->
+        <div class="validation-card" id="validationStatus">
+          <span class="validation-ok">All rules satisfied</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Table Detail Modal -->
+  <div id="tableDetailOverlay" class="table-detail-overlay">
+    <div class="table-detail-panel" id="tableDetailPanel">
+      <div class="table-detail-header">
+        <div>
+          <div class="table-detail-title" id="tableDetailTitle">Table 1</div>
+          <div class="table-detail-subtitle" id="tableDetailSubtitle">0/6 seats filled</div>
+        </div>
+        <button class="table-detail-close" id="tableDetailClose">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div class="table-detail-seats" id="tableDetailSeats"></div>
+    </div>
+  </div>
+
+  <script>
+    // Haptic feedback utility
+    function triggerHapticFeedback(type = 'light') {
+      if ('vibrate' in navigator) {
+        switch (type) {
+          case 'light': navigator.vibrate(50); break;
+          case 'medium': navigator.vibrate(100); break;
+          case 'success': navigator.vibrate([100, 50, 100]); break;
+          case 'error': navigator.vibrate([200, 100, 200]); break;
+        }
+      }
+    }
+
+    // Wizard helper functions (global for inline oninput/onchange handlers)
+    function wizardUpdateSummary() {
+      let totalTables = 0;
+      let totalSeats = 0;
+      document.querySelectorAll('.wizard-table-type').forEach(row => {
+        const countSlider = row.querySelector('.wizard-slider-count');
+        const seatsSlider = row.querySelector('.wizard-slider-seats');
+        const countValue = row.querySelector('.wizard-slider-count-value');
+        const seatsValue = row.querySelector('.wizard-slider-seats-value');
+        const count = parseInt(countSlider.value);
+        const seats = parseInt(seatsSlider.value);
+        countValue.textContent = count;
+        seatsValue.textContent = seats;
+        totalTables += count;
+        totalSeats += count * seats;
+        row.classList.toggle('wizard-type-disabled', count === 0);
+      });
+      document.getElementById('wizardSummary').innerHTML =
+        `<strong>${totalTables}</strong> table${totalTables !== 1 ? 's' : ''} &middot; <strong>${totalSeats}</strong> total seats`;
+      const startBtn = document.getElementById('wizardStartBtn');
+      startBtn.disabled = totalTables === 0;
+    }
+
+    class WeddingSeatPlanner {
+      constructor() {
+        this.guests = [];
+        this.constraints = [];
+        this.tables = [];
+        this.config = null;
+        this.draggedGuest = null;
+        this.selectedGuestIds = new Set();
+        this.activeTableDetailId = null;
+        this._activeAssignDropdown = null;
+        this._modalDragSeatIndex = null;
+
+        this._eventsBound = false;
+        this.loadFromStorage();
+
+        // Always show wizard first (returning users see their config pre-filled)
+        this.showWizard();
+      }
+
+      showWizard() {
+        document.getElementById('setupWizard').style.display = '';
+        document.getElementById('main-content').style.display = 'none';
+
+        // Defaults per shape
+        const defaults = { circle: { count: 10, seats: 6 }, square: { count: 0, seats: 8 }, rectangle: { count: 0, seats: 10 } };
+
+        // If reconfiguring, populate from existing config
+        if (this.config && this.config.tableTypes) {
+          this.config.tableTypes.forEach(tt => {
+            if (defaults[tt.shape]) {
+              defaults[tt.shape].count = tt.count;
+              defaults[tt.shape].seats = tt.seatsPerTable;
             }
+          });
         }
 
-        // Wedding Table Planner Application
-        class WeddingSeatPlanner {
-            constructor() {
-                this.guests = [];
-                this.constraints = [];
-                this.tables = [];
-                this.draggedGuest = null;
-                this.selectedGuestIds = new Set();
-                
-                this.initializeTables();
-                this.bindEvents();
-                this.loadFromStorage();
-                this.render();
-            }
-
-            initializeTables() {
-                for (let i = 1; i <= 10; i++) {
-                    this.tables.push({
-                        id: `table_${i}`,
-                        number: i,
-                        capacity: 6,
-                        guests: new Array(6).fill(null)
-                    });
-                }
-            }
-
-            bindEvents() {
-                // Guest management
-                const guestInput = document.getElementById('guestNameInput');
-                if (guestInput) {
-                    guestInput.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') {
-                            this.addGuest();
-                        }
-                    });
-                }
-                
-                document.getElementById('loadSampleDataBtn').addEventListener('click', () => this.loadSampleData());
-                
-                // Bulk import
-                document.getElementById('bulkImportToggle').addEventListener('click', () => this.toggleBulkImport());
-                document.getElementById('processBulkImport').addEventListener('click', () => this.processBulkImport());
-                
-                // Guest menu dropdown
-                const menuBtn = document.getElementById('guestMenuBtn');
-                if (menuBtn) {
-                    menuBtn.addEventListener('click', (e) => {
-                        this.toggleGuestMenu(e);
-                    });
-                }
-                document.getElementById('clearAllGuestsBtn').addEventListener('click', () => this.clearAllGuests());
-                
-                // Close dropdown when clicking outside
-                document.addEventListener('click', (e) => this.handleOutsideClick(e));
-                
-                // Seating Rules
-                document.getElementById('addConstraintBtn').addEventListener('click', () => this.addConstraint());
-                document.getElementById('guestMultiSelect').addEventListener('click', (e) => this.toggleMultiSelect(e));
-                
-                // Close multi-select when clicking outside
-                document.addEventListener('click', (e) => this.handleMultiSelectOutsideClick(e));
-                
-                // Table actions
-                document.getElementById('autoArrangeBtn').addEventListener('click', () => this.autoArrange());
-                document.getElementById('clearAllBtn').addEventListener('click', () => this.clearAllTables());
-            }
-
-            addGuest() {
-                const nameInput = document.getElementById('guestNameInput');
-                const name = nameInput.value.trim();
-                
-                if (!name) return;
-                
-                if (this.guests.find(g => g.name.toLowerCase() === name.toLowerCase())) {
-                    alert('Guest already exists!');
-                    return;
-                }
-                
-                const guest = {
-                    id: `guest_${Date.now()}`,
-                    name: name,
-                    tableId: null,
-                    seatPosition: null
-                };
-                
-                this.guests.push(guest);
-                nameInput.value = '';
-                this.saveToStorage();
-                this.render();
-            }
-
-            removeGuest(guestId) {
-                // Remove guest from tables
-                this.tables.forEach(table => {
-                    table.guests = table.guests.map(g => g === guestId ? null : g);
-                });
-                
-                // Remove constraints involving this guest
-                this.constraints = this.constraints.filter(c => 
-                    c.guest1Id !== guestId && c.guest2Id !== guestId
-                );
-                
-                // Remove from guests list
-                this.guests = this.guests.filter(g => g.id !== guestId);
-                
-                this.saveToStorage();
-                this.render();
-            }
-
-            toggleBulkImport() {
-                const section = document.getElementById('bulkImportSection');
-                section.classList.toggle('hidden');
-            }
-
-            processBulkImport() {
-                const text = document.getElementById('bulkImportText').value;
-                const names = text.split('\n').map(n => n.trim()).filter(n => n);
-                
-                names.forEach(name => {
-                    if (!this.guests.find(g => g.name.toLowerCase() === name.toLowerCase())) {
-                        this.guests.push({
-                            id: `guest_${Date.now()}_${Math.random()}`,
-                            name: name,
-                            tableId: null,
-                            seatPosition: null
-                        });
-                    }
-                });
-                
-                document.getElementById('bulkImportText').value = '';
-                document.getElementById('bulkImportSection').classList.add('hidden');
-                this.saveToStorage();
-                this.render();
-            }
-
-            addConstraint() {
-                const selectedGuestIds = Array.from(this.selectedGuestIds);
-                const type = document.getElementById('constraintType').value;
-                
-                if (selectedGuestIds.length < 2) {
-                    this.showNotification('Please select at least 2 guests', 'error');
-                    triggerHapticFeedback('error');
-                    return;
-                }
-                
-                // For groups larger than 2, create pairwise constraints
-                const newConstraints = [];
-                
-                for (let i = 0; i < selectedGuestIds.length; i++) {
-                    for (let j = i + 1; j < selectedGuestIds.length; j++) {
-                        const guest1Id = selectedGuestIds[i];
-                        const guest2Id = selectedGuestIds[j];
-                        
-                        // Check if constraint already exists
-                        const exists = this.constraints.find(c => 
-                            (c.guest1Id === guest1Id && c.guest2Id === guest2Id) ||
-                            (c.guest1Id === guest2Id && c.guest2Id === guest1Id)
-                        );
-                        
-                        if (!exists) {
-                            const constraint = {
-                                id: `constraint_${Date.now()}_${i}_${j}`,
-                                guest1Id: guest1Id,
-                                guest2Id: guest2Id,
-                                type: type,
-                                satisfied: true
-                            };
-                            newConstraints.push(constraint);
-                        }
-                    }
-                }
-                
-                if (newConstraints.length === 0) {
-                    this.showNotification('All seating rules between selected guests already exist', 'error');
-                    triggerHapticFeedback('error');
-                    return;
-                }
-                
-                this.constraints.push(...newConstraints);
-                
-                const groupSize = selectedGuestIds.length;
-                const rulesCreated = newConstraints.length;
-                this.showNotification(`Created ${rulesCreated} seating rule(s) for ${groupSize} guests`, 'success');
-                
-                // Clear selection
-                this.selectedGuestIds.clear();
-                this.closeMultiSelect();
-                
-                this.saveToStorage();
-                this.render();
-                triggerHapticFeedback('medium');
-            }
-
-            removeConstraint(constraintId) {
-                this.constraints = this.constraints.filter(c => c.id !== constraintId);
-                this.saveToStorage();
-                this.render();
-            }
-
-            clearAllTables() {
-                if (confirm('Are you sure you want to clear all table assignments?')) {
-                    this.tables.forEach(table => {
-                        table.guests = new Array(6).fill(null);
-                    });
-                    this.saveToStorage();
-                    this.render();
-                }
-            }
-            
-            clearAllGuests() {
-                if (confirm('Are you sure you want to remove all guests? This will also clear all seating rules and table assignments.')) {
-                    this.guests = [];
-                    this.constraints = [];
-                    this.tables.forEach(table => {
-                        table.guests = new Array(6).fill(null);
-                    });
-                    this.saveToStorage();
-                    this.render();
-                    this.showNotification('All guests cleared', 'info');
-                    this.closeGuestMenu();
-                    triggerHapticFeedback('light');
-                }
-            }
-            
-            toggleGuestMenu(e) {
-                e.stopPropagation();
-                const menu = document.getElementById('guestMenu');
-                menu.classList.toggle('show');
-            }
-            
-            closeGuestMenu() {
-                const menu = document.getElementById('guestMenu');
-                menu.classList.remove('show');
-            }
-            
-            handleOutsideClick(e) {
-                const menu = document.getElementById('guestMenu');
-                const menuBtn = document.getElementById('guestMenuBtn');
-                
-                if (!menu.contains(e.target) && !menuBtn.contains(e.target)) {
-                    this.closeGuestMenu();
-                }
-            }
-            
-            toggleMultiSelect(e) {
-                e.stopPropagation();
-                const dropdown = document.getElementById('guestMultiSelectDropdown');
-                const chevron = document.getElementById('multiSelectChevron');
-                
-                dropdown.classList.toggle('show');
-                chevron.style.transform = dropdown.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0deg)';
-            }
-            
-            closeMultiSelect() {
-                const dropdown = document.getElementById('guestMultiSelectDropdown');
-                const chevron = document.getElementById('multiSelectChevron');
-                
-                dropdown.classList.remove('show');
-                chevron.style.transform = 'rotate(0deg)';
-            }
-            
-            handleMultiSelectOutsideClick(e) {
-                const multiSelect = document.querySelector('.multi-select');
-                const guestMenu = document.getElementById('guestMenu');
-                
-                if (!multiSelect.contains(e.target) && !guestMenu.contains(e.target)) {
-                    this.closeMultiSelect();
-                }
-            }
-            
-            toggleGuestSelection(guestId) {
-                if (this.selectedGuestIds.has(guestId)) {
-                    this.selectedGuestIds.delete(guestId);
-                } else {
-                    this.selectedGuestIds.add(guestId);
-                }
-                this.updateMultiSelectUI();
-            }
-            
-            updateMultiSelectUI() {
-                // Update selected guests display
-                const selectedContainer = document.getElementById('selectedGuests');
-                const textSpan = document.getElementById('multiSelectText');
-                
-                selectedContainer.innerHTML = '';
-                
-                if (this.selectedGuestIds.size === 0) {
-                    textSpan.textContent = 'Select guests...';
-                } else {
-                    const selectedNames = Array.from(this.selectedGuestIds).map(id => {
-                        const guest = this.guests.find(g => g.id === id);
-                        return guest ? guest.name : '';
-                    }).filter(name => name);
-                    
-                    textSpan.textContent = `${selectedNames.length} guest${selectedNames.length !== 1 ? 's' : ''} selected`;
-                    
-                    // Show selected guest tags
-                    selectedNames.forEach((name, index) => {
-                        const guestId = Array.from(this.selectedGuestIds)[index];
-                        const tag = document.createElement('span');
-                        tag.className = 'selected-guest-tag';
-                        tag.innerHTML = `
-                            ${name}
-                            <button type="button" onclick="seatPlanner.toggleGuestSelection('${guestId}')" class="ml-1 hover:text-red-300">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </button>
-                        `;
-                        selectedContainer.appendChild(tag);
-                    });
-                }
-                
-                // Update checkboxes in dropdown
-                const checkboxes = document.querySelectorAll('#guestMultiSelectDropdown input[type="checkbox"]');
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = this.selectedGuestIds.has(checkbox.value);
-                });
-            }
-
-            assignGuestToSeat(guestId, tableId, seatIndex) {
-                // Remove guest from current position
-                this.tables.forEach(table => {
-                    table.guests = table.guests.map(g => g === guestId ? null : g);
-                });
-                
-                // Assign to new position
-                const table = this.tables.find(t => t.id === tableId);
-                if (table && table.guests[seatIndex] === null) {
-                    table.guests[seatIndex] = guestId;
-                    this.saveToStorage();
-                    this.render();
-                    return true;
-                }
-                return false;
-            }
-
-            validateConstraints() {
-                let allSatisfied = true;
-                
-                this.constraints.forEach(constraint => {
-                    const guest1Table = this.getGuestTable(constraint.guest1Id);
-                    const guest2Table = this.getGuestTable(constraint.guest2Id);
-                    
-                    if (constraint.type === 'must_sit_together') {
-                        constraint.satisfied = guest1Table && guest2Table && guest1Table.id === guest2Table.id;
-                    } else if (constraint.type === 'must_not_sit_together') {
-                        constraint.satisfied = !guest1Table || !guest2Table || guest1Table.id !== guest2Table.id;
-                    }
-                    
-                    if (!constraint.satisfied) {
-                        allSatisfied = false;
-                    }
-                });
-                
-                return allSatisfied;
-            }
-
-            getGuestTable(guestId) {
-                return this.tables.find(table => table.guests.includes(guestId));
-            }
-
-            autoArrange() {
-                // Simple auto-arrangement algorithm
-                // Clear all assignments first
-                this.tables.forEach(table => {
-                    table.guests = new Array(6).fill(null);
-                });
-                
-                const unassignedGuests = [...this.guests.map(g => g.id)];
-                
-                // First pass: try to satisfy "must sit together" constraints
-                const processedPairs = new Set();
-                
-                this.constraints.forEach(constraint => {
-                    if (constraint.type === 'must_sit_together') {
-                        const pairKey = [constraint.guest1Id, constraint.guest2Id].sort().join('-');
-                        if (processedPairs.has(pairKey)) return;
-                        processedPairs.add(pairKey);
-                        
-                        if (unassignedGuests.includes(constraint.guest1Id) && 
-                            unassignedGuests.includes(constraint.guest2Id)) {
-                            
-                            // Find a table with at least 2 seats
-                            const availableTable = this.tables.find(table => 
-                                table.guests.filter(g => g === null).length >= 2
-                            );
-                            
-                            if (availableTable) {
-                                const emptySeat1 = availableTable.guests.findIndex(g => g === null);
-                                const emptySeat2 = availableTable.guests.findIndex((g, i) => g === null && i !== emptySeat1);
-                                
-                                availableTable.guests[emptySeat1] = constraint.guest1Id;
-                                availableTable.guests[emptySeat2] = constraint.guest2Id;
-                                
-                                unassignedGuests.splice(unassignedGuests.indexOf(constraint.guest1Id), 1);
-                                unassignedGuests.splice(unassignedGuests.indexOf(constraint.guest2Id), 1);
-                            }
-                        }
-                    }
-                });
-                
-                // Second pass: assign remaining guests while avoiding "must not sit together" constraints
-                unassignedGuests.forEach(guestId => {
-                    const mustNotSitWith = this.constraints
-                        .filter(c => c.type === 'must_not_sit_together' && 
-                                (c.guest1Id === guestId || c.guest2Id === guestId))
-                        .map(c => c.guest1Id === guestId ? c.guest2Id : c.guest1Id);
-                    
-                    // Find a table where none of the "must not sit together" guests are seated
-                    const availableTable = this.tables.find(table => {
-                        const hasConflict = table.guests.some(g => g && mustNotSitWith.includes(g));
-                        const hasSpace = table.guests.includes(null);
-                        return !hasConflict && hasSpace;
-                    });
-                    
-                    if (availableTable) {
-                        const emptySeat = availableTable.guests.findIndex(g => g === null);
-                        availableTable.guests[emptySeat] = guestId;
-                    }
-                });
-                
-                this.saveToStorage();
-                this.render();
-            }
-
-            loadSampleData() {
-                if (this.guests.length > 0 && !confirm('This will replace existing data. Continue?')) {
-                    return;
-                }
-                
-                // Sample wedding guests
-                const sampleGuests = [
-                    'Sarah Johnson', 'Michael Chen', 'Emily Davis', 'James Wilson',
-                    'Jessica Martinez', 'David Thompson', 'Amanda Rodriguez', 'Christopher Lee',
-                    'Ashley Brown', 'Matthew Garcia', 'Jennifer Miller', 'Joshua Taylor',
-                    'Lauren Anderson', 'Daniel Thomas', 'Megan Jackson', 'Andrew White',
-                    'Samantha Harris', 'Ryan Clark', 'Nicole Lewis', 'Kevin Robinson',
-                    'Rachel Walker', 'Brandon Hall', 'Stephanie Allen', 'Justin Young',
-                    'Kimberly King', 'Tyler Wright', 'Michelle Lopez', 'Jonathan Hill',
-                    'Elizabeth Scott', 'Anthony Green', 'Melissa Adams', 'Steven Baker',
-                    'Laura Gonzalez', 'Eric Nelson', 'Amy Carter', 'Marcus Mitchell',
-                    'Christina Perez', 'Brian Roberts', 'Angela Turner', 'Jason Phillips',
-                    'Rebecca Campbell', 'Timothy Parker', 'Maria Evans', 'Jacob Edwards',
-                    'Susan Collins', 'Nicholas Stewart', 'Katherine Sanchez', 'Patrick Morris'
-                ];
-                
-                this.guests = [];
-                this.constraints = [];
-                this.tables.forEach(table => {
-                    table.guests = new Array(6).fill(null);
-                });
-                
-                // Add sample guests
-                sampleGuests.forEach((name, index) => {
-                    this.guests.push({
-                        id: `guest_${index + 1}`,
-                        name: name,
-                        tableId: null,
-                        seatPosition: null
-                    });
-                });
-                
-                // Add sample constraints
-                const sampleConstraints = [
-                    { guest1: 'Sarah Johnson', guest2: 'Michael Chen', type: 'must_sit_together' },
-                    { guest1: 'Emily Davis', guest2: 'James Wilson', type: 'must_sit_together' },
-                    { guest1: 'Jessica Martinez', guest2: 'David Thompson', type: 'must_sit_together' },
-                    { guest1: 'Amanda Rodriguez', guest2: 'Christopher Lee', type: 'must_sit_together' },
-                    { guest1: 'Ashley Brown', guest2: 'Matthew Garcia', type: 'must_not_sit_together' },
-                    { guest1: 'Jennifer Miller', guest2: 'Joshua Taylor', type: 'must_not_sit_together' },
-                    { guest1: 'Lauren Anderson', guest2: 'Daniel Thomas', type: 'must_sit_together' },
-                    { guest1: 'Megan Jackson', guest2: 'Andrew White', type: 'must_sit_together' },
-                    { guest1: 'Samantha Harris', guest2: 'Ryan Clark', type: 'must_not_sit_together' },
-                    { guest1: 'Nicole Lewis', guest2: 'Kevin Robinson', type: 'must_sit_together' }
-                ];
-                
-                sampleConstraints.forEach((sc, index) => {
-                    const guest1 = this.guests.find(g => g.name === sc.guest1);
-                    const guest2 = this.guests.find(g => g.name === sc.guest2);
-                    
-                    if (guest1 && guest2) {
-                        this.constraints.push({
-                            id: `constraint_${index + 1}`,
-                            guest1Id: guest1.id,
-                            guest2Id: guest2.id,
-                            type: sc.type,
-                            satisfied: true
-                        });
-                    }
-                });
-                
-                this.saveToStorage();
-                this.render();
-                
-                this.showNotification('Sample wedding data loaded! Try the auto-arrange feature to see the seating algorithm in action.', 'success');
-                triggerHapticFeedback('success');
-                this.closeGuestMenu();
-            }
-
-            render() {
-                this.renderGuestList();
-                this.renderTables();
-                this.renderConstraints();
-                this.renderConstraintSelects();
-                this.updateStatus();
-            }
-
-            renderGuestList() {
-                const container = document.getElementById('guestList');
-                const countEl = document.getElementById('guestCount');
-                
-                countEl.textContent = this.guests.length;
-                
-                if (this.guests.length === 0) {
-                    container.innerHTML = '<div class="text-text-tertiary text-sm">No guests added yet</div>';
-                    return;
-                }
-                
-                container.innerHTML = this.guests.map(guest => {
-                    const assignedTable = this.getGuestTable(guest.id);
-                    const tableText = assignedTable ? `Table ${assignedTable.number}` : 'Unassigned';
-                    
-                    return `
-                        <div class="guest-item flex items-center justify-between p-3 bg-surface-tertiary/80 backdrop-blur-sm rounded-xl border border-surface-border/30 hover:border-surface-border/60 transition-all" 
-                             draggable="true" data-guest-id="${guest.id}">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <span class="font-semibold text-text-primary truncate">${guest.name}</span>
-                                <span class="text-xs text-text-tertiary px-2 py-1 bg-surface-primary/50 rounded-full">${tableText}</span>
-                            </div>
-                            <button class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/20 transition-all" 
-                                    onclick="seatPlanner.removeGuest('${guest.id}')" title="Remove guest">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    `;
-                }).join('');
-                
-                // Add drag event listeners
-                container.querySelectorAll('.guest-item').forEach(item => {
-                    item.addEventListener('dragstart', (e) => {
-                        this.draggedGuest = e.target.dataset.guestId;
-                        e.target.classList.add('dragging');
-                    });
-                    
-                    item.addEventListener('dragend', (e) => {
-                        e.target.classList.remove('dragging');
-                        this.draggedGuest = null;
-                    });
-                });
-            }
-
-            renderTables() {
-                const container = document.getElementById('tablesContainer');
-                
-                container.innerHTML = this.tables.map(table => {
-                    const seatsHtml = table.guests.map((guestId, seatIndex) => {
-                        const guest = guestId ? this.guests.find(g => g.id === guestId) : null;
-                        const seatClass = guest ? 'bg-blue-600 text-white' : 'bg-surface-border/60 text-text-tertiary border border-surface-border';
-                        const seatContent = guest ? guest.name.split(' ').map(n => n[0]).join('') : (seatIndex + 1);
-                        
-                        return `
-                            <div class="seat seat-${seatIndex} ${seatClass}" 
-                                 data-table-id="${table.id}" 
-                                 data-seat-index="${seatIndex}"
-                                 title="${guest ? guest.name : `Table ${table.number}, Seat ${seatIndex + 1}`}">
-                                ${seatContent}
-                            </div>
-                        `;
-                    }).join('');
-                    
-                    const occupancy = table.guests.filter(g => g !== null).length;
-                    
-                    return `
-                        <div class="text-center">
-                            <div class="table-circle bg-surface-tertiary/80 backdrop-blur-sm border-2 border-surface-border/50 hover:border-primary-500/70 shadow-lg hover:shadow-xl" 
-                                 data-table-id="${table.id}">
-                                ${seatsHtml}
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <div class="text-center">
-                                        <div class="font-bold text-text-primary text-lg">${table.number}</div>
-                                        <div class="text-xs text-text-tertiary font-medium">${occupancy}/${table.capacity}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-                
-                // Add drop event listeners
-                container.querySelectorAll('.table-circle').forEach(tableEl => {
-                    tableEl.addEventListener('dragover', (e) => {
-                        e.preventDefault();
-                        tableEl.classList.add('drop-target');
-                    });
-                    
-                    tableEl.addEventListener('dragleave', (e) => {
-                        if (!tableEl.contains(e.relatedTarget)) {
-                            tableEl.classList.remove('drop-target');
-                        }
-                    });
-                    
-                    tableEl.addEventListener('drop', (e) => {
-                        e.preventDefault();
-                        tableEl.classList.remove('drop-target');
-                        
-                        if (this.draggedGuest) {
-                            const tableId = e.currentTarget.dataset.tableId;
-                            const table = this.tables.find(t => t.id === tableId);
-                            const emptySeat = table.guests.findIndex(g => g === null);
-                            
-                            if (emptySeat !== -1) {
-                                this.assignGuestToSeat(this.draggedGuest, tableId, emptySeat);
-                            }
-                        }
-                    });
-                });
-                
-                // Add seat click listeners for direct assignment
-                container.querySelectorAll('.seat').forEach(seatEl => {
-                    seatEl.addEventListener('click', (e) => {
-                        const tableId = e.target.dataset.tableId;
-                        const seatIndex = parseInt(e.target.dataset.seatIndex);
-                        const table = this.tables.find(t => t.id === tableId);
-                        
-                        if (table.guests[seatIndex] !== null) {
-                            // Remove guest from seat
-                            table.guests[seatIndex] = null;
-                            this.saveToStorage();
-                            this.render();
-                        }
-                    });
-                });
-            }
-
-            renderConstraints() {
-                const container = document.getElementById('constraintsList');
-                const countEl = document.getElementById('constraintCount');
-                
-                countEl.textContent = this.constraints.length;
-                
-                if (this.constraints.length === 0) {
-                    container.innerHTML = '<div class="text-text-tertiary text-sm">No seating rules added yet</div>';
-                    return;
-                }
-                
-                container.innerHTML = this.constraints.map(constraint => {
-                    const guest1 = this.guests.find(g => g.id === constraint.guest1Id);
-                    const guest2 = this.guests.find(g => g.id === constraint.guest2Id);
-                    
-                    if (!guest1 || !guest2) return '';
-                    
-                    const typeText = constraint.type === 'must_sit_together' ? 'Must sit together' : 'Must not sit together';
-                    const typeClass = constraint.type === 'must_sit_together' ? 'text-green-400' : 'text-red-400';
-                    
-                    return `
-                        <div class="flex items-center justify-between p-3 bg-surface-tertiary/60 backdrop-blur-sm rounded-xl border border-surface-border/30 hover:border-surface-border/60 transition-all">
-                            <div class="min-w-0 flex-1">
-                                <div class="font-semibold text-text-primary text-sm">${guest1.name} & ${guest2.name}</div>
-                                <div class="${typeClass} text-xs font-medium mt-1">${typeText}</div>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <button class="text-red-400 hover:text-red-300 p-1.5 rounded-lg hover:bg-red-500/20 transition-all" 
-                                        onclick="seatPlanner.removeConstraint('${constraint.id}')" title="Remove seating rule">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-
-            renderConstraintSelects() {
-                const dropdown = document.getElementById('guestMultiSelectDropdown');
-                
-                if (this.guests.length === 0) {
-                    dropdown.innerHTML = '<div class="p-3 text-text-tertiary text-sm">No guests available</div>';
-                    return;
-                }
-                
-                dropdown.innerHTML = this.guests.map(guest => `
-                    <div class="multi-select-option" onclick="seatPlanner.toggleGuestSelection('${guest.id}')">
-                        <input type="checkbox" value="${guest.id}" ${this.selectedGuestIds.has(guest.id) ? 'checked' : ''} onclick="event.stopPropagation()">
-                        <span>${guest.name}</span>
-                    </div>
-                `).join('');
-                
-                this.updateMultiSelectUI();
-            }
-
-            updateStatus() {
-                const statusEl = document.getElementById('statusMessage');
-                const validationEl = document.getElementById('validationStatus');
-                
-                const totalGuests = this.guests.length;
-                const assignedGuests = this.tables.reduce((count, table) => 
-                    count + table.guests.filter(g => g !== null).length, 0);
-                const unassignedGuests = totalGuests - assignedGuests;
-                
-                statusEl.innerHTML = `<span class="font-semibold">${assignedGuests}/${totalGuests}</span> guests assigned <span class="text-text-tertiary">\u2022</span> <span class="${unassignedGuests > 0 ? 'text-yellow-400' : 'text-green-400'}">${unassignedGuests} unassigned</span>`;
-                
-                // Hide validation status if no constraints exist
-                if (this.constraints.length === 0) {
-                    validationEl.style.display = 'none';
-                } else {
-                    validationEl.style.display = 'block';
-                    const allConstraintsSatisfied = this.validateConstraints();
-                    const violatedConstraints = this.constraints.filter(c => !c.satisfied).length;
-                    
-                    if (allConstraintsSatisfied) {
-                        validationEl.className = 'mt-4 p-4 card-panel flex-shrink-0';
-                        validationEl.innerHTML = '<div class="text-sm text-green-400">All rules satisfied ✓</div>';
-                    } else {
-                        validationEl.className = 'mt-4 p-4 card-panel flex-shrink-0';
-                        validationEl.innerHTML = `<div class="text-sm text-red-400">${violatedConstraints} rule(s) violated</div>`;
-                    }
-                }
-            }
-
-            showNotification(message, type = 'info') {
-                const toast = document.createElement('div');
-                toast.className = `fixed bottom-4 right-4 p-3 rounded-lg shadow-lg z-50 transform translate-y-full transition-all duration-200 ${
-                    type === 'success' ? 'bg-surface-secondary text-green-400 border border-green-500/20' :
-                    type === 'error' ? 'bg-surface-secondary text-red-400 border border-red-500/20' :
-                    'bg-surface-secondary text-text-primary border border-surface-border'
-                }`;
-                toast.innerHTML = `<div class="text-sm font-medium">${message}</div>`;
-                
-                document.body.appendChild(toast);
-                
-                setTimeout(() => {
-                    toast.style.transform = 'translateY(0)';
-                }, 100);
-                
-                setTimeout(() => {
-                    toast.style.transform = 'translateY(100%)';
-                    setTimeout(() => {
-                        if (document.body.contains(toast)) {
-                            document.body.removeChild(toast);
-                        }
-                    }, 300);
-                }, 2500);
-            }
-
-            saveToStorage() {
-                const data = {
-                    guests: this.guests,
-                    constraints: this.constraints,
-                    tables: this.tables
-                };
-                localStorage.setItem('weddingSeatPlanner', JSON.stringify(data));
-            }
-
-            loadFromStorage() {
-                const saved = localStorage.getItem('weddingSeatPlanner');
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    this.guests = data.guests || [];
-                    this.constraints = data.constraints || [];
-                    if (data.tables) {
-                        this.tables = data.tables;
-                    }
-                }
-            }
-        }
-
-        // Initialize the application when the page loads
-        let seatPlanner;
-        document.addEventListener('DOMContentLoaded', () => {
-            seatPlanner = new WeddingSeatPlanner();
+        document.querySelectorAll('.wizard-table-type').forEach(row => {
+          const shape = row.dataset.shape;
+          row.querySelector('.wizard-slider-count').value = defaults[shape].count;
+          row.querySelector('.wizard-slider-seats').value = defaults[shape].seats;
         });
-    </script>
+        wizardUpdateSummary();
+      }
+
+      configMatches(oldTypes, newTypes) {
+        if (!oldTypes || oldTypes.length !== newTypes.length) return false;
+        return newTypes.every((nt, i) => {
+          const ot = oldTypes[i];
+          return ot.shape === nt.shape && ot.count === nt.count && ot.seatsPerTable === nt.seatsPerTable;
+        });
+      }
+
+      completeWizard() {
+        const tableTypes = [];
+        document.querySelectorAll('.wizard-table-type').forEach(row => {
+          const shape = row.dataset.shape;
+          const count = parseInt(row.querySelector('.wizard-slider-count').value);
+          const seatsPerTable = parseInt(row.querySelector('.wizard-slider-seats').value);
+          tableTypes.push({ shape, count, seatsPerTable });
+        });
+
+        if (tableTypes.reduce((s, t) => s + t.count, 0) === 0) return;
+
+        const oldTypes = this.config ? this.config.tableTypes : null;
+        const configChanged = !this.configMatches(oldTypes, tableTypes);
+
+        if (configChanged) {
+          this.config = { tableTypes, version: 2 };
+          this.tables = [];
+          this.initializeTables(tableTypes);
+        }
+
+        this.saveToStorage();
+        this.showPlanner();
+        if (!this._eventsBound) {
+          this.bindEvents();
+          this._eventsBound = true;
+        }
+        this.render();
+      }
+
+      showPlanner() {
+        document.getElementById('setupWizard').style.display = 'none';
+        document.getElementById('main-content').style.display = '';
+      }
+
+      reconfigureTables() {
+        this.closeTableDetail();
+        this.showWizard();
+      }
+
+      initializeTables(tableTypes) {
+        this.tables = [];
+        let num = 1;
+        tableTypes.forEach(tt => {
+          for (let i = 0; i < tt.count; i++) {
+            this.tables.push({
+              id: `table_${num}`,
+              number: num,
+              capacity: tt.seatsPerTable,
+              shape: tt.shape,
+              guests: new Array(tt.seatsPerTable).fill(null)
+            });
+            num++;
+          }
+        });
+      }
+
+      calculateSeatPosition(index, total, shape) {
+        // Returns { top, left } as CSS values (in px) relative to the table element
+        // Table dimensions: circle/square = 120x120, rectangle = 180x100
+        const seatSize = 28;
+        const offset = seatSize / 2; // 14px
+
+        if (shape === 'circle') {
+          const w = 120, h = 120;
+          const cx = w / 2, cy = h / 2;
+          const radius = (w / 2) + offset;
+          const angle = (2 * Math.PI * index / total) - Math.PI / 2; // start from top
+          const x = cx + radius * Math.cos(angle) - offset;
+          const y = cy + radius * Math.sin(angle) - offset;
+          return { top: `${Math.round(y)}px`, left: `${Math.round(x)}px` };
+        }
+
+        if (shape === 'square') {
+          const w = 120, h = 120;
+          const perSide = Math.ceil(total / 4);
+          const side = Math.floor(index / perSide);
+          const posInSide = index % perSide;
+          const spacing = (side % 2 === 0 ? w : h) / (perSide + 1);
+          const pos = spacing * (posInSide + 1);
+          let x, y;
+          switch (side) {
+            case 0: // top
+              x = pos - offset; y = -offset; break;
+            case 1: // right
+              x = w - offset; y = pos - offset; break;
+            case 2: // bottom
+              x = w - pos - offset; y = h - offset; break;
+            case 3: // left
+              x = -offset; y = h - pos - offset; break;
+            default: // overflow — distribute evenly around perimeter
+              const perim = 4 * w;
+              const p = (perim * index / total);
+              if (p < w) { x = p - offset; y = -offset; }
+              else if (p < 2 * w) { x = w - offset; y = (p - w) - offset; }
+              else if (p < 3 * w) { x = w - (p - 2 * w) - offset; y = h - offset; }
+              else { x = -offset; y = h - (p - 3 * w) - offset; }
+          }
+          return { top: `${Math.round(y)}px`, left: `${Math.round(x)}px` };
+        }
+
+        if (shape === 'rectangle') {
+          const w = 180, h = 100;
+          // Distribute: more on long sides (top/bottom), fewer on short sides (left/right)
+          const perim = 2 * (w + h);
+          const p = (perim * index / total);
+          let x, y;
+          if (p < w) {
+            // top edge
+            x = p - offset; y = -offset;
+          } else if (p < w + h) {
+            // right edge
+            x = w - offset; y = (p - w) - offset;
+          } else if (p < 2 * w + h) {
+            // bottom edge
+            x = w - (p - w - h) - offset; y = h - offset;
+          } else {
+            // left edge
+            x = -offset; y = h - (p - 2 * w - h) - offset;
+          }
+          return { top: `${Math.round(y)}px`, left: `${Math.round(x)}px` };
+        }
+
+        // Fallback circle
+        return this.calculateSeatPosition(index, total, 'circle');
+      }
+
+      bindEvents() {
+        const guestInput = document.getElementById('guestNameInput');
+        if (guestInput) {
+          guestInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.addGuest();
+          });
+        }
+
+        document.getElementById('loadSampleDataBtn').addEventListener('click', () => this.loadSampleData());
+        document.getElementById('settingsBtn').addEventListener('click', () => this.reconfigureTables());
+        document.getElementById('bulkImportToggle').addEventListener('click', () => this.toggleBulkImport());
+        document.getElementById('processBulkImport').addEventListener('click', () => this.processBulkImport());
+
+        const menuBtn = document.getElementById('guestMenuBtn');
+        if (menuBtn) {
+          menuBtn.addEventListener('click', (e) => this.toggleGuestMenu(e));
+        }
+        document.getElementById('clearAllGuestsBtn').addEventListener('click', () => this.clearAllGuests());
+        document.addEventListener('click', (e) => this.handleOutsideClick(e));
+
+        document.getElementById('addConstraintBtn').addEventListener('click', () => this.addConstraint());
+        document.getElementById('guestMultiSelect').addEventListener('click', (e) => this.toggleMultiSelect(e));
+        document.addEventListener('click', (e) => this.handleMultiSelectOutsideClick(e));
+
+        document.getElementById('autoArrangeBtn').addEventListener('click', () => this.autoArrange());
+        document.getElementById('clearAllBtn').addEventListener('click', () => this.clearAllTables());
+
+        // Table detail modal events
+        document.getElementById('tableDetailClose').addEventListener('click', () => this.closeTableDetail());
+        document.getElementById('tableDetailOverlay').addEventListener('click', (e) => {
+          if (e.target === e.currentTarget) this.closeTableDetail();
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && this.activeTableDetailId) this.closeTableDetail();
+        });
+        document.getElementById('tableDetailPanel').addEventListener('click', (e) => {
+          // Close any open assign dropdown when clicking elsewhere in the panel
+          if (!e.target.closest('.table-detail-assign-wrap')) {
+            this._activeAssignDropdown = null;
+            document.querySelectorAll('.table-detail-assign-dropdown.show').forEach(d => d.classList.remove('show'));
+          }
+        });
+
+        // Table detail click delegation (bound once, delegates to dynamic content)
+        document.getElementById('tableDetailSeats').addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-action]');
+          if (!btn) return;
+
+          const action = btn.dataset.action;
+          const seatIndex = parseInt(btn.dataset.seatIndex);
+
+          if (action === 'remove') {
+            this.removeGuestFromSeatInModal(seatIndex);
+          } else if (action === 'assign-toggle') {
+            e.stopPropagation();
+            this.toggleAssignDropdown(seatIndex);
+          } else if (action === 'assign-guest') {
+            this.assignGuestFromModal(btn.dataset.guestId, seatIndex);
+          }
+        });
+      }
+
+      addGuest() {
+        const nameInput = document.getElementById('guestNameInput');
+        const name = nameInput.value.trim();
+        if (!name) return;
+        if (this.guests.find(g => g.name.toLowerCase() === name.toLowerCase())) {
+          alert('Guest already exists!');
+          return;
+        }
+        this.guests.push({ id: `guest_${Date.now()}`, name, tableId: null, seatPosition: null });
+        nameInput.value = '';
+        this.saveToStorage();
+        this.render();
+      }
+
+      removeGuest(guestId) {
+        this.tables.forEach(table => { table.guests = table.guests.map(g => g === guestId ? null : g); });
+        this.constraints = this.constraints.filter(c => c.guest1Id !== guestId && c.guest2Id !== guestId);
+        this.guests = this.guests.filter(g => g.id !== guestId);
+        this.saveToStorage();
+        this.render();
+      }
+
+      toggleBulkImport() {
+        document.getElementById('bulkImportSection').classList.toggle('visible');
+      }
+
+      processBulkImport() {
+        const text = document.getElementById('bulkImportText').value;
+        const names = text.split('\n').map(n => n.trim()).filter(n => n);
+        names.forEach(name => {
+          if (!this.guests.find(g => g.name.toLowerCase() === name.toLowerCase())) {
+            this.guests.push({ id: `guest_${Date.now()}_${Math.random()}`, name, tableId: null, seatPosition: null });
+          }
+        });
+        document.getElementById('bulkImportText').value = '';
+        document.getElementById('bulkImportSection').classList.remove('visible');
+        this.saveToStorage();
+        this.render();
+      }
+
+      addConstraint() {
+        const selectedGuestIds = Array.from(this.selectedGuestIds);
+        const type = document.getElementById('constraintType').value;
+        if (selectedGuestIds.length < 2) {
+          this.showNotification('Please select at least 2 guests', 'error');
+          triggerHapticFeedback('error');
+          return;
+        }
+        const newConstraints = [];
+        for (let i = 0; i < selectedGuestIds.length; i++) {
+          for (let j = i + 1; j < selectedGuestIds.length; j++) {
+            const guest1Id = selectedGuestIds[i];
+            const guest2Id = selectedGuestIds[j];
+            const exists = this.constraints.find(c =>
+              (c.guest1Id === guest1Id && c.guest2Id === guest2Id) ||
+              (c.guest1Id === guest2Id && c.guest2Id === guest1Id)
+            );
+            if (!exists) {
+              newConstraints.push({ id: `constraint_${Date.now()}_${i}_${j}`, guest1Id, guest2Id, type, satisfied: true });
+            }
+          }
+        }
+        if (newConstraints.length === 0) {
+          this.showNotification('All seating rules between selected guests already exist', 'error');
+          triggerHapticFeedback('error');
+          return;
+        }
+        this.constraints.push(...newConstraints);
+        this.showNotification(`Created ${newConstraints.length} rule(s) for ${selectedGuestIds.length} guests`, 'success');
+        this.selectedGuestIds.clear();
+        this.closeMultiSelect();
+        this.saveToStorage();
+        this.render();
+        triggerHapticFeedback('medium');
+      }
+
+      removeConstraint(constraintId) {
+        this.constraints = this.constraints.filter(c => c.id !== constraintId);
+        this.saveToStorage();
+        this.render();
+      }
+
+      clearAllTables() {
+        if (confirm('Are you sure you want to clear all table assignments?')) {
+          this.tables.forEach(table => { table.guests = new Array(table.capacity).fill(null); });
+          this.saveToStorage();
+          this.render();
+        }
+      }
+
+      clearAllGuests() {
+        if (confirm('Are you sure you want to remove all guests? This will also clear all seating rules and table assignments.')) {
+          this.guests = [];
+          this.constraints = [];
+          this.tables.forEach(table => { table.guests = new Array(table.capacity).fill(null); });
+          this.saveToStorage();
+          this.render();
+          this.showNotification('All guests cleared', 'info');
+          this.closeGuestMenu();
+          triggerHapticFeedback('light');
+        }
+      }
+
+      toggleGuestMenu(e) {
+        e.stopPropagation();
+        document.getElementById('guestMenu').classList.toggle('show');
+      }
+
+      closeGuestMenu() {
+        document.getElementById('guestMenu').classList.remove('show');
+      }
+
+      handleOutsideClick(e) {
+        const menu = document.getElementById('guestMenu');
+        const menuBtn = document.getElementById('guestMenuBtn');
+        if (!menu.contains(e.target) && !menuBtn.contains(e.target)) this.closeGuestMenu();
+      }
+
+      toggleMultiSelect(e) {
+        e.stopPropagation();
+        const dropdown = document.getElementById('guestMultiSelectDropdown');
+        const chevron = document.getElementById('multiSelectChevron');
+        dropdown.classList.toggle('show');
+        chevron.style.transform = dropdown.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+
+      closeMultiSelect() {
+        document.getElementById('guestMultiSelectDropdown').classList.remove('show');
+        document.getElementById('multiSelectChevron').style.transform = 'rotate(0deg)';
+      }
+
+      handleMultiSelectOutsideClick(e) {
+        const multiSelect = document.querySelector('.multi-select');
+        const guestMenu = document.getElementById('guestMenu');
+        if (!multiSelect.contains(e.target) && !guestMenu.contains(e.target)) this.closeMultiSelect();
+      }
+
+      toggleGuestSelection(guestId) {
+        if (this.selectedGuestIds.has(guestId)) this.selectedGuestIds.delete(guestId);
+        else this.selectedGuestIds.add(guestId);
+        this.updateMultiSelectUI();
+      }
+
+      updateMultiSelectUI() {
+        const selectedContainer = document.getElementById('selectedGuests');
+        const textSpan = document.getElementById('multiSelectText');
+        selectedContainer.innerHTML = '';
+        if (this.selectedGuestIds.size === 0) {
+          textSpan.textContent = 'Select guests...';
+        } else {
+          const selectedNames = Array.from(this.selectedGuestIds).map(id => {
+            const guest = this.guests.find(g => g.id === id);
+            return guest ? guest.name : '';
+          }).filter(n => n);
+          textSpan.textContent = `${selectedNames.length} guest${selectedNames.length !== 1 ? 's' : ''} selected`;
+          selectedNames.forEach((name, index) => {
+            const guestId = Array.from(this.selectedGuestIds)[index];
+            const tag = document.createElement('span');
+            tag.className = 'selected-guest-tag';
+            tag.innerHTML = `${name}<button type="button" onclick="seatPlanner.toggleGuestSelection('${guestId}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>`;
+            selectedContainer.appendChild(tag);
+          });
+        }
+        const checkboxes = document.querySelectorAll('#guestMultiSelectDropdown input[type="checkbox"]');
+        checkboxes.forEach(cb => { cb.checked = this.selectedGuestIds.has(cb.value); });
+      }
+
+      assignGuestToSeat(guestId, tableId, seatIndex) {
+        this.tables.forEach(table => { table.guests = table.guests.map(g => g === guestId ? null : g); });
+        const table = this.tables.find(t => t.id === tableId);
+        if (table && table.guests[seatIndex] === null) {
+          table.guests[seatIndex] = guestId;
+          this.saveToStorage();
+          this.render();
+          return true;
+        }
+        return false;
+      }
+
+      validateConstraints() {
+        let allSatisfied = true;
+        this.constraints.forEach(constraint => {
+          const g1t = this.getGuestTable(constraint.guest1Id);
+          const g2t = this.getGuestTable(constraint.guest2Id);
+          if (constraint.type === 'must_sit_together') {
+            constraint.satisfied = g1t && g2t && g1t.id === g2t.id;
+          } else {
+            constraint.satisfied = !g1t || !g2t || g1t.id !== g2t.id;
+          }
+          if (!constraint.satisfied) allSatisfied = false;
+        });
+        return allSatisfied;
+      }
+
+      getGuestTable(guestId) {
+        return this.tables.find(table => table.guests.includes(guestId));
+      }
+
+      autoArrange() {
+        this.tables.forEach(table => { table.guests = new Array(table.capacity).fill(null); });
+        const unassigned = [...this.guests.map(g => g.id)];
+        const processed = new Set();
+        this.constraints.forEach(c => {
+          if (c.type === 'must_sit_together') {
+            const key = [c.guest1Id, c.guest2Id].sort().join('-');
+            if (processed.has(key)) return;
+            processed.add(key);
+            if (unassigned.includes(c.guest1Id) && unassigned.includes(c.guest2Id)) {
+              const t = this.tables.find(t => t.guests.filter(g => g === null).length >= 2);
+              if (t) {
+                const s1 = t.guests.findIndex(g => g === null);
+                const s2 = t.guests.findIndex((g, i) => g === null && i !== s1);
+                t.guests[s1] = c.guest1Id;
+                t.guests[s2] = c.guest2Id;
+                unassigned.splice(unassigned.indexOf(c.guest1Id), 1);
+                unassigned.splice(unassigned.indexOf(c.guest2Id), 1);
+              }
+            }
+          }
+        });
+        unassigned.forEach(guestId => {
+          const avoid = this.constraints
+            .filter(c => c.type === 'must_not_sit_together' && (c.guest1Id === guestId || c.guest2Id === guestId))
+            .map(c => c.guest1Id === guestId ? c.guest2Id : c.guest1Id);
+          const t = this.tables.find(t => {
+            const conflict = t.guests.some(g => g && avoid.includes(g));
+            return !conflict && t.guests.includes(null);
+          });
+          if (t) {
+            const s = t.guests.findIndex(g => g === null);
+            t.guests[s] = guestId;
+          }
+        });
+        this.saveToStorage();
+        this.render();
+      }
+
+      loadSampleData() {
+        if (this.guests.length > 0 && !confirm('This will replace existing data. Continue?')) return;
+        const allNames = [
+          'Sarah Johnson', 'Michael Chen', 'Emily Davis', 'James Wilson',
+          'Jessica Martinez', 'David Thompson', 'Amanda Rodriguez', 'Christopher Lee',
+          'Ashley Brown', 'Matthew Garcia', 'Jennifer Miller', 'Joshua Taylor',
+          'Lauren Anderson', 'Daniel Thomas', 'Megan Jackson', 'Andrew White',
+          'Samantha Harris', 'Ryan Clark', 'Nicole Lewis', 'Kevin Robinson',
+          'Rachel Walker', 'Brandon Hall', 'Stephanie Allen', 'Justin Young',
+          'Kimberly King', 'Tyler Wright', 'Michelle Lopez', 'Jonathan Hill',
+          'Elizabeth Scott', 'Anthony Green', 'Melissa Adams', 'Steven Baker',
+          'Laura Gonzalez', 'Eric Nelson', 'Amy Carter', 'Marcus Mitchell',
+          'Christina Perez', 'Brian Roberts', 'Angela Turner', 'Jason Phillips',
+          'Rebecca Campbell', 'Timothy Parker', 'Maria Evans', 'Jacob Edwards',
+          'Susan Collins', 'Nicholas Stewart', 'Katherine Sanchez', 'Patrick Morris'
+        ];
+        // Cap to total capacity
+        const totalCapacity = this.tables.reduce((sum, t) => sum + t.capacity, 0);
+        const names = allNames.slice(0, totalCapacity);
+        this.guests = [];
+        this.constraints = [];
+        this.tables.forEach(t => { t.guests = new Array(t.capacity).fill(null); });
+        names.forEach((name, i) => { this.guests.push({ id: `guest_${i + 1}`, name, tableId: null, seatPosition: null }); });
+        const rules = [
+          { g1: 'Sarah Johnson', g2: 'Michael Chen', type: 'must_sit_together' },
+          { g1: 'Emily Davis', g2: 'James Wilson', type: 'must_sit_together' },
+          { g1: 'Jessica Martinez', g2: 'David Thompson', type: 'must_sit_together' },
+          { g1: 'Amanda Rodriguez', g2: 'Christopher Lee', type: 'must_sit_together' },
+          { g1: 'Ashley Brown', g2: 'Matthew Garcia', type: 'must_not_sit_together' },
+          { g1: 'Jennifer Miller', g2: 'Joshua Taylor', type: 'must_not_sit_together' },
+          { g1: 'Lauren Anderson', g2: 'Daniel Thomas', type: 'must_sit_together' },
+          { g1: 'Megan Jackson', g2: 'Andrew White', type: 'must_sit_together' },
+          { g1: 'Samantha Harris', g2: 'Ryan Clark', type: 'must_not_sit_together' },
+          { g1: 'Nicole Lewis', g2: 'Kevin Robinson', type: 'must_sit_together' }
+        ];
+        rules.forEach((r, i) => {
+          const g1 = this.guests.find(g => g.name === r.g1);
+          const g2 = this.guests.find(g => g.name === r.g2);
+          if (g1 && g2) this.constraints.push({ id: `constraint_${i + 1}`, guest1Id: g1.id, guest2Id: g2.id, type: r.type, satisfied: true });
+        });
+        this.saveToStorage();
+        this.render();
+        this.showNotification('Sample data loaded! Try Auto Arrange.', 'success');
+        triggerHapticFeedback('success');
+        this.closeGuestMenu();
+      }
+
+      render() {
+        this.renderGuestList();
+        this.renderTables();
+        this.renderConstraints();
+        this.renderConstraintSelects();
+        this.updateStatus();
+        if (this.activeTableDetailId) this.renderTableDetail();
+      }
+
+      renderGuestList() {
+        const container = document.getElementById('guestList');
+        document.getElementById('guestCount').textContent = this.guests.length;
+        if (this.guests.length === 0) {
+          container.innerHTML = '<div class="empty-state">No guests added yet</div>';
+          return;
+        }
+        container.innerHTML = this.guests.map(guest => {
+          const t = this.getGuestTable(guest.id);
+          const tag = t ? `Table ${t.number}` : 'Unassigned';
+          return `<div class="guest-item" draggable="true" data-guest-id="${guest.id}">
+            <div class="guest-info">
+              <span class="guest-name">${guest.name}</span>
+              <span class="guest-table-tag">${tag}</span>
+            </div>
+            <button class="guest-remove" onclick="seatPlanner.removeGuest('${guest.id}')" title="Remove">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>`;
+        }).join('');
+        container.querySelectorAll('.guest-item').forEach(item => {
+          item.addEventListener('dragstart', (e) => {
+            this.draggedGuest = e.currentTarget.dataset.guestId;
+            e.currentTarget.classList.add('dragging');
+          });
+          item.addEventListener('dragend', (e) => {
+            e.currentTarget.classList.remove('dragging');
+            this.draggedGuest = null;
+          });
+        });
+      }
+
+      renderTables() {
+        const container = document.getElementById('tablesContainer');
+
+        container.innerHTML = this.tables.map(table => {
+          const shape = table.shape || 'circle';
+          const tableClass = `table-${shape}`;
+          const seats = table.guests.map((guestId, i) => {
+            const guest = guestId ? this.guests.find(g => g.id === guestId) : null;
+            const cls = guest ? 'seat-filled' : 'seat-empty';
+            const content = guest ? guest.name.split(' ').map(n => n[0]).join('') : (i + 1);
+            const title = guest ? guest.name : `Seat ${i + 1}`;
+            const pos = this.calculateSeatPosition(i, table.capacity, shape);
+            return `<div class="seat ${cls}" style="top:${pos.top};left:${pos.left};" data-table-id="${table.id}" data-seat-index="${i}" title="${title}">${content}</div>`;
+          }).join('');
+          const occ = table.guests.filter(g => g !== null).length;
+          return `<div class="table-wrapper">
+            <div class="${tableClass}" data-table-id="${table.id}">
+              ${seats}
+              <div class="table-center"><div><div class="table-number">${table.number}</div><div class="table-count">${occ}/${table.capacity}</div></div></div>
+            </div>
+          </div>`;
+        }).join('');
+
+        // Bind drag-and-drop and click to all table shape elements
+        container.querySelectorAll('.table-circle, .table-square, .table-rectangle').forEach(el => {
+          let isDragging = false;
+          el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('drop-target'); });
+          el.addEventListener('dragenter', () => { isDragging = true; });
+          el.addEventListener('dragleave', (e) => {
+            if (!el.contains(e.relatedTarget)) {
+              el.classList.remove('drop-target');
+              isDragging = false;
+            }
+          });
+          el.addEventListener('drop', (e) => {
+            e.preventDefault();
+            el.classList.remove('drop-target');
+            isDragging = true; // keep flag so click doesn't fire
+            if (this.draggedGuest) {
+              const table = this.tables.find(t => t.id === e.currentTarget.dataset.tableId);
+              const empty = table.guests.findIndex(g => g === null);
+              if (empty !== -1) this.assignGuestToSeat(this.draggedGuest, table.id, empty);
+            }
+          });
+          el.addEventListener('click', (e) => {
+            if (isDragging) { isDragging = false; return; }
+            const tableId = el.dataset.tableId;
+            this.openTableDetail(tableId);
+          });
+        });
+      }
+
+      renderConstraints() {
+        const container = document.getElementById('constraintsList');
+        document.getElementById('constraintCount').textContent = this.constraints.length;
+        if (this.constraints.length === 0) {
+          container.innerHTML = '<div class="empty-state">No rules added yet</div>';
+          return;
+        }
+        container.innerHTML = this.constraints.map(c => {
+          const g1 = this.guests.find(g => g.id === c.guest1Id);
+          const g2 = this.guests.find(g => g.id === c.guest2Id);
+          if (!g1 || !g2) return '';
+          const label = c.type === 'must_sit_together' ? 'Must sit together' : 'Must not sit together';
+          const cls = c.type === 'must_sit_together' ? 'constraint-together' : 'constraint-apart';
+          return `<div class="constraint-item">
+            <div style="min-width: 0; flex: 1;">
+              <div class="constraint-names">${g1.name} &amp; ${g2.name}</div>
+              <div class="constraint-type ${cls}">${label}</div>
+            </div>
+            <button class="guest-remove" onclick="seatPlanner.removeConstraint('${c.id}')" title="Remove rule">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>`;
+        }).join('');
+      }
+
+      renderConstraintSelects() {
+        const dropdown = document.getElementById('guestMultiSelectDropdown');
+        if (this.guests.length === 0) {
+          dropdown.innerHTML = '<div style="padding: var(--space-3); color: var(--text-tertiary); font-size: var(--text-sm);">No guests available</div>';
+          return;
+        }
+        dropdown.innerHTML = this.guests.map(guest =>
+          `<div class="multi-select-option" onclick="seatPlanner.toggleGuestSelection('${guest.id}')">
+            <input type="checkbox" value="${guest.id}" ${this.selectedGuestIds.has(guest.id) ? 'checked' : ''} onclick="event.stopPropagation()">
+            <span>${guest.name}</span>
+          </div>`
+        ).join('');
+        this.updateMultiSelectUI();
+      }
+
+      updateStatus() {
+        const statusEl = document.getElementById('statusMessage');
+        const validationEl = document.getElementById('validationStatus');
+        const total = this.guests.length;
+        const assigned = this.tables.reduce((n, t) => n + t.guests.filter(g => g !== null).length, 0);
+        const unassigned = total - assigned;
+        const unClass = unassigned > 0 ? 'status-unassigned' : 'status-complete';
+        statusEl.innerHTML = `<strong>${assigned}/${total}</strong> guests assigned &middot; <span class="${unClass}">${unassigned} unassigned</span>`;
+        if (this.constraints.length === 0) {
+          validationEl.style.display = 'none';
+        } else {
+          validationEl.style.display = 'block';
+          const ok = this.validateConstraints();
+          const violated = this.constraints.filter(c => !c.satisfied).length;
+          validationEl.innerHTML = ok
+            ? '<span class="validation-ok">All rules satisfied</span>'
+            : `<span class="validation-error">${violated} rule(s) violated</span>`;
+        }
+      }
+
+      // ── Table Detail Modal ──
+
+      openTableDetail(tableId) {
+        this.activeTableDetailId = tableId;
+        this._activeAssignDropdown = null;
+        this.renderTableDetail();
+        document.getElementById('tableDetailOverlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+
+      closeTableDetail() {
+        this.activeTableDetailId = null;
+        this._activeAssignDropdown = null;
+        this._modalDragSeatIndex = null;
+        document.getElementById('tableDetailOverlay').classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      renderTableDetail() {
+        const table = this.tables.find(t => t.id === this.activeTableDetailId);
+        if (!table) return;
+
+        const filled = table.guests.filter(g => g !== null).length;
+        document.getElementById('tableDetailTitle').textContent = `Table ${table.number}`;
+        document.getElementById('tableDetailSubtitle').textContent = `${filled}/${table.capacity} seats filled`;
+
+        const container = document.getElementById('tableDetailSeats');
+        container.innerHTML = table.guests.map((guestId, i) => {
+          const guest = guestId ? this.guests.find(g => g.id === guestId) : null;
+          const initials = guest ? guest.name.split(' ').map(n => n[0]).join('') : '';
+
+          if (guest) {
+            return `<div class="table-detail-seat-row" draggable="true" data-seat-index="${i}">
+              <div class="table-detail-drag-handle" title="Drag to reorder">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
+              </div>
+              <div class="table-detail-seat-num filled">${initials}</div>
+              <span class="table-detail-seat-name">${guest.name}</span>
+              <button class="table-detail-remove-btn" data-action="remove" data-seat-index="${i}" title="Remove guest">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+            </div>`;
+          } else {
+            return `<div class="table-detail-seat-row" data-seat-index="${i}">
+              <div style="width:20px;flex-shrink:0;"></div>
+              <div class="table-detail-seat-num empty">${i + 1}</div>
+              <span class="table-detail-seat-name empty-label">Empty</span>
+              <div class="table-detail-assign-wrap">
+                <button class="table-detail-assign-btn" data-action="assign-toggle" data-seat-index="${i}">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14M5 12h14"></path></svg>
+                  Assign
+                </button>
+                <div class="table-detail-assign-dropdown${this._activeAssignDropdown === i ? ' show' : ''}" data-seat-index="${i}">
+                  ${this.renderAssignDropdownItems(i)}
+                </div>
+              </div>
+            </div>`;
+          }
+        }).join('');
+
+        this.bindTableDetailEvents(container);
+      }
+
+      renderAssignDropdownItems(seatIndex) {
+        const assignedIds = new Set();
+        this.tables.forEach(t => t.guests.forEach(g => { if (g) assignedIds.add(g); }));
+        const unassigned = this.guests.filter(g => !assignedIds.has(g.id));
+        if (unassigned.length === 0) {
+          return '<div class="table-detail-assign-empty">No unassigned guests</div>';
+        }
+        return unassigned.map(g =>
+          `<button class="table-detail-assign-item" data-action="assign-guest" data-guest-id="${g.id}" data-seat-index="${seatIndex}">${g.name}</button>`
+        ).join('');
+      }
+
+      bindTableDetailEvents(container) {
+        // Drag-and-drop for seat reordering (bound per-render since child elements are replaced)
+        const rows = container.querySelectorAll('.table-detail-seat-row[draggable="true"]');
+        rows.forEach(row => {
+          row.addEventListener('dragstart', (e) => {
+            this._modalDragSeatIndex = parseInt(row.dataset.seatIndex);
+            row.style.opacity = '0.5';
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', ''); // Required for Firefox
+          });
+          row.addEventListener('dragend', () => {
+            row.style.opacity = '';
+            this._modalDragSeatIndex = null;
+            container.querySelectorAll('.table-detail-seat-row').forEach(r => r.classList.remove('dragging-over'));
+          });
+        });
+
+        // All rows (including empty) are drop targets
+        container.querySelectorAll('.table-detail-seat-row').forEach(row => {
+          row.addEventListener('dragover', (e) => {
+            if (this._modalDragSeatIndex === null) return;
+            e.preventDefault();
+            row.classList.add('dragging-over');
+          });
+          row.addEventListener('dragleave', () => {
+            row.classList.remove('dragging-over');
+          });
+          row.addEventListener('drop', (e) => {
+            e.preventDefault();
+            row.classList.remove('dragging-over');
+            if (this._modalDragSeatIndex === null) return;
+            const toIndex = parseInt(row.dataset.seatIndex);
+            if (this._modalDragSeatIndex !== toIndex) {
+              this.swapSeatsInModal(this._modalDragSeatIndex, toIndex);
+            }
+            this._modalDragSeatIndex = null;
+          });
+        });
+      }
+
+      removeGuestFromSeatInModal(seatIndex) {
+        const table = this.tables.find(t => t.id === this.activeTableDetailId);
+        if (!table) return;
+        table.guests[seatIndex] = null;
+        this.saveToStorage();
+        this.render();
+      }
+
+      assignGuestFromModal(guestId, seatIndex) {
+        const table = this.tables.find(t => t.id === this.activeTableDetailId);
+        if (!table) return;
+        this.assignGuestToSeat(guestId, table.id, seatIndex);
+        this._activeAssignDropdown = null;
+      }
+
+      swapSeatsInModal(fromIndex, toIndex) {
+        const table = this.tables.find(t => t.id === this.activeTableDetailId);
+        if (!table) return;
+        const temp = table.guests[fromIndex];
+        table.guests[fromIndex] = table.guests[toIndex];
+        table.guests[toIndex] = temp;
+        this.saveToStorage();
+        this.render();
+      }
+
+      toggleAssignDropdown(seatIndex) {
+        if (this._activeAssignDropdown === seatIndex) {
+          this._activeAssignDropdown = null;
+        } else {
+          this._activeAssignDropdown = seatIndex;
+        }
+        // Update dropdown visibility
+        document.querySelectorAll('.table-detail-assign-dropdown').forEach(d => {
+          const idx = parseInt(d.dataset.seatIndex);
+          d.classList.toggle('show', idx === this._activeAssignDropdown);
+        });
+      }
+
+      showNotification(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `sp-toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.classList.add('visible'), 50);
+        setTimeout(() => {
+          toast.classList.remove('visible');
+          setTimeout(() => { if (document.body.contains(toast)) document.body.removeChild(toast); }, 300);
+        }, 2500);
+      }
+
+      saveToStorage() {
+        localStorage.setItem('weddingSeatPlanner', JSON.stringify({
+          config: this.config,
+          guests: this.guests,
+          constraints: this.constraints,
+          tables: this.tables
+        }));
+      }
+
+      loadFromStorage() {
+        const saved = localStorage.getItem('weddingSeatPlanner');
+        if (saved) {
+          const data = JSON.parse(saved);
+          this.guests = data.guests || [];
+          this.constraints = data.constraints || [];
+
+          if (data.config) {
+            if (data.config.version === 2) {
+              // Version 2 — already has tableTypes
+              this.config = data.config;
+              if (data.tables) {
+                this.tables = data.tables;
+              } else {
+                this.initializeTables(this.config.tableTypes);
+              }
+            } else {
+              // Version 1 migration — convert single shape to tableTypes
+              const v1 = data.config;
+              this.config = {
+                tableTypes: [{ shape: v1.shape || 'circle', count: v1.tableCount || 10, seatsPerTable: v1.seatsPerTable || 6 }],
+                version: 2
+              };
+              if (data.tables) {
+                // Add shape property to existing tables
+                this.tables = data.tables.map(t => ({ ...t, shape: t.shape || v1.shape || 'circle' }));
+              } else {
+                this.initializeTables(this.config.tableTypes);
+              }
+              this.saveToStorage();
+            }
+          } else if (data.tables) {
+            // Pre-wizard data — assume circle/10/6
+            this.config = {
+              tableTypes: [{ shape: 'circle', count: 10, seatsPerTable: 6 }],
+              version: 2
+            };
+            this.tables = data.tables.map(t => ({ ...t, shape: t.shape || 'circle' }));
+            this.saveToStorage();
+          }
+        }
+      }
+    }
+
+    let seatPlanner;
+    document.addEventListener('DOMContentLoaded', () => {
+      seatPlanner = new WeddingSeatPlanner();
+    });
+  </script>
 </body>
+
 </html>

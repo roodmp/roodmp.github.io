@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Workflow Visualizer - Mark Rood</title>
+  <meta name="description"
+    content="Interactive visualizer for AI agent workflows. Explore how sequential, parallel, routing, human-in-the-loop, and multi-agent patterns work step by step.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Agent Workflow Visualizer">
+  <meta property="og:description"
+    content="Interactive visualizer for AI agent workflows. Explore agent patterns step by step.">
+  <meta property="og:image" content="https://roodmp.github.io/assets/image/me_dog.png">
+  <meta property="og:url" content="https://roodmp.github.io/agent-workflow-visualizer.html">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Agent Workflow Visualizer">
+  <meta name="twitter:description"
+    content="Interactive visualizer for AI agent workflows. Explore agent patterns step by step.">
+
+  <link rel="icon" type="image/x-icon" href="favicon.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans/style.min.css" rel="stylesheet" />
+
+  <!-- Design System -->
+  <link rel="stylesheet" href="design-system.css" />
+
+  <!-- Icons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js"
+    integrity="sha512-7x3zila4t2qNycrtZ31HO0NnJr8kg2VI67YLoRSyi9hGhRN66FHYWr7Axa9Y1J9tGYHVBPqIjSE1ogHrJTz51g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+
+  <!-- Main JS -->
+  <script src="main.js" defer></script>
+
+  <style>
+    /* ── Layout ── */
+    .viz-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: var(--space-8) var(--space-6);
+      padding-bottom: var(--space-16);
+    }
+
+    .page-header {
+      margin-bottom: var(--space-8);
+    }
+
+    .page-header h1 {
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      margin-bottom: var(--space-2);
+    }
+
+    .page-header p {
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    /* ── Template Selector ── */
+    .template-selector {
+      margin-bottom: var(--space-6);
+    }
+
+    .template-selector label {
+      display: block;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--panda-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: var(--space-3);
+    }
+
+    .template-tabs {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    .template-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-4);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .template-tab:hover {
+      color: var(--text-primary);
+      border-color: var(--surface-border-accent);
+      background: var(--bg-hover);
+    }
+
+    .template-tab.active {
+      color: var(--text-primary);
+      border-color: var(--accent-500);
+      background: rgba(74, 103, 133, 0.12);
+    }
+
+    .template-tab svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ── Workflow Canvas ── */
+    .workflow-canvas {
+      position: relative;
+      min-height: 420px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-4);
+      overflow: hidden;
+    }
+
+    .workflow-canvas svg.edge-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .nodes-layer {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Node Styles ── */
+    .wf-node {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      background: var(--bg-elevated);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      min-width: 160px;
+      max-width: 220px;
+      user-select: none;
+    }
+
+    .wf-node:hover {
+      border-color: var(--surface-border-accent);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .wf-node:focus-visible {
+      outline: 2px solid var(--accent-400);
+      outline-offset: 2px;
+    }
+
+    .wf-node.active {
+      border-color: var(--panda-400);
+      box-shadow: 0 0 20px rgba(232, 132, 90, 0.25), 0 0 40px rgba(232, 132, 90, 0.1);
+    }
+
+    .wf-node.completed {
+      border-color: var(--success);
+      opacity: 0.85;
+    }
+
+    .wf-node.future {
+      opacity: 0.4;
+    }
+
+    .node-icon {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-md);
+      flex-shrink: 0;
+    }
+
+    .node-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .node-icon.blue { background: rgba(74, 103, 133, 0.2); color: var(--accent-300); }
+    .node-icon.orange { background: rgba(232, 132, 90, 0.2); color: var(--panda-300); }
+    .node-icon.green { background: rgba(124, 185, 126, 0.2); color: var(--success); }
+    .node-icon.yellow { background: rgba(212, 168, 87, 0.2); color: var(--warning); }
+    .node-icon.light { background: rgba(139, 167, 189, 0.15); color: var(--accent-200); }
+
+    .node-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .node-sublabel {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      margin-top: 1px;
+    }
+
+    /* ── SVG Edges ── */
+    .edge-path {
+      fill: none;
+      stroke: var(--surface-border);
+      stroke-width: 2;
+      transition: stroke 0.3s ease;
+    }
+
+    .edge-path.active {
+      stroke: var(--panda-400);
+      stroke-width: 2.5;
+    }
+
+    .edge-path.completed {
+      stroke: var(--success);
+    }
+
+    .edge-flow {
+      fill: none;
+      stroke: var(--panda-400);
+      stroke-width: 2.5;
+      stroke-dasharray: 8 6;
+      opacity: 0;
+    }
+
+    .edge-flow.active {
+      opacity: 1;
+      animation: dashFlow 0.8s linear infinite;
+    }
+
+    @keyframes dashFlow {
+      to { stroke-dashoffset: -14; }
+    }
+
+    .data-token {
+      r: 4;
+      fill: var(--panda-400);
+      opacity: 0;
+      filter: drop-shadow(0 0 4px rgba(232, 132, 90, 0.6));
+    }
+
+    .data-token.active {
+      opacity: 1;
+    }
+
+    /* ── Playback Controls ── */
+    .playback-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-6);
+    }
+
+    .playback-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .playback-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--surface-border-accent);
+      background: var(--bg-hover);
+    }
+
+    .playback-btn.primary {
+      background: var(--accent-500);
+      border-color: var(--accent-500);
+      color: white;
+    }
+
+    .playback-btn.primary:hover {
+      background: var(--accent-600);
+      box-shadow: var(--shadow-accent);
+    }
+
+    .playback-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 6px;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-500), var(--panda-400));
+      border-radius: var(--radius-full);
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+
+    .step-label {
+      font-size: var(--text-xs);
+      font-family: var(--font-mono);
+      color: var(--text-tertiary);
+      white-space: nowrap;
+      min-width: 52px;
+      text-align: center;
+    }
+
+    .speed-btn {
+      padding: var(--space-1) var(--space-2);
+      font-size: var(--text-xs);
+      font-family: var(--font-mono);
+      font-weight: 500;
+      color: var(--text-tertiary);
+      background: none;
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .speed-btn:hover,
+    .speed-btn.active {
+      color: var(--text-primary);
+      border-color: var(--accent-500);
+    }
+
+    /* ── Detail Panel ── */
+    .detail-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 380px;
+      height: 100%;
+      background: var(--bg-secondary);
+      border-left: 1px solid var(--surface-border);
+      z-index: 120;
+      transform: translateX(100%);
+      transition: transform var(--transition-slow);
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .detail-panel.open {
+      transform: translateX(0);
+    }
+
+    .detail-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-6);
+      border-bottom: 1px solid var(--surface-border);
+    }
+
+    .detail-panel-header h3 {
+      font-size: var(--text-lg);
+      margin: 0;
+    }
+
+    .detail-close {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-elevated);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .detail-close:hover {
+      color: var(--text-primary);
+      border-color: var(--surface-border-accent);
+    }
+
+    .detail-close svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .detail-body {
+      padding: var(--space-6);
+    }
+
+    .detail-node-type {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-1) var(--space-3);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      border-radius: var(--radius-full);
+      margin-bottom: var(--space-4);
+    }
+
+    .detail-section {
+      margin-bottom: var(--space-6);
+    }
+
+    .detail-section h4 {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .detail-section p {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .detail-example {
+      padding: var(--space-3) var(--space-4);
+      background: var(--bg-primary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--accent-300);
+      line-height: 1.6;
+      white-space: pre-wrap;
+      margin-top: var(--space-2);
+    }
+
+    /* ── Detail Panel Overlay ── */
+    .detail-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 110;
+      opacity: 0;
+      visibility: hidden;
+      transition: all var(--transition-slow);
+    }
+
+    .detail-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* ── Concepts Grid ── */
+    .concepts-section {
+      margin-top: var(--space-12);
+      padding-top: var(--space-8);
+      border-top: 1px solid var(--surface-border-subtle);
+    }
+
+    .concepts-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--panda-400);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: var(--space-2);
+    }
+
+    .concepts-title {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      margin-bottom: var(--space-6);
+    }
+
+    .concepts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4);
+    }
+
+    .concept-card {
+      padding: var(--space-5);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      transition: border-color var(--transition-fast);
+    }
+
+    .concept-card:hover {
+      border-color: var(--surface-border-accent);
+    }
+
+    .concept-icon {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(74, 103, 133, 0.12);
+      border-radius: var(--radius-md);
+      color: var(--accent-300);
+      margin-bottom: var(--space-3);
+    }
+
+    .concept-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .concept-card h4 {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      margin-bottom: var(--space-2);
+    }
+
+    .concept-card p {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .workflow-canvas {
+        min-height: 500px;
+      }
+
+      .wf-node {
+        min-width: 130px;
+        max-width: 170px;
+        padding: var(--space-2) var(--space-3);
+        gap: var(--space-2);
+      }
+
+      .node-icon {
+        width: 26px;
+        height: 26px;
+      }
+
+      .node-icon svg {
+        width: 13px;
+        height: 13px;
+      }
+
+      .node-label {
+        font-size: 10px;
+      }
+
+      .node-sublabel {
+        font-size: 9px;
+      }
+
+      .detail-panel {
+        width: 100%;
+      }
+
+      .concepts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .template-tabs {
+        gap: var(--space-1);
+      }
+
+      .template-tab {
+        font-size: var(--text-xs);
+        padding: var(--space-2) var(--space-3);
+      }
+
+      .playback-bar {
+        gap: var(--space-2);
+        padding: var(--space-2) var(--space-3);
+      }
+
+      .step-label {
+        min-width: 40px;
+        font-size: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .template-tab span.tab-text {
+        display: none;
+      }
+
+      .template-tab svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .playback-btn {
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    /* ── Reduced Motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      .edge-flow.active {
+        animation: none;
+        opacity: 0.6;
+      }
+
+      .wf-node,
+      .wf-node.active {
+        transition: none;
+        box-shadow: none;
+      }
+
+      .wf-node.active {
+        border-color: var(--panda-400);
+        outline: 2px solid var(--panda-400);
+        outline-offset: 2px;
+      }
+
+      .data-token {
+        display: none;
+      }
+
+      .detail-panel {
+        transition: none;
+      }
+
+      .progress-fill {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Skip link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Geometric Background -->
+  <div class="geo-bg"></div>
+
+  <!-- Floating Navigation -->
+  <header class="floating-header">
+    <nav class="floating-nav">
+      <a href="about.html" class="nav-logo">
+        <img src="favicon.png" alt="Mark Rood" />
+      </a>
+      <div class="nav-links">
+        <a href="about.html" class="nav-link">About</a>
+        <a href="index.html" class="nav-link">Resum&eacute;</a>
+        <a href="resources.html" class="nav-link">Resources</a>
+      </div>
+      <button class="mobile-menu-btn" aria-label="Open menu">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu">
+    <button class="mobile-menu-close" aria-label="Close menu">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+    <a href="about.html" class="nav-link">About</a>
+    <a href="index.html" class="nav-link">Resum&eacute;</a>
+    <a href="resources.html" class="nav-link">Resources</a>
+  </div>
+
+  <!-- Spacer -->
+  <div style="height: 80px;"></div>
+
+  <!-- Detail Panel Overlay -->
+  <div class="detail-overlay" id="detail-overlay"></div>
+
+  <!-- Detail Panel -->
+  <div class="detail-panel" id="detail-panel" role="complementary" aria-label="Node details">
+    <div class="detail-panel-header">
+      <h3 id="detail-title">Node Details</h3>
+      <button class="detail-close" id="detail-close" aria-label="Close details">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="detail-body" id="detail-body"></div>
+  </div>
+
+  <!-- Main Content -->
+  <main id="main-content" class="viz-container">
+    <div class="page-header">
+      <h1>Agent Workflow Visualizer</h1>
+      <p>Explore how AI agent workflows operate, step by step. Select a pattern and press play.</p>
+    </div>
+
+    <!-- Template Selector -->
+    <div class="template-selector">
+      <label>Workflow Pattern</label>
+      <div class="template-tabs" id="template-tabs" role="tablist"></div>
+    </div>
+
+    <!-- Workflow Canvas -->
+    <div class="workflow-canvas" id="workflow-canvas" role="img" aria-label="Workflow visualization">
+      <svg class="edge-layer" id="edge-layer"></svg>
+      <div class="nodes-layer" id="nodes-layer"></div>
+    </div>
+
+    <!-- Playback Controls -->
+    <div class="playback-bar" role="toolbar" aria-label="Playback controls">
+      <button class="playback-btn" id="btn-step-back" aria-label="Step back" title="Step back">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      <button class="playback-btn primary" id="btn-play" aria-label="Play" title="Play / Pause (Space)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" id="play-icon">
+          <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" stroke="none"></polygon>
+        </svg>
+      </button>
+      <button class="playback-btn" id="btn-step-fwd" aria-label="Step forward" title="Step forward">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+      <div class="progress-track" id="progress-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <span class="step-label" id="step-label">0 / 0</span>
+      <button class="speed-btn" id="speed-btn" title="Playback speed">1x</button>
+    </div>
+
+    <!-- Concepts Grid -->
+    <div class="concepts-section">
+      <div class="concepts-label">Key Concepts</div>
+      <h2 class="concepts-title">How Agents Work</h2>
+      <div class="concepts-grid" id="concepts-grid"></div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer" style="position: relative; z-index: 1;">
+    <div class="footer-mark"></div>
+    <p class="text-sm text-tertiary" style="margin: 0;">Built by Mark Rood</p>
+  </footer>
+
+  <script>
+    // ═══════════════════════════════════════════════
+    //  NODE TYPES
+    // ═══════════════════════════════════════════════
+    const NODE_TYPES = {
+      userInput: {
+        label: 'User Input',
+        icon: 'message-circle',
+        color: 'blue',
+        description: 'The starting point of any agent workflow. A user submits a question, instruction, or task that the agent needs to handle.',
+        realWorld: 'A developer asks: "Find all TODO comments in the codebase and create GitHub issues for each one."',
+        keyIdea: 'Good agent design starts with understanding user intent. The input is parsed, and context (conversation history, system prompt, available tools) is assembled before reasoning begins.'
+      },
+      reasoning: {
+        label: 'Reasoning',
+        icon: 'cpu',
+        color: 'orange',
+        description: 'The agent\'s "thinking" step. The LLM analyzes the input, breaks down the task, and decides what actions to take. This is chain-of-thought in action.',
+        realWorld: 'The agent thinks: "I need to search for TODO comments, then for each one, extract the description and file location, then call the GitHub API to create issues."',
+        keyIdea: 'Reasoning is where the model plans its approach. More capable models produce better plans. Extended thinking or chain-of-thought prompting can improve reasoning quality.'
+      },
+      toolCall: {
+        label: 'Tool Call',
+        icon: 'terminal',
+        color: 'blue',
+        description: 'The agent invokes an external tool - a function, API, database query, or system command. This is how agents interact with the outside world.',
+        realWorld: 'The agent calls grep to search for TODO patterns across the codebase, or calls the GitHub API to create an issue.',
+        keyIdea: 'Tools extend the agent beyond text generation. Well-defined tool schemas help the model understand what parameters are needed and what results to expect.'
+      },
+      toolResult: {
+        label: 'Tool Result',
+        icon: 'file-text',
+        color: 'green',
+        description: 'Data returned from a tool call. The agent processes this result and decides whether more actions are needed or if it can formulate a response.',
+        realWorld: 'The grep tool returns 15 TODO comments with file paths and line numbers. The agent processes these results to determine next steps.',
+        keyIdea: 'Results flow back into the agent\'s context. The model evaluates whether the result is sufficient, needs refinement, or requires additional tool calls.'
+      },
+      condition: {
+        label: 'Router',
+        icon: 'git-branch',
+        color: 'yellow',
+        description: 'A decision point where the agent evaluates conditions and routes the workflow down different paths based on the input or intermediate results.',
+        realWorld: 'The agent classifies the user request: Is this a code question? A data analysis task? A creative writing request? Each type routes to a specialized handler.',
+        keyIdea: 'Routing enables specialization. Instead of one model handling everything, routers direct tasks to the best-suited sub-workflow or specialized prompt.'
+      },
+      humanReview: {
+        label: 'Human Review',
+        icon: 'user-check',
+        color: 'orange',
+        description: 'A checkpoint where the workflow pauses for human approval. Critical for high-stakes actions like deploying code, sending emails, or modifying production data.',
+        realWorld: 'Before merging a PR, the agent presents its proposed code changes and waits for the developer to approve, request changes, or reject.',
+        keyIdea: 'Human-in-the-loop patterns balance automation with oversight. They\'re essential for building trust and preventing costly mistakes in production systems.'
+      },
+      response: {
+        label: 'Response',
+        icon: 'send',
+        color: 'green',
+        description: 'The final output delivered to the user. The agent synthesizes all gathered information and reasoning into a clear, actionable response.',
+        realWorld: 'The agent responds: "I created 15 GitHub issues for the TODO comments found across 8 files. Here\'s a summary with links to each issue."',
+        keyIdea: 'Good responses are structured, cite sources, and clearly communicate what was done. The best agents also suggest follow-up actions.'
+      },
+      subAgent: {
+        label: 'Sub-Agent',
+        icon: 'box',
+        color: 'light',
+        description: 'A specialized agent that handles a delegated sub-task. The orchestrator breaks complex tasks into pieces and dispatches them to focused agents.',
+        realWorld: 'A "research agent" gathers information while a "writing agent" drafts content and a "review agent" checks for accuracy - all coordinated by an orchestrator.',
+        keyIdea: 'Multi-agent systems decompose complexity. Each sub-agent can have its own tools, system prompt, and context window, enabling deeper specialization.'
+      }
+    };
+
+    // ═══════════════════════════════════════════════
+    //  WORKFLOW TEMPLATES
+    // ═══════════════════════════════════════════════
+    const WORKFLOWS = {
+      sequential: {
+        name: 'Sequential Chain',
+        icon: 'arrow-right',
+        description: 'Simple question-answering with tool use. The most common agent pattern.',
+        nodes: [
+          { id: 'input', type: 'userInput', label: 'User asks question', sublabel: '"What\'s the weather in NYC?"', x: 50, y: 40, step: 1 },
+          { id: 'reason1', type: 'reasoning', label: 'Analyze request', sublabel: 'Parse intent & params', x: 50, y: 130, step: 2 },
+          { id: 'tool1', type: 'toolCall', label: 'Call weather API', sublabel: 'get_weather("NYC")', x: 50, y: 220, step: 3 },
+          { id: 'result1', type: 'toolResult', label: 'API response', sublabel: '72\u00b0F, Partly Cloudy', x: 50, y: 310, step: 4 },
+          { id: 'reason2', type: 'reasoning', label: 'Format answer', sublabel: 'Synthesize response', x: 50, y: 400, step: 5 },
+          { id: 'output', type: 'response', label: 'Deliver response', sublabel: 'Natural language answer', x: 50, y: 490, step: 6 }
+        ],
+        edges: [
+          { from: 'input', to: 'reason1', step: 2 },
+          { from: 'reason1', to: 'tool1', step: 3 },
+          { from: 'tool1', to: 'result1', step: 4 },
+          { from: 'result1', to: 'reason2', step: 5 },
+          { from: 'reason2', to: 'output', step: 6 }
+        ]
+      },
+      parallel: {
+        name: 'Parallel Tool Calls',
+        icon: 'layers',
+        description: 'Research task that dispatches multiple tool calls simultaneously for faster results.',
+        nodes: [
+          { id: 'input', type: 'userInput', label: 'Research request', sublabel: '"Compare React vs Vue"', x: 200, y: 30, step: 1 },
+          { id: 'reason1', type: 'reasoning', label: 'Plan research', sublabel: 'Identify data sources', x: 200, y: 115, step: 2 },
+          { id: 'tool1', type: 'toolCall', label: 'Search docs', sublabel: 'search("React features")', x: 30, y: 200, step: 3 },
+          { id: 'tool2', type: 'toolCall', label: 'Search docs', sublabel: 'search("Vue features")', x: 200, y: 200, step: 3 },
+          { id: 'tool3', type: 'toolCall', label: 'Search benchmarks', sublabel: 'search("benchmarks")', x: 370, y: 200, step: 3 },
+          { id: 'res1', type: 'toolResult', label: 'React data', sublabel: 'JSX, hooks, ecosystem', x: 30, y: 290, step: 4 },
+          { id: 'res2', type: 'toolResult', label: 'Vue data', sublabel: 'SFC, composition API', x: 200, y: 290, step: 4 },
+          { id: 'res3', type: 'toolResult', label: 'Perf data', sublabel: 'Bundle size, speed', x: 370, y: 290, step: 4 },
+          { id: 'reason2', type: 'reasoning', label: 'Synthesize findings', sublabel: 'Compare & contrast', x: 200, y: 380, step: 5 },
+          { id: 'output', type: 'response', label: 'Comparison report', sublabel: 'Structured analysis', x: 200, y: 465, step: 6 }
+        ],
+        edges: [
+          { from: 'input', to: 'reason1', step: 2 },
+          { from: 'reason1', to: 'tool1', step: 3 },
+          { from: 'reason1', to: 'tool2', step: 3 },
+          { from: 'reason1', to: 'tool3', step: 3 },
+          { from: 'tool1', to: 'res1', step: 4 },
+          { from: 'tool2', to: 'res2', step: 4 },
+          { from: 'tool3', to: 'res3', step: 4 },
+          { from: 'res1', to: 'reason2', step: 5 },
+          { from: 'res2', to: 'reason2', step: 5 },
+          { from: 'res3', to: 'reason2', step: 5 },
+          { from: 'reason2', to: 'output', step: 6 }
+        ]
+      },
+      router: {
+        name: 'Router / Branching',
+        icon: 'git-branch',
+        description: 'Task classification that routes to specialized handling paths.',
+        nodes: [
+          { id: 'input', type: 'userInput', label: 'Incoming request', sublabel: 'Any user message', x: 200, y: 30, step: 1 },
+          { id: 'classify', type: 'reasoning', label: 'Classify intent', sublabel: 'Determine task type', x: 200, y: 115, step: 2 },
+          { id: 'router', type: 'condition', label: 'Route by type', sublabel: 'code / data / general', x: 200, y: 200, step: 3 },
+          { id: 'code_tool', type: 'toolCall', label: 'Code search', sublabel: 'grep, read files', x: 30, y: 300, step: 4 },
+          { id: 'data_tool', type: 'toolCall', label: 'Query database', sublabel: 'SQL / analytics', x: 200, y: 300, step: 4 },
+          { id: 'gen_reason', type: 'reasoning', label: 'General reasoning', sublabel: 'Use knowledge', x: 370, y: 300, step: 4 },
+          { id: 'code_res', type: 'toolResult', label: 'Code results', sublabel: 'Matching files', x: 30, y: 390, step: 5 },
+          { id: 'data_res', type: 'toolResult', label: 'Query results', sublabel: 'Data rows', x: 200, y: 390, step: 5 },
+          { id: 'output', type: 'response', label: 'Tailored response', sublabel: 'Domain-specific answer', x: 200, y: 480, step: 6 }
+        ],
+        edges: [
+          { from: 'input', to: 'classify', step: 2 },
+          { from: 'classify', to: 'router', step: 3 },
+          { from: 'router', to: 'code_tool', step: 4, label: 'code' },
+          { from: 'router', to: 'data_tool', step: 4, label: 'data' },
+          { from: 'router', to: 'gen_reason', step: 4, label: 'general' },
+          { from: 'code_tool', to: 'code_res', step: 5 },
+          { from: 'data_tool', to: 'data_res', step: 5 },
+          { from: 'code_res', to: 'output', step: 6 },
+          { from: 'data_res', to: 'output', step: 6 },
+          { from: 'gen_reason', to: 'output', step: 6 }
+        ]
+      },
+      humanLoop: {
+        name: 'Human-in-the-Loop',
+        icon: 'user-check',
+        description: 'Code review workflow with approval checkpoint before executing changes.',
+        nodes: [
+          { id: 'input', type: 'userInput', label: 'Request changes', sublabel: '"Refactor auth module"', x: 50, y: 30, step: 1 },
+          { id: 'reason1', type: 'reasoning', label: 'Plan refactor', sublabel: 'Identify changes needed', x: 50, y: 115, step: 2 },
+          { id: 'tool1', type: 'toolCall', label: 'Read source files', sublabel: 'Analyze current code', x: 50, y: 200, step: 3 },
+          { id: 'result1', type: 'toolResult', label: 'Source code', sublabel: 'auth.js, middleware.js', x: 50, y: 285, step: 4 },
+          { id: 'reason2', type: 'reasoning', label: 'Draft changes', sublabel: 'Generate proposed edits', x: 50, y: 370, step: 5 },
+          { id: 'review', type: 'humanReview', label: 'Review changes', sublabel: 'Approve or request edits', x: 50, y: 455, step: 6 },
+          { id: 'tool2', type: 'toolCall', label: 'Apply changes', sublabel: 'Write updated files', x: 50, y: 540, step: 7 },
+          { id: 'output', type: 'response', label: 'Changes applied', sublabel: 'Summary of edits', x: 50, y: 625, step: 8 }
+        ],
+        edges: [
+          { from: 'input', to: 'reason1', step: 2 },
+          { from: 'reason1', to: 'tool1', step: 3 },
+          { from: 'tool1', to: 'result1', step: 4 },
+          { from: 'result1', to: 'reason2', step: 5 },
+          { from: 'reason2', to: 'review', step: 6 },
+          { from: 'review', to: 'tool2', step: 7 },
+          { from: 'tool2', to: 'output', step: 8 }
+        ]
+      },
+      multiAgent: {
+        name: 'Multi-Agent',
+        icon: 'box',
+        description: 'Orchestrator delegates sub-tasks to specialized agents working in parallel.',
+        nodes: [
+          { id: 'input', type: 'userInput', label: 'Complex task', sublabel: '"Build a landing page"', x: 200, y: 25, step: 1 },
+          { id: 'orch', type: 'reasoning', label: 'Orchestrator', sublabel: 'Decompose & delegate', x: 200, y: 110, step: 2 },
+          { id: 'agent1', type: 'subAgent', label: 'Design Agent', sublabel: 'Layout & styling', x: 30, y: 210, step: 3 },
+          { id: 'agent2', type: 'subAgent', label: 'Content Agent', sublabel: 'Copy & messaging', x: 200, y: 210, step: 3 },
+          { id: 'agent3', type: 'subAgent', label: 'Code Agent', sublabel: 'Implementation', x: 370, y: 210, step: 3 },
+          { id: 'res1', type: 'toolResult', label: 'Design specs', sublabel: 'Wireframes, colors', x: 30, y: 310, step: 4 },
+          { id: 'res2', type: 'toolResult', label: 'Content draft', sublabel: 'Headlines, body text', x: 200, y: 310, step: 4 },
+          { id: 'res3', type: 'toolResult', label: 'Code output', sublabel: 'HTML, CSS, JS', x: 370, y: 310, step: 4 },
+          { id: 'merge', type: 'reasoning', label: 'Merge & review', sublabel: 'Combine deliverables', x: 200, y: 400, step: 5 },
+          { id: 'review', type: 'humanReview', label: 'Final review', sublabel: 'Approve result', x: 200, y: 485, step: 6 },
+          { id: 'output', type: 'response', label: 'Deliver page', sublabel: 'Complete landing page', x: 200, y: 570, step: 7 }
+        ],
+        edges: [
+          { from: 'input', to: 'orch', step: 2 },
+          { from: 'orch', to: 'agent1', step: 3 },
+          { from: 'orch', to: 'agent2', step: 3 },
+          { from: 'orch', to: 'agent3', step: 3 },
+          { from: 'agent1', to: 'res1', step: 4 },
+          { from: 'agent2', to: 'res2', step: 4 },
+          { from: 'agent3', to: 'res3', step: 4 },
+          { from: 'res1', to: 'merge', step: 5 },
+          { from: 'res2', to: 'merge', step: 5 },
+          { from: 'res3', to: 'merge', step: 5 },
+          { from: 'merge', to: 'review', step: 6 },
+          { from: 'review', to: 'output', step: 7 }
+        ]
+      }
+    };
+
+    // ═══════════════════════════════════════════════
+    //  CONCEPTS DATA
+    // ═══════════════════════════════════════════════
+    const CONCEPTS = [
+      { icon: 'cpu', title: 'Chain of Thought', desc: 'Agents reason step-by-step before acting. This mirrors how humans break down complex problems into manageable pieces.' },
+      { icon: 'tool', title: 'Tool Use', desc: 'Agents extend their capabilities by calling external tools - APIs, databases, file systems, or any function you define.' },
+      { icon: 'repeat', title: 'Agentic Loop', desc: 'The observe-think-act cycle. Agents iterate: call a tool, evaluate the result, decide the next action, repeat until done.' },
+      { icon: 'git-branch', title: 'Routing', desc: 'Classifying inputs and directing them to specialized handlers. This enables efficient, targeted processing of diverse requests.' },
+      { icon: 'user-check', title: 'Human-in-the-Loop', desc: 'Strategic checkpoints where humans approve, modify, or reject agent actions. Essential for high-stakes or irreversible operations.' },
+      { icon: 'layers', title: 'Multi-Agent Systems', desc: 'Complex tasks decomposed across specialized agents. An orchestrator coordinates, while sub-agents focus on what they do best.' }
+    ];
+
+    // ═══════════════════════════════════════════════
+    //  STATE
+    // ═══════════════════════════════════════════════
+    let currentWorkflow = 'sequential';
+    let currentStep = 0;
+    let maxStep = 0;
+    let isPlaying = false;
+    let playInterval = null;
+    let playSpeed = 1;
+    const SPEEDS = [0.5, 1, 2];
+
+    // ═══════════════════════════════════════════════
+    //  DOM REFS
+    // ═══════════════════════════════════════════════
+    const templateTabs = document.getElementById('template-tabs');
+    const canvas = document.getElementById('workflow-canvas');
+    const edgeLayer = document.getElementById('edge-layer');
+    const nodesLayer = document.getElementById('nodes-layer');
+    const btnStepBack = document.getElementById('btn-step-back');
+    const btnPlay = document.getElementById('btn-play');
+    const btnStepFwd = document.getElementById('btn-step-fwd');
+    const progressTrack = document.getElementById('progress-track');
+    const progressFill = document.getElementById('progress-fill');
+    const stepLabel = document.getElementById('step-label');
+    const speedBtn = document.getElementById('speed-btn');
+    const playIcon = document.getElementById('play-icon');
+    const detailPanel = document.getElementById('detail-panel');
+    const detailOverlay = document.getElementById('detail-overlay');
+    const detailClose = document.getElementById('detail-close');
+    const detailTitle = document.getElementById('detail-title');
+    const detailBody = document.getElementById('detail-body');
+    const conceptsGrid = document.getElementById('concepts-grid');
+
+    // ═══════════════════════════════════════════════
+    //  FEATHER ICON HELPER
+    // ═══════════════════════════════════════════════
+    function getIconSVG(name) {
+      if (typeof feather !== 'undefined' && feather.icons[name]) {
+        return feather.icons[name].toSvg({ width: 16, height: 16 });
+      }
+      // Fallback: simple circle
+      return '<svg width="16" height="16" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+    }
+
+    // ═══════════════════════════════════════════════
+    //  TEMPLATE TABS
+    // ═══════════════════════════════════════════════
+    function renderTemplateTabs() {
+      templateTabs.innerHTML = '';
+      Object.entries(WORKFLOWS).forEach(([key, wf]) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'template-tab' + (key === currentWorkflow ? ' active' : '');
+        btn.setAttribute('role', 'tab');
+        btn.setAttribute('aria-selected', key === currentWorkflow);
+        btn.innerHTML = getIconSVG(wf.icon) + '<span class="tab-text">' + wf.name + '</span>';
+        btn.addEventListener('click', () => switchWorkflow(key));
+        templateTabs.appendChild(btn);
+      });
+    }
+
+    // ═══════════════════════════════════════════════
+    //  RENDER WORKFLOW
+    // ═══════════════════════════════════════════════
+    function renderWorkflow(key) {
+      const wf = WORKFLOWS[key];
+      if (!wf) return;
+
+      // Clear
+      nodesLayer.innerHTML = '';
+      edgeLayer.innerHTML = '';
+
+      // Calculate canvas dimensions from node positions
+      let maxX = 0, maxY = 0;
+      wf.nodes.forEach(n => {
+        const nodeRight = n.x + 220;
+        const nodeBottom = n.y + 70;
+        if (nodeRight > maxX) maxX = nodeRight;
+        if (nodeBottom > maxY) maxY = nodeBottom;
+      });
+      const canvasH = maxY + 40;
+      canvas.style.minHeight = canvasH + 'px';
+      edgeLayer.setAttribute('viewBox', '0 0 ' + canvas.offsetWidth + ' ' + canvasH);
+      edgeLayer.style.height = canvasH + 'px';
+
+      // Render nodes
+      wf.nodes.forEach(n => {
+        const nt = NODE_TYPES[n.type];
+        const div = document.createElement('div');
+        div.className = 'wf-node future';
+        div.setAttribute('tabindex', '0');
+        div.setAttribute('role', 'button');
+        div.setAttribute('aria-label', nt.label + ': ' + n.label);
+        div.dataset.nodeId = n.id;
+        div.dataset.nodeType = n.type;
+        div.dataset.step = n.step;
+
+        // Position - use percentage-based x for responsiveness
+        div.style.left = n.x + 'px';
+        div.style.top = n.y + 'px';
+
+        div.innerHTML = `
+          <div class="node-icon ${nt.color}">${getIconSVG(nt.icon)}</div>
+          <div>
+            <div class="node-label">${n.label}</div>
+            ${n.sublabel ? '<div class="node-sublabel">' + n.sublabel + '</div>' : ''}
+          </div>
+        `;
+
+        div.addEventListener('click', () => openDetail(n, nt));
+        div.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openDetail(n, nt);
+          }
+        });
+
+        nodesLayer.appendChild(div);
+      });
+
+      // Render edges after a frame so nodes have layout
+      requestAnimationFrame(() => {
+        const cw = canvas.offsetWidth;
+        const ch = canvasH;
+        edgeLayer.setAttribute('viewBox', '0 0 ' + cw + ' ' + ch);
+
+        wf.edges.forEach(e => {
+          const fromNode = nodesLayer.querySelector(`[data-node-id="${e.from}"]`);
+          const toNode = nodesLayer.querySelector(`[data-node-id="${e.to}"]`);
+          if (!fromNode || !toNode) return;
+
+          const fromRect = fromNode.getBoundingClientRect();
+          const toRect = toNode.getBoundingClientRect();
+          const canvasRect = canvas.getBoundingClientRect();
+
+          const x1 = fromRect.left - canvasRect.left + fromRect.width / 2;
+          const y1 = fromRect.top - canvasRect.top + fromRect.height;
+          const x2 = toRect.left - canvasRect.left + toRect.width / 2;
+          const y2 = toRect.top - canvasRect.top;
+
+          const midY = (y1 + y2) / 2;
+          const d = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
+
+          // Background path
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', d);
+          path.setAttribute('class', 'edge-path');
+          path.dataset.step = e.step;
+          path.dataset.from = e.from;
+          path.dataset.to = e.to;
+          edgeLayer.appendChild(path);
+
+          // Animated flow path
+          const flow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          flow.setAttribute('d', d);
+          flow.setAttribute('class', 'edge-flow');
+          flow.dataset.step = e.step;
+          edgeLayer.appendChild(flow);
+
+          // Data token
+          const token = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          token.setAttribute('class', 'data-token');
+          token.setAttribute('r', '4');
+          token.dataset.step = e.step;
+          token.dataset.pathD = d;
+          edgeLayer.appendChild(token);
+        });
+
+        // Set max step
+        maxStep = Math.max(...wf.nodes.map(n => n.step));
+        updateStepDisplay();
+      });
+    }
+
+    // ═══════════════════════════════════════════════
+    //  ANIMATION STATE
+    // ═══════════════════════════════════════════════
+    function updateStepDisplay() {
+      stepLabel.textContent = currentStep + ' / ' + maxStep;
+      const pct = maxStep > 0 ? (currentStep / maxStep) * 100 : 0;
+      progressFill.style.width = pct + '%';
+      progressTrack.setAttribute('aria-valuenow', Math.round(pct));
+
+      // Update nodes
+      nodesLayer.querySelectorAll('.wf-node').forEach(node => {
+        const s = parseInt(node.dataset.step);
+        node.classList.remove('active', 'completed', 'future');
+        if (s < currentStep) node.classList.add('completed');
+        else if (s === currentStep) node.classList.add('active');
+        else node.classList.add('future');
+      });
+
+      // Update edges
+      edgeLayer.querySelectorAll('.edge-path').forEach(path => {
+        const s = parseInt(path.dataset.step);
+        path.classList.remove('active', 'completed');
+        if (s < currentStep) path.classList.add('completed');
+        else if (s === currentStep) path.classList.add('active');
+      });
+
+      edgeLayer.querySelectorAll('.edge-flow').forEach(flow => {
+        const s = parseInt(flow.dataset.step);
+        flow.classList.remove('active');
+        if (s === currentStep) flow.classList.add('active');
+      });
+
+      // Animate data tokens
+      animateTokens();
+    }
+
+    function animateTokens() {
+      edgeLayer.querySelectorAll('.data-token').forEach(token => {
+        const s = parseInt(token.dataset.step);
+        token.classList.remove('active');
+        if (s !== currentStep) return;
+
+        token.classList.add('active');
+        const d = token.dataset.pathD;
+        if (!d) return;
+
+        // Create temp path for getPointAtLength
+        const tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        tempPath.setAttribute('d', d);
+        edgeLayer.appendChild(tempPath);
+        const totalLen = tempPath.getTotalLength();
+        edgeLayer.removeChild(tempPath);
+
+        // Animate token along the path
+        const duration = 800 / playSpeed;
+        const start = performance.now();
+
+        function step(now) {
+          if (!token.classList.contains('active')) return;
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          const point = getPointOnPath(d, progress, totalLen);
+          token.setAttribute('cx', point.x);
+          token.setAttribute('cy', point.y);
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      });
+    }
+
+    function getPointOnPath(d, t, totalLen) {
+      const tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      tempPath.setAttribute('d', d);
+      edgeLayer.appendChild(tempPath);
+      const len = totalLen || tempPath.getTotalLength();
+      const point = tempPath.getPointAtLength(t * len);
+      edgeLayer.removeChild(tempPath);
+      return point;
+    }
+
+    // ═══════════════════════════════════════════════
+    //  PLAYBACK CONTROLS
+    // ═══════════════════════════════════════════════
+    function stepForward() {
+      if (currentStep < maxStep) {
+        currentStep++;
+        updateStepDisplay();
+      } else {
+        stopPlayback();
+      }
+    }
+
+    function stepBack() {
+      if (currentStep > 0) {
+        currentStep--;
+        updateStepDisplay();
+      }
+    }
+
+    function togglePlay() {
+      if (isPlaying) {
+        stopPlayback();
+      } else {
+        startPlayback();
+      }
+    }
+
+    function startPlayback() {
+      if (currentStep >= maxStep) currentStep = 0;
+      isPlaying = true;
+      updatePlayIcon();
+      playInterval = setInterval(() => {
+        if (currentStep < maxStep) {
+          currentStep++;
+          updateStepDisplay();
+        } else {
+          stopPlayback();
+        }
+      }, 1500 / playSpeed);
+    }
+
+    function stopPlayback() {
+      isPlaying = false;
+      updatePlayIcon();
+      if (playInterval) {
+        clearInterval(playInterval);
+        playInterval = null;
+      }
+    }
+
+    function updatePlayIcon() {
+      if (isPlaying) {
+        playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16" fill="currentColor" stroke="none"/><rect x="14" y="4" width="4" height="16" fill="currentColor" stroke="none"/>';
+        btnPlay.setAttribute('aria-label', 'Pause');
+      } else {
+        playIcon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3" fill="currentColor" stroke="none"></polygon>';
+        btnPlay.setAttribute('aria-label', 'Play');
+      }
+    }
+
+    function cycleSpeed() {
+      const idx = SPEEDS.indexOf(playSpeed);
+      playSpeed = SPEEDS[(idx + 1) % SPEEDS.length];
+      speedBtn.textContent = playSpeed + 'x';
+      if (isPlaying) {
+        stopPlayback();
+        startPlayback();
+      }
+    }
+
+    // ═══════════════════════════════════════════════
+    //  WORKFLOW SWITCHING
+    // ═══════════════════════════════════════════════
+    function switchWorkflow(key) {
+      stopPlayback();
+      currentWorkflow = key;
+      currentStep = 0;
+      renderTemplateTabs();
+      renderWorkflow(key);
+    }
+
+    // ═══════════════════════════════════════════════
+    //  DETAIL PANEL
+    // ═══════════════════════════════════════════════
+    function openDetail(node, nodeType) {
+      detailTitle.textContent = node.label;
+
+      const colorMap = { blue: 'rgba(74,103,133,0.15)', orange: 'rgba(232,132,90,0.15)', green: 'rgba(124,185,126,0.15)', yellow: 'rgba(212,168,87,0.15)', light: 'rgba(139,167,189,0.1)' };
+      const textColorMap = { blue: 'var(--accent-300)', orange: 'var(--panda-300)', green: 'var(--success)', yellow: 'var(--warning)', light: 'var(--accent-200)' };
+
+      detailBody.innerHTML = `
+        <div class="detail-node-type" style="background: ${colorMap[nodeType.color]}; color: ${textColorMap[nodeType.color]};">
+          ${getIconSVG(nodeType.icon)} ${nodeType.label}
+        </div>
+
+        <div class="detail-section">
+          <h4>What it does</h4>
+          <p>${nodeType.description}</p>
+        </div>
+
+        <div class="detail-section">
+          <h4>Real-world example</h4>
+          <div class="detail-example">${nodeType.realWorld}</div>
+        </div>
+
+        <div class="detail-section">
+          <h4>Key insight</h4>
+          <p>${nodeType.keyIdea}</p>
+        </div>
+      `;
+
+      detailPanel.classList.add('open');
+      detailOverlay.classList.add('open');
+    }
+
+    function closeDetail() {
+      detailPanel.classList.remove('open');
+      detailOverlay.classList.remove('open');
+    }
+
+    // ═══════════════════════════════════════════════
+    //  CONCEPTS GRID
+    // ═══════════════════════════════════════════════
+    function renderConcepts() {
+      conceptsGrid.innerHTML = '';
+      CONCEPTS.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'concept-card';
+        card.innerHTML = `
+          <div class="concept-icon">${getIconSVG(c.icon)}</div>
+          <h4>${c.title}</h4>
+          <p>${c.desc}</p>
+        `;
+        conceptsGrid.appendChild(card);
+      });
+    }
+
+    // ═══════════════════════════════════════════════
+    //  PROGRESS BAR CLICK
+    // ═══════════════════════════════════════════════
+    progressTrack.addEventListener('click', (e) => {
+      const rect = progressTrack.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      currentStep = Math.round(pct * maxStep);
+      if (currentStep < 0) currentStep = 0;
+      if (currentStep > maxStep) currentStep = maxStep;
+      updateStepDisplay();
+    });
+
+    // ═══════════════════════════════════════════════
+    //  EVENT LISTENERS
+    // ═══════════════════════════════════════════════
+    btnPlay.addEventListener('click', togglePlay);
+    btnStepFwd.addEventListener('click', stepForward);
+    btnStepBack.addEventListener('click', stepBack);
+    speedBtn.addEventListener('click', cycleSpeed);
+    detailClose.addEventListener('click', closeDetail);
+    detailOverlay.addEventListener('click', closeDetail);
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Don't intercept if user is typing in an input
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      if (e.key === ' ' && !e.target.closest('.wf-node')) {
+        e.preventDefault();
+        togglePlay();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        stepForward();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        stepBack();
+      } else if (e.key === 'Escape') {
+        closeDetail();
+      }
+    });
+
+    // Resize handler
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        renderWorkflow(currentWorkflow);
+        updateStepDisplay();
+      }, 200);
+    });
+
+    // ═══════════════════════════════════════════════
+    //  INIT
+    // ═══════════════════════════════════════════════
+    renderTemplateTabs();
+    renderConcepts();
+
+    // Wait for feather icons to load, then render
+    function initWorkflow() {
+      renderWorkflow(currentWorkflow);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => setTimeout(initWorkflow, 100));
+    } else {
+      setTimeout(initWorkflow, 100);
+    }
+  </script>
+</body>
+
+</html>

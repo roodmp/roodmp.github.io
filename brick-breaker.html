@@ -450,7 +450,7 @@
 
         // Balls array
         let balls = [];
-        let baseBallSpeed = 5;
+        let baseBallSpeed = 3.75;
 
         function createBall(x, y, dx, dy) {
             return {
@@ -624,7 +624,7 @@
             score = 0;
             lives = 3;
             level = 1;
-            baseBallSpeed = 5;
+            baseBallSpeed = 3.75;
             frameCount = 0;
             clearPowerupState();
             initLevel();
@@ -635,7 +635,7 @@
         function nextLevel() {
             const carryoverBallCount = Math.max(1, balls.length);
             level++;
-            baseBallSpeed = 5 + Math.floor(level / 2) * 0.5;
+            baseBallSpeed = 3.75 + Math.floor(level / 2) * 0.375;
             // Powerups carry over — only clear projectiles and in-flight capsule
             fallingCapsule = null;
             lasers = [];
