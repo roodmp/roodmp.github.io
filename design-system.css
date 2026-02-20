@@ -441,6 +441,98 @@ a:hover {
 }
 
 
+/* === BOTTOM TAB BAR (Mobile) === */
+.bottom-tab-bar {
+    display: none;
+}
+
+@media (max-width: 640px) {
+    .bottom-tab-bar {
+        display: flex;
+        position: fixed;
+        bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        justify-content: space-around;
+        align-items: center;
+        height: 52px;
+        max-width: fit-content;
+        gap: var(--space-1);
+        padding: var(--space-2) var(--space-5);
+        background: rgba(46, 46, 43, 0.95);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--surface-border);
+        border-radius: var(--radius-full);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .tab-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        padding: var(--space-2) var(--space-4);
+        color: var(--text-secondary);
+        text-decoration: none;
+        border-radius: var(--radius-full);
+        transition: all var(--transition-fast);
+    }
+
+    .tab-item:hover {
+        color: var(--text-primary);
+        background: var(--bg-hover);
+    }
+
+    .tab-item svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .tab-label {
+        position: relative;
+        font-size: var(--text-sm);
+        font-weight: 500;
+    }
+
+    .tab-item.active {
+        color: var(--text-primary);
+    }
+
+    .tab-item.active .tab-label::after {
+        content: '';
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        background: var(--panda-400);
+        border-radius: 50%;
+    }
+
+    /* Hide top nav and mobile menu overlay on mobile */
+    .floating-header {
+        display: none;
+    }
+
+    .mobile-menu {
+        display: none !important;
+    }
+
+    /* Content clears tab bar */
+    body {
+        padding-bottom: calc(52px + var(--space-4) + var(--space-4) + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Hide nav spacer on mobile */
+    .nav-spacer {
+        display: none;
+    }
+}
+
+
 /* === FLOATING NAV === */
 .floating-header {
     position: fixed;

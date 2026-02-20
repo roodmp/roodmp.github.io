@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Mark Rood - Resumé</title>
     <meta name="description" content="Resumé for Mark Rood - Product Manager with 10+ years in IT and systems engineering, currently building AI features at PDQ.">
 
@@ -512,7 +512,7 @@
     </div>
 
     <!-- Spacer for fixed nav -->
-    <div style="height: 80px;"></div>
+    <div class="nav-spacer" style="height: 80px;"></div>
 
     <main id="main-content" class="section">
         <div class="resume-container">
@@ -769,6 +769,22 @@
             </footer>
         </div>
     </main>
+
+    <!-- Bottom Tab Bar (Mobile) -->
+    <nav class="bottom-tab-bar" aria-label="Mobile navigation">
+      <a href="about.html" class="tab-item">
+        <i data-feather="home"></i>
+        <span class="tab-label">About</span>
+      </a>
+      <a href="index.html" class="tab-item active">
+        <i data-feather="file-text"></i>
+        <span class="tab-label">Resum&eacute;</span>
+      </a>
+      <a href="resources.html" class="tab-item">
+        <i data-feather="layers"></i>
+        <span class="tab-label">Resources</span>
+      </a>
+    </nav>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
