@@ -52,127 +52,108 @@
       z-index: 1;
     }
 
-    /* ── Sidebar ── */
-    .workspace-sidebar {
-      width: 240px;
-      flex-shrink: 0;
-      background: var(--bg-secondary);
-      border-right: 1px solid var(--surface-border);
-      padding: 72px 0 var(--space-5);
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
+    /* ── Filter Dropdowns ── */
+    .filter-dropdown {
+      position: relative;
     }
 
-    .sidebar-brand {
-      padding: 0 var(--space-5);
-      margin-bottom: var(--space-6);
-    }
-
-    .sidebar-brand h2 {
+    .filter-dropdown-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-family: var(--font-sans);
       font-size: var(--text-sm);
-      font-weight: 600;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .filter-dropdown-btn:hover {
+      background: var(--bg-hover);
       color: var(--text-primary);
-      letter-spacing: -0.01em;
+      border-color: var(--surface-border-accent);
     }
 
-    .sidebar-brand span {
-      font-size: var(--text-xs);
-      color: var(--text-tertiary);
+    .filter-dropdown-btn.has-active {
+      border-color: var(--accent-500);
+      color: var(--text-primary);
     }
 
-    .sidebar-section {
-      padding: 0 var(--space-3);
-      margin-bottom: var(--space-5);
+    .filter-dropdown-btn svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      opacity: 0.6;
     }
 
-    .sidebar-section-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: var(--text-tertiary);
-      padding: 0 var(--space-2);
-      margin-bottom: var(--space-2);
+    .filter-dropdown-chevron {
+      width: 12px !important;
+      height: 12px !important;
+      opacity: 0.4 !important;
+      transition: transform var(--transition-fast);
     }
 
-    .sidebar-btn {
+    .filter-dropdown.open .filter-dropdown-chevron {
+      transform: rotate(180deg);
+    }
+
+    .filter-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 180px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      z-index: 100;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .filter-dropdown.open .filter-dropdown-menu {
+      display: block;
+    }
+
+    .filter-dropdown-item {
       display: flex;
       align-items: center;
       gap: var(--space-3);
       width: 100%;
-      padding: var(--space-2) var(--space-3);
+      padding: 6px 10px;
       font-family: var(--font-sans);
       font-size: var(--text-sm);
       font-weight: 500;
       color: var(--text-secondary);
       background: none;
       border: none;
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-sm);
       cursor: pointer;
       transition: all var(--transition-fast);
       text-align: left;
     }
 
-    .sidebar-btn:hover {
+    .filter-dropdown-item:hover {
       background: var(--bg-hover);
       color: var(--text-primary);
     }
 
-    .sidebar-btn.active {
-      background: var(--bg-elevated);
+    .filter-dropdown-item.active {
+      background: rgba(74, 103, 133, 0.2);
       color: var(--text-primary);
     }
 
-    .sidebar-btn svg {
-      width: 16px;
-      height: 16px;
-      flex-shrink: 0;
-      opacity: 0.7;
-    }
-
-    .sidebar-btn.active svg {
-      opacity: 1;
-    }
-
-    .sidebar-count {
+    .filter-dropdown-item .filter-count {
       margin-left: auto;
       font-size: var(--text-xs);
       color: var(--text-tertiary);
       font-weight: 400;
-    }
-
-    /* Sidebar toggle button for mobile */
-    .sidebar-toggle {
-      display: none;
-      position: fixed;
-      bottom: var(--space-5);
-      left: var(--space-5);
-      z-index: 60;
-      width: 44px;
-      height: 44px;
-      align-items: center;
-      justify-content: center;
-      background: var(--bg-elevated);
-      border: 1px solid var(--surface-border);
-      border-radius: var(--radius-full);
-      color: var(--text-secondary);
-      cursor: pointer;
-      box-shadow: var(--shadow-lg);
-      transition: all var(--transition-fast);
-    }
-
-    .sidebar-toggle:hover {
-      background: var(--bg-hover);
-      color: var(--text-primary);
-    }
-
-    .sidebar-toggle svg {
-      width: 18px;
-      height: 18px;
     }
 
     /* ── Main Content ── */
@@ -745,37 +726,6 @@
     }
 
     /* ── Responsive ── */
-    @media (max-width: 1024px) {
-      .workspace-sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        z-index: 50;
-        transform: translateX(-100%);
-        transition: transform var(--transition-slow);
-        height: 100vh;
-        box-shadow: var(--shadow-lg);
-        padding-top: 80px;
-      }
-
-      .workspace-sidebar.open {
-        transform: translateX(0);
-      }
-
-      .sidebar-toggle {
-        display: flex;
-      }
-
-      .sidebar-backdrop {
-        display: block;
-      }
-
-      .workspace-topbar {
-        top: 0;
-      }
-    }
-
     @media (max-width: 768px) {
       .board-container {
         padding: var(--space-4);
@@ -805,6 +755,11 @@
         display: none;
       }
 
+      .topbar-filters {
+        order: 11;
+        flex-basis: 100%;
+      }
+
       .list-container {
         padding: var(--space-4);
         overflow-x: auto;
@@ -831,10 +786,6 @@
       .workspace-topbar {
         padding-top: var(--space-3);
       }
-
-      .sidebar-toggle {
-        bottom: calc(52px + var(--space-4) + env(safe-area-inset-bottom, 0px) + var(--space-4));
-      }
     }
 
     @media (max-width: 480px) {
@@ -851,20 +802,11 @@
       }
     }
 
-    /* Sidebar mobile backdrop */
-    .sidebar-backdrop {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 49;
-      background: rgba(0, 0, 0, 0.5);
-      opacity: 0;
-      transition: opacity var(--transition-slow);
-    }
-
-    .sidebar-backdrop.open {
-      display: block;
-      opacity: 1;
+    /* ── Topbar filters container ── */
+    .topbar-filters {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
     }
   </style>
 </head>
@@ -909,81 +851,6 @@
 
   <!-- Workspace -->
   <div class="workspace-layout" id="main-content">
-    <!-- Sidebar -->
-    <aside class="workspace-sidebar" id="sidebar">
-      <div class="sidebar-brand">
-        <h2>Mark's Workspace</h2>
-        <span>Projects &amp; Ideas</span>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="sidebar-section-label">Views</div>
-        <button class="sidebar-btn active" data-view="board">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-          Board
-        </button>
-        <button class="sidebar-btn" data-view="list">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-          List
-        </button>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="sidebar-section-label">Filter by Status</div>
-        <button class="sidebar-btn" data-filter-status="shipped">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
-          Shipped
-          <span class="sidebar-count" id="countShipped"></span>
-        </button>
-        <button class="sidebar-btn" data-filter-status="in-progress">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          In Progress
-          <span class="sidebar-count" id="countInProgress"></span>
-        </button>
-        <button class="sidebar-btn" data-filter-status="backlog">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-          Backlog
-          <span class="sidebar-count" id="countBacklog"></span>
-        </button>
-      </div>
-
-      <div class="sidebar-section">
-        <div class="sidebar-section-label">Filter by Type</div>
-        <button class="sidebar-btn" data-filter-type="tool">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-          Tool
-        </button>
-        <button class="sidebar-btn" data-filter-type="app">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          App
-        </button>
-        <button class="sidebar-btn" data-filter-type="extension">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-          Extension
-        </button>
-        <button class="sidebar-btn" data-filter-type="design">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><path d="M17.5 10.5a2.5 2.5 0 1 1 0 5"/><path d="M6.5 13a2.5 2.5 0 1 0 0 5"/><path d="M10.5 17.5a2.5 2.5 0 1 1-5 0"/><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
-          Design
-        </button>
-        <button class="sidebar-btn" data-filter-type="bot">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          Bot
-        </button>
-        <button class="sidebar-btn" data-filter-type="game">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-          Game
-        </button>
-      </div>
-    </aside>
-
-    <!-- Sidebar mobile backdrop -->
-    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
-
-    <!-- Sidebar mobile toggle -->
-    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-
     <!-- Main -->
     <main class="workspace-main">
       <!-- Top Bar -->
@@ -997,7 +864,49 @@
           <input type="text" class="search-input" id="searchInput" placeholder="Search projects..." aria-label="Search projects" />
           <span class="search-kbd" id="searchKbd">/</span>
         </div>
-        <div class="flex items-center gap-2 flex-wrap" id="filterChips"></div>
+        <div class="topbar-filters">
+          <!-- Status dropdown -->
+          <div class="filter-dropdown" id="statusDropdown">
+            <button class="filter-dropdown-btn" id="statusDropdownBtn" aria-haspopup="true" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+              <span class="filter-dropdown-label" id="statusDropdownLabel">Status</span>
+              <svg class="filter-dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="filter-dropdown-menu">
+              <button class="filter-dropdown-item" data-filter-status="backlog">
+                <span class="column-dot backlog"></span>
+                Backlog
+                <span class="filter-count" id="countBacklog"></span>
+              </button>
+              <button class="filter-dropdown-item" data-filter-status="in-progress">
+                <span class="column-dot in-progress"></span>
+                In Progress
+                <span class="filter-count" id="countInProgress"></span>
+              </button>
+              <button class="filter-dropdown-item" data-filter-status="shipped">
+                <span class="column-dot shipped"></span>
+                Completed
+                <span class="filter-count" id="countShipped"></span>
+              </button>
+            </div>
+          </div>
+          <!-- Type dropdown -->
+          <div class="filter-dropdown" id="typeDropdown">
+            <button class="filter-dropdown-btn" id="typeDropdownBtn" aria-haspopup="true" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+              <span class="filter-dropdown-label" id="typeDropdownLabel">Type</span>
+              <svg class="filter-dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="filter-dropdown-menu">
+              <button class="filter-dropdown-item" data-filter-type="tool">Tool</button>
+              <button class="filter-dropdown-item" data-filter-type="app">App</button>
+              <button class="filter-dropdown-item" data-filter-type="extension">Extension</button>
+              <button class="filter-dropdown-item" data-filter-type="design">Design</button>
+              <button class="filter-dropdown-item" data-filter-type="bot">Bot</button>
+              <button class="filter-dropdown-item" data-filter-type="game">Game</button>
+            </div>
+          </div>
+        </div>
         <div class="view-toggle">
           <button class="view-toggle-btn active" data-view="board" title="Board view" aria-label="Board view">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
@@ -1050,117 +959,57 @@
     // ── Project Data ──
     const projects = [
       {
-        id: 'MR-001',
-        name: 'Seat Planner',
-        status: 'shipped',
-        type: 'app',
-        tags: ['app', 'drag-and-drop'],
-        description: 'Interactive seating arrangement planner with drag-and-drop, constraint rules, and auto-arrange. Organize guests across tables with ease.',
-        link: 'seat-planner.html',
-        image: null
-      },
-      {
-        id: 'MR-002',
-        name: 'Documentation Audit Agent',
+        id: 'MR-020',
+        name: 'Should I Use AI?',
         status: 'shipped',
         type: 'tool',
         tags: ['tool', 'AI'],
-        description: 'AI-powered agent that audits documentation repositories, identifies gaps, stale content, and inconsistencies, then generates actionable reports.',
-        link: null,
-        image: 'assets/image/hc.png'
+        description: 'Interactive calculator to help decide whether AI is the right tool for a task. Weighs factors like complexity, risk, and time savings — inspired by xkcd\'s "Is It Worth the Time?"',
+        link: 'should-i-use-ai.html',
+        image: null
       },
       {
-        id: 'MR-003',
-        name: 'PSWindowsUpdate Builder',
-        status: 'shipped',
-        type: 'tool',
-        tags: ['tool', 'PowerShell'],
-        description: 'Interactive command builder for the PSWindowsUpdate PowerShell module. Select cmdlets, configure parameters, and copy ready-to-run commands for managing Windows Updates.',
-        link: 'pswindowsupdate.html',
-        image: 'assets/image/pswuBuilder.png'
-      },
-      {
-        id: 'MR-004',
-        name: 'Hockey Extension',
-        status: 'shipped',
-        type: 'extension',
-        tags: ['extension', 'sports'],
-        description: 'Raycast extension that surfaces live hockey scores, standings, and schedules. Quick access to game stats without leaving what you\'re doing.',
-        link: null,
-        image: 'assets/image/raycast.png'
-      },
-      {
-        id: 'MR-005',
-        name: 'Help Center Consolidation',
-        status: 'shipped',
-        type: 'design',
-        tags: ['design', 'UX'],
-        description: 'Merged four separate Zendesk brands with unique themes into a shared monorepo with dynamic brand customizations. Simplified maintenance and improved consistency across all help centers.',
+        id: 'MR-019',
+        name: 'Interactive Terminal',
+        status: 'backlog',
+        type: 'app',
+        tags: ['app', 'concept'],
+        description: 'Simulated terminal interface where visitors can type commands to explore portfolio content. Easter-egg style interactive experience.',
         link: null,
         image: null
       },
       {
-        id: 'MR-006',
-        name: 'Callout Generator',
-        status: 'shipped',
-        type: 'tool',
-        tags: ['tool', 'design'],
-        description: 'Visual tool for generating styled callout/admonition blocks for documentation. Supports multiple styles: info, warning, tip, danger, and custom themes.',
+        id: 'MR-018',
+        name: 'Cmd+K Command Palette',
+        status: 'backlog',
+        type: 'app',
+        tags: ['app', 'concept'],
+        description: 'A keyboard-driven command palette for the portfolio site. Quick navigation, search, and actions accessible via Cmd+K / Ctrl+K shortcut.',
         link: null,
-        image: 'assets/image/callouts.png'
+        image: null
       },
       {
-        id: 'MR-007',
-        name: 'Discord Support Bot',
-        status: 'shipped',
-        type: 'bot',
-        tags: ['bot', 'automation'],
-        description: 'Automated Discord bot for triaging support requests, routing tickets, and providing self-service answers from a knowledge base. Reduced response times significantly.',
-        link: null,
-        image: 'assets/image/discord.png'
-      },
-      {
-        id: 'MR-008',
-        name: 'Support Form Redesign',
-        status: 'shipped',
+        id: 'MR-017',
+        name: 'Who Am I?',
+        status: 'in-progress',
         type: 'design',
-        tags: ['design', 'UX'],
-        description: 'Complete overhaul of multi-step support intake forms. Implemented conditional logic, smart defaults, and inline validation to streamline the submission flow.',
+        tags: ['meta'],
+        description: 'Hi, I\'m Mark! I\'m a SysAdmin turned Systems Engineer who discovered a love for building and improving processes, and moved into Product Management where I now build AI features for SysAdmins. I enjoy decomposing problems into smaller pieces and figuring out how to reliably solve them without introducing more complexity.',
         link: null,
-        image: 'assets/image/form.png'
+        image: null
       },
       {
-        id: 'MR-009',
-        name: 'Interactive CMD Builder',
-        status: 'shipped',
-        type: 'tool',
-        tags: ['tool', 'support'],
-        description: 'Utility that turns static cmdlets with placeholders into an interactive builder, letting users customize commands to their environment before copying and running them.',
-        link: null,
-        image: 'assets/image/cmds.png'
-      },
-      {
-        id: 'MR-010',
-        name: 'Resource Discovery Platform',
+        id: 'MR-016',
+        name: 'Portfolio Workspace',
         status: 'shipped',
         type: 'app',
-        tags: ['app', 'curation'],
-        description: 'Curated collection of packages, collections, and scanners that customers could browse and copy/paste directly into their instance. Filterable by category and use case.',
-        link: 'resources.html',
-        image: 'assets/image/discover.png'
-      },
-      {
-        id: 'MR-011',
-        name: 'Package Explorer Interface',
-        status: 'shipped',
-        type: 'app',
-        tags: ['app'],
-        description: 'Visual interface for browsing and discovering third-party software packages. Filterable catalog with version details, descriptions, and deployment information at a glance.',
+        tags: ['app', 'meta'],
+        description: 'This page! A Linear-inspired interactive workspace for browsing projects. Features board and list views, drag-and-drop, search, and filters.',
         link: null,
-        image: 'assets/image/packagelibrary.png'
+        image: null
       },
       {
-        id: 'MR-013',
+        id: 'MR-015',
         name: 'Brick Breaker',
         status: 'shipped',
         type: 'game',
@@ -1171,6 +1020,36 @@
       },
       {
         id: 'MR-014',
+        name: 'Documentation Audit Agent',
+        status: 'shipped',
+        type: 'tool',
+        tags: ['tool', 'AI'],
+        description: 'AI-powered agent that audits documentation repositories, identifies gaps, stale content, and inconsistencies, then generates actionable reports.',
+        link: null,
+        image: 'assets/image/hc.png'
+      },
+      {
+        id: 'MR-013',
+        name: 'How I Build',
+        status: 'in-progress',
+        type: 'design',
+        tags: ['meta'],
+        description: 'I build to remove friction and simplify processes. I like to iterate quickly and keep a tight flywheel grounded in user feedback, learning what works by shipping and measuring rather than over-planning.',
+        link: null,
+        image: null
+      },
+      {
+        id: 'MR-012',
+        name: 'Seat Planner',
+        status: 'shipped',
+        type: 'app',
+        tags: ['app', 'drag-and-drop'],
+        description: 'Interactive seating arrangement planner with drag-and-drop, constraint rules, and auto-arrange. Organize guests across tables with ease.',
+        link: 'seat-planner.html',
+        image: null
+      },
+      {
+        id: 'MR-011',
         name: 'Solitaire',
         status: 'shipped',
         type: 'game',
@@ -1180,37 +1059,7 @@
         image: null
       },
       {
-        id: 'MR-015',
-        name: 'Portfolio Workspace',
-        status: 'shipped',
-        type: 'app',
-        tags: ['app', 'meta'],
-        description: 'This page! A Linear-inspired interactive workspace for browsing projects. Features board and list views, drag-and-drop, search, and filters.',
-        link: null,
-        image: null
-      },
-      {
-        id: 'MR-017',
-        name: 'Cmd+K Command Palette',
-        status: 'backlog',
-        type: 'app',
-        tags: ['app', 'concept'],
-        description: 'A keyboard-driven command palette for the portfolio site. Quick navigation, search, and actions accessible via Cmd+K / Ctrl+K shortcut.',
-        link: null,
-        image: null
-      },
-      {
-        id: 'MR-018',
-        name: 'Interactive Terminal',
-        status: 'backlog',
-        type: 'app',
-        tags: ['app', 'concept'],
-        description: 'Simulated terminal interface where visitors can type commands to explore portfolio content. Easter-egg style interactive experience.',
-        link: null,
-        image: null
-      },
-      {
-        id: 'MR-019',
+        id: 'MR-010',
         name: 'My Stack / Toolkit Page',
         status: 'shipped',
         type: 'design',
@@ -1220,24 +1069,94 @@
         image: null
       },
       {
-        id: 'MR-021',
-        name: 'Who Am I?',
-        status: 'in-progress',
+        id: 'MR-009',
+        name: 'Discord Support Bot',
+        status: 'shipped',
+        type: 'bot',
+        tags: ['bot', 'automation'],
+        description: 'Automated Discord bot for triaging support requests, routing tickets, and providing self-service answers from a knowledge base. Reduced response times significantly.',
+        link: null,
+        image: 'assets/image/discord.png'
+      },
+      {
+        id: 'MR-008',
+        name: 'Hockey Extension',
+        status: 'shipped',
+        type: 'extension',
+        tags: ['extension', 'sports'],
+        description: 'Raycast extension that surfaces live hockey scores, standings, and schedules. Quick access to game stats without leaving what you\'re doing.',
+        link: null,
+        image: 'assets/image/raycast.png'
+      },
+      {
+        id: 'MR-007',
+        name: 'Package Explorer Interface',
+        status: 'shipped',
+        type: 'app',
+        tags: ['app'],
+        description: 'Visual interface for browsing and discovering third-party software packages. Filterable catalog with version details, descriptions, and deployment information at a glance.',
+        link: null,
+        image: 'assets/image/packagelibrary.png'
+      },
+      {
+        id: 'MR-006',
+        name: 'Resource Discovery Platform',
+        status: 'shipped',
+        type: 'app',
+        tags: ['app', 'curation'],
+        description: 'Curated collection of packages, collections, and scanners that customers could browse and copy/paste directly into their instance. Filterable by category and use case.',
+        link: 'resources.html',
+        image: 'assets/image/discover.png'
+      },
+      {
+        id: 'MR-005',
+        name: 'Interactive CMD Builder',
+        status: 'shipped',
+        type: 'tool',
+        tags: ['tool', 'support'],
+        description: 'Utility that turns static cmdlets with placeholders into an interactive builder, letting users customize commands to their environment before copying and running them.',
+        link: null,
+        image: 'assets/image/cmds.png'
+      },
+      {
+        id: 'MR-004',
+        name: 'Support Form Redesign',
+        status: 'shipped',
         type: 'design',
-        tags: ['meta'],
-        description: 'Hi, I\'m Mark! I\'m a SysAdmin turned Systems Engineer who discovered a love for building and improving processes, and moved into Product Management where I now build AI features for SysAdmins. I enjoy decomposing problems into smaller pieces and figuring out how to reliably solve them without introducing more complexity.',
+        tags: ['design', 'UX'],
+        description: 'Complete overhaul of multi-step support intake forms. Implemented conditional logic, smart defaults, and inline validation to streamline the submission flow.',
+        link: null,
+        image: 'assets/image/form.png'
+      },
+      {
+        id: 'MR-003',
+        name: 'Callout Generator',
+        status: 'shipped',
+        type: 'tool',
+        tags: ['tool', 'design'],
+        description: 'Visual tool for generating styled callout/admonition blocks for documentation. Supports multiple styles: info, warning, tip, danger, and custom themes.',
+        link: null,
+        image: 'assets/image/callouts.png'
+      },
+      {
+        id: 'MR-002',
+        name: 'Help Center Consolidation',
+        status: 'shipped',
+        type: 'design',
+        tags: ['design', 'UX'],
+        description: 'Merged four separate Zendesk brands with unique themes into a shared monorepo with dynamic brand customizations. Simplified maintenance and improved consistency across all help centers.',
         link: null,
         image: null
       },
       {
-        id: 'MR-020',
-        name: 'How I Build',
-        status: 'in-progress',
-        type: 'design',
-        tags: ['meta'],
-        description: 'I build to remove friction and simplify processes. I like to iterate quickly and keep a tight flywheel grounded in user feedback, learning what works by shipping and measuring rather than over-planning.',
-        link: null,
-        image: null
+        id: 'MR-001',
+        name: 'PSWindowsUpdate Builder',
+        status: 'shipped',
+        type: 'tool',
+        tags: ['tool', 'PowerShell'],
+        description: 'Interactive command builder for the PSWindowsUpdate PowerShell module. Select cmdlets, configure parameters, and copy ready-to-run commands for managing Windows Updates.',
+        link: 'pswindowsupdate.html',
+        image: 'assets/image/pswuBuilder.png'
       }
     ];
 
@@ -1254,8 +1173,8 @@
     };
 
     // ── Helpers ──
-    const statusOrder = { 'shipped': 0, 'in-progress': 1, 'backlog': 2 };
-    const statusLabels = { 'shipped': 'Shipped', 'in-progress': 'In Progress', 'backlog': 'Backlog' };
+    const statusOrder = { 'backlog': 0, 'in-progress': 1, 'shipped': 2 };
+    const statusLabels = { 'shipped': 'Completed', 'in-progress': 'In Progress', 'backlog': 'Backlog' };
 
     function getFilteredProjects() {
       return projects.filter(p => {
@@ -1295,8 +1214,8 @@
       return div.innerHTML;
     }
 
-    // ── Render: Sidebar Counts ──
-    function renderSidebarCounts() {
+    // ── Render: Filter Counts ──
+    function renderFilterCounts() {
       const shipped = projects.filter(p => p.status === 'shipped').length;
       const inProgress = projects.filter(p => p.status === 'in-progress').length;
       const backlog = projects.filter(p => p.status === 'backlog').length;
@@ -1309,7 +1228,7 @@
     function renderBoardView() {
       const container = document.getElementById('boardView');
       const filtered = getFilteredProjects();
-      const columns = ['shipped', 'in-progress', 'backlog'];
+      const columns = ['backlog', 'in-progress', 'shipped'];
 
       let html = '';
       columns.forEach(status => {
@@ -1427,32 +1346,6 @@
       container.innerHTML = html;
     }
 
-    // ── Render: Filter Chips ──
-    function renderFilterChips() {
-      const container = document.getElementById('filterChips');
-      let html = '';
-
-      if (state.filterStatus) {
-        html += `
-          <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-300 bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600 rounded-full cursor-pointer transition-colors" onclick="clearFilter('status')">
-            ${statusLabels[state.filterStatus]}
-            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        `;
-      }
-
-      if (state.filterType) {
-        html += `
-          <button class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-300 bg-slate-700/50 hover:bg-slate-600/50 border border-slate-600 rounded-full cursor-pointer transition-colors" onclick="clearFilter('type')">
-            ${state.filterType}
-            <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        `;
-      }
-
-      container.innerHTML = html;
-    }
-
     // ── Render: Project Count ──
     function renderProjectCount() {
       const filtered = getFilteredProjects();
@@ -1461,9 +1354,9 @@
 
     // ── Render All ──
     function renderAll() {
-      renderSidebarCounts();
-      renderFilterChips();
+      renderFilterCounts();
       renderProjectCount();
+      updateFilterActive();
       if (state.currentView === 'board') {
         renderBoardView();
       } else {
@@ -1474,11 +1367,6 @@
     // ── View Switching ──
     function switchView(view) {
       state.currentView = view;
-
-      // Update sidebar buttons
-      document.querySelectorAll('.sidebar-btn[data-view]').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.view === view);
-      });
 
       // Update toggle buttons
       document.querySelectorAll('.view-toggle-btn[data-view]').forEach(btn => {
@@ -1505,30 +1393,54 @@
     // ── Filters ──
     function toggleStatusFilter(status) {
       state.filterStatus = state.filterStatus === status ? null : status;
-      updateSidebarFilterActive();
       renderAll();
     }
 
     function toggleTypeFilter(type) {
       state.filterType = state.filterType === type ? null : type;
-      updateSidebarFilterActive();
       renderAll();
     }
 
-    function clearFilter(kind) {
-      if (kind === 'status') state.filterStatus = null;
-      if (kind === 'type') state.filterType = null;
-      updateSidebarFilterActive();
-      renderAll();
+    // ── Dropdown toggle ──
+    function toggleDropdown(dropdownId) {
+      const dropdown = document.getElementById(dropdownId);
+      const wasOpen = dropdown.classList.contains('open');
+      // Close all dropdowns first
+      document.querySelectorAll('.filter-dropdown.open').forEach(d => {
+        d.classList.remove('open');
+        d.querySelector('.filter-dropdown-btn').setAttribute('aria-expanded', 'false');
+      });
+      // Toggle the clicked one
+      if (!wasOpen) {
+        dropdown.classList.add('open');
+        dropdown.querySelector('.filter-dropdown-btn').setAttribute('aria-expanded', 'true');
+      }
     }
 
-    function updateSidebarFilterActive() {
-      document.querySelectorAll('.sidebar-btn[data-filter-status]').forEach(btn => {
+    function closeAllDropdowns() {
+      document.querySelectorAll('.filter-dropdown.open').forEach(d => {
+        d.classList.remove('open');
+        d.querySelector('.filter-dropdown-btn').setAttribute('aria-expanded', 'false');
+      });
+    }
+
+    function updateFilterActive() {
+      // Update dropdown items
+      document.querySelectorAll('.filter-dropdown-item[data-filter-status]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.filterStatus === state.filterStatus);
       });
-      document.querySelectorAll('.sidebar-btn[data-filter-type]').forEach(btn => {
+      document.querySelectorAll('.filter-dropdown-item[data-filter-type]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.filterType === state.filterType);
       });
+      // Update dropdown button labels and highlight
+      const statusBtn = document.getElementById('statusDropdownBtn');
+      const statusLabel = document.getElementById('statusDropdownLabel');
+      const typeBtn = document.getElementById('typeDropdownBtn');
+      const typeLabel = document.getElementById('typeDropdownLabel');
+      if (statusBtn) statusBtn.classList.toggle('has-active', !!state.filterStatus);
+      if (statusLabel) statusLabel.textContent = state.filterStatus ? statusLabels[state.filterStatus] : 'Status';
+      if (typeBtn) typeBtn.classList.toggle('has-active', !!state.filterType);
+      if (typeLabel) typeLabel.textContent = state.filterType ? state.filterType.charAt(0).toUpperCase() + state.filterType.slice(1) : 'Type';
     }
 
     // ── Sorting (List view) ──
@@ -1678,79 +1590,61 @@
       state.selectedProject = null;
     }
 
-    // ── Sidebar toggle (mobile) ──
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const backdrop = document.getElementById('sidebarBackdrop');
-      const isOpen = sidebar.classList.contains('open');
-
-      sidebar.classList.toggle('open', !isOpen);
-      backdrop.classList.toggle('open', !isOpen);
-
-      if (!isOpen) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = '';
-      }
-    }
-
-    function closeSidebar() {
-      document.getElementById('sidebar').classList.remove('open');
-      document.getElementById('sidebarBackdrop').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
     // ── Init ──
     document.addEventListener('DOMContentLoaded', () => {
       // Search
       document.getElementById('searchInput').addEventListener('input', onSearchInput);
-
-      // View switching (sidebar)
-      document.querySelectorAll('.sidebar-btn[data-view]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          switchView(btn.dataset.view);
-          // Close sidebar on mobile after selection
-          if (window.innerWidth <= 1024) closeSidebar();
-        });
-      });
 
       // View switching (topbar toggle)
       document.querySelectorAll('.view-toggle-btn[data-view]').forEach(btn => {
         btn.addEventListener('click', () => switchView(btn.dataset.view));
       });
 
-      // Status filter buttons
-      document.querySelectorAll('.sidebar-btn[data-filter-status]').forEach(btn => {
-        btn.addEventListener('click', () => {
+      // Dropdown toggle buttons
+      document.getElementById('statusDropdownBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDropdown('statusDropdown');
+      });
+      document.getElementById('typeDropdownBtn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDropdown('typeDropdown');
+      });
+
+      // Status filter items
+      document.querySelectorAll('.filter-dropdown-item[data-filter-status]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
           toggleStatusFilter(btn.dataset.filterStatus);
-          if (window.innerWidth <= 1024) closeSidebar();
+          closeAllDropdowns();
         });
       });
 
-      // Type filter buttons
-      document.querySelectorAll('.sidebar-btn[data-filter-type]').forEach(btn => {
-        btn.addEventListener('click', () => {
+      // Type filter items
+      document.querySelectorAll('.filter-dropdown-item[data-filter-type]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
           toggleTypeFilter(btn.dataset.filterType);
-          if (window.innerWidth <= 1024) closeSidebar();
+          closeAllDropdowns();
         });
+      });
+
+      // Close dropdowns on click outside
+      document.addEventListener('click', () => {
+        closeAllDropdowns();
       });
 
       // Detail panel close
       document.getElementById('detailClose').addEventListener('click', closeDetailPanel);
       document.getElementById('detailBackdrop').addEventListener('click', closeDetailPanel);
 
-      // Sidebar toggle
-      document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
-      document.getElementById('sidebarBackdrop').addEventListener('click', closeSidebar);
-
       // Keyboard shortcuts
       document.addEventListener('keydown', (e) => {
-        // Escape closes detail panel or sidebar
+        // Escape closes detail panel or dropdowns
         if (e.key === 'Escape') {
           if (state.selectedProject) {
             closeDetailPanel();
-          } else if (document.getElementById('sidebar').classList.contains('open')) {
-            closeSidebar();
+          } else {
+            closeAllDropdowns();
           }
         }
 
