@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   // Highlight current page in navigation
   const navLinks = document.querySelectorAll(".nav-link");
   navLinks.forEach((link) => {
-    if (link.getAttribute("href") === location.pathname.split("/").pop()) {
+    if (link.getAttribute("href") === location.pathname.split("/").pop() && !link.classList.contains("active")) {
       link.classList.add("underline", "decoration-wavy", "underline-offset-2");
     }
   });
