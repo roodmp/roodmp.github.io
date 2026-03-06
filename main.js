@@ -1,3 +1,9 @@
+/**
+ * main.js — Shared site JavaScript.
+ * Handles: Feather icon init, current-page nav highlighting,
+ * mobile menu open/close, and easter egg (Konami / PANDA) detection.
+ */
+
 // Easter egg game trigger
 let keySequence = [];
 const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
@@ -19,6 +25,7 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+/** Shallow-compare two arrays for equality. */
 function arraysEqual(a, b) {
     if (a.length !== b.length) return false;
     for (let i = 0; i < a.length; i++) {
@@ -27,6 +34,7 @@ function arraysEqual(a, b) {
     return true;
 }
 
+/** Show the easter-egg modal with confetti and a link to Red Panda Flappy. */
 function triggerEasterEgg() {
     // Create celebration effect
     createConfetti();
@@ -106,6 +114,7 @@ function triggerEasterEgg() {
     }, 10000);
 }
 
+/** Spawn falling confetti particles (respects prefers-reduced-motion). */
 function createConfetti() {
     // Respect reduced motion preferences
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
