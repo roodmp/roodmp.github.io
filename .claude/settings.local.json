@@ -9,7 +9,13 @@
       "Bash(wc:*)",
       "Bash(grep:*)",
       "Bash(curl:*)",
-      "WebFetch(domain:woshub.com)"
+      "WebFetch(domain:woshub.com)",
+      "Bash(npx:*)",
+      "WebFetch(domain:xkcd.com)",
+      "Bash(cd:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git rm:*)"
     ],
     "defaultMode": "acceptEdits"
   }
