@@ -26,7 +26,7 @@ The puzzle is solved when the hero block is positioned so that it occupies the t
 ## Technical Specifications
 
 ### Architecture
-- Self-contained HTML file following existing solitaire.html structure
+- Self-contained HTML file following existing games/solitaire.html structure
 - Pure JavaScript implementation (no external frameworks)
 - Tailwind CSS for styling via CDN
 - Integration with shared navigation system
@@ -137,6 +137,7 @@ Match existing solitaire game styling:
 
 ```
 games/
+├── brick-breaker.html    # Brick Breaker game
 ├── klonski.html          # Main game file (self-contained)
 └── solitaire.html        # Reference implementation
 ```

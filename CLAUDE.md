@@ -12,12 +12,13 @@ This is a personal portfolio website for Mark Rood (roodmp.github.io) deployed v
 - PSWindowsUpdate tool page (pswindowsupdate.html)
 - Seat Planner app (seat-planner.html) — drag-and-drop table/seat assignment tool
 - Should I Use AI? decision tool (should-i-use-ai.html) — interactive flowchart
-- Brick Breaker game (brick-breaker.html) — canvas-based breakout clone
-- Solitaire game (solitaire.html) — classic Klondike solitaire
+- Brick Breaker game (games/brick-breaker.html) — canvas-based breakout clone
+- Solitaire game (games/solitaire.html) — classic Klondike solitaire
 - Klotski sliding puzzle (games/klotski.html) — block sliding puzzle game
+- MCP Server Setup (mcp-server-setup.html) — setup instructions for the About Me MCP server
 - Agent Workflow Visualizer (agent-workflow-visualizer.html) — interactive agent pipeline diagram
 - Design System v2 preview (design-system-v2.html) — living style guide for the site's design tokens
-- Easter egg game - Red Panda Flappy (red-panda-flappy.html)
+- Easter egg game - Red Panda Flappy (games/red-panda-flappy.html)
 
 ## Architecture & Structure
 
@@ -37,12 +38,13 @@ roodmp.github.io/
 ├── pswindowsupdate.html        # PSWindowsUpdate tool
 ├── seat-planner.html           # Drag-and-drop seat planner
 ├── should-i-use-ai.html        # AI decision flowchart
-├── brick-breaker.html          # Brick Breaker game
-├── solitaire.html              # Klondike solitaire game
-├── red-panda-flappy.html       # Easter egg Flappy Bird clone
+├── mcp-server-setup.html         # MCP server setup instructions
 ├── agent-workflow-visualizer.html # Agent workflow diagram
 ├── design-system-v2.html       # Design system preview
 ├── games/
+│   ├── brick-breaker.html      # Brick Breaker game
+│   ├── solitaire.html          # Klondike solitaire game
+│   ├── red-panda-flappy.html   # Easter egg Flappy Bird clone
 │   └── klotski.html            # Klotski sliding puzzle
 ├── main.js                     # Shared JS: nav, mobile menu, easter egg
 ├── design-system.css           # CSS custom properties (design tokens)
@@ -141,12 +143,12 @@ npx serve . -p 3000
 **About Page Project List:**
 - The `about.html` page contains a `projects` array in its `<script>` block that drives the board/list views
 - When adding a new standalone page or tool to the site, also add a corresponding entry to this `projects` array so it appears in the "Things I Built" workspace
-- Each entry needs: `id` (next MR-### number), `name`, `status`, `type`, `tags`, `description`, `link` (if navigable), and `image` (if available)
+- Each entry needs: `id` (next MR-022 number), `name`, `status`, `type`, `tags`, `description`, `link` (if navigable), and `image` (if available)
 
 **Projects Array Schema:**
 ```javascript
 {
-  id: 'MR-021',            // String — sequential ID, next available: MR-021
+  id: 'MR-022',            // String — sequential ID, next available: MR-022
   name: 'Project Name',    // String — display name
   status: 'shipped',       // 'shipped' | 'in-progress' | 'backlog'
   type: 'tool',            // 'tool' | 'game' | 'app' | 'design' | 'bot' | 'extension'

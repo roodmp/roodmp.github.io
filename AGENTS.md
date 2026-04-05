@@ -23,12 +23,12 @@
 | `pswindowsupdate.html` | PSWindowsUpdate tool |
 | `seat-planner.html` | Drag-and-drop seat assignment |
 | `should-i-use-ai.html` | AI decision flowchart |
-| `brick-breaker.html` | Brick Breaker game |
-| `solitaire.html` | Klondike solitaire game |
+| `games/brick-breaker.html` | Brick Breaker game |
+| `games/solitaire.html` | Klondike solitaire game |
 | `games/klotski.html` | Klotski sliding puzzle |
 | `agent-workflow-visualizer.html` | Agent workflow diagram |
 | `design-system-v2.html` | Design system preview |
-| `red-panda-flappy.html` | Easter egg Flappy Bird clone |
+| `games/red-panda-flappy.html` | Easter egg Flappy Bird clone |
 
 ## Code Style Guidelines
 - **HTML**: Semantic HTML5 with proper accessibility attributes (ARIA labels, roles)
@@ -48,7 +48,7 @@ When updating navigation, update ALL pages to maintain consistency.
 1. Create HTML file with dark-mode boilerplate (copy `<head>` from existing page)
 2. Choose header: floating nav (main pages) or compact back-arrow (tools/games)
 3. Update nav on 4 main pages if adding to top nav bar
-4. Add entry to `projects` array in `about.html` (next ID: MR-021)
+4. Add entry to `projects` array in `about.html` (next ID: MR-022)
 
 ## Projects Array Enum Values
 - **status**: `shipped` | `in-progress` | `backlog`

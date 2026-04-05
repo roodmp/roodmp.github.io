@@ -72,7 +72,7 @@ function triggerEasterEgg() {
         transition: all 0.3s ease; margin-right: 10px;
     `;
     playButton.addEventListener('click', () => {
-        window.open('red-panda-flappy.html', '_blank');
+        window.open('games/red-panda-flappy.html', '_blank');
         notification.remove();
     });
     
