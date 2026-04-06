@@ -800,7 +800,7 @@
         label: 'Reasoning',
         icon: 'cpu',
         color: 'orange',
-        description: 'The agent\'s "thinking" step. The LLM analyzes the input, breaks down the task, and decides what actions to take. This is chain-of-thought in action.',
+        description: 'The agent\'s "thinking" step. The LLM analyzes the input, breaks down the task, and decides what actions to take. This is the step where the model decides what to do next.',
         realWorld: 'The agent thinks: "I need to search for TODO comments, then for each one, extract the description and file location, then call the GitHub API to create issues."',
         keyIdea: 'Reasoning is where the model plans its approach. More capable models produce better plans. Extended thinking or chain-of-thought prompting can improve reasoning quality.'
       },
@@ -808,7 +808,7 @@
         label: 'Tool Call',
         icon: 'terminal',
         color: 'blue',
-        description: 'The agent invokes an external tool - a function, API, database query, or system command. This is how agents interact with the outside world.',
+        description: 'The agent invokes an external tool - a function, API, database query, or system command. Tool calls are how the agent stops being just a chatbot and actually does work.',
         realWorld: 'The agent calls grep to search for TODO patterns across the codebase, or calls the GitHub API to create an issue.',
         keyIdea: 'Tools extend the agent beyond text generation. Well-defined tool schemas help the model understand what parameters are needed and what results to expect.'
       },
@@ -840,7 +840,7 @@
         label: 'Response',
         icon: 'send',
         color: 'green',
-        description: 'The final output delivered to the user. The agent synthesizes all gathered information and reasoning into a clear, actionable response.',
+        description: 'The final output delivered to the user. At the end, the agent turns the steps it took into something the user can actually use.',
         realWorld: 'The agent responds: "I created 15 GitHub issues for the TODO comments found across 8 files. Here\'s a summary with links to each issue."',
         keyIdea: 'Good responses are structured, cite sources, and clearly communicate what was done. The best agents also suggest follow-up actions.'
       },
