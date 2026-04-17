@@ -164,17 +164,83 @@
       flex-direction: column;
     }
 
+    /* ── Intro Strip ── */
+    .workspace-intro {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: var(--space-4);
+      padding: 104px var(--space-6) var(--space-8);
+      border-bottom: 1px solid var(--surface-border);
+    }
+
+    .workspace-intro-text {
+      max-width: 62ch;
+    }
+
+    .workspace-intro-name {
+      font-family: var(--font-sans);
+      font-size: var(--text-2xl);
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0 0 var(--space-2);
+      letter-spacing: -0.01em;
+    }
+
+    .workspace-intro-tagline {
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      line-height: 1.55;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .workspace-intro-links {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-2);
+    }
+
+    .workspace-intro-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .workspace-intro-link:hover {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+      border-color: var(--surface-border-accent);
+    }
+
+    .workspace-intro-link svg {
+      width: 14px;
+      height: 14px;
+      opacity: 0.7;
+    }
+
     /* ── Top Bar ── */
     .workspace-topbar {
       display: flex;
       align-items: center;
       gap: var(--space-4);
       padding: var(--space-4) var(--space-6);
-      padding-top: 84px;
       border-bottom: 1px solid var(--surface-border);
       background: var(--bg-primary);
       position: sticky;
-      top: 0;
+      top: 68px;
       z-index: 10;
       flex-wrap: wrap;
     }
@@ -737,7 +803,6 @@
 
       .workspace-topbar {
         padding: var(--space-3) var(--space-4);
-        padding-top: 80px;
         gap: var(--space-3);
       }
 
@@ -784,7 +849,15 @@
 
     @media (max-width: 640px) {
       .workspace-topbar {
-        padding-top: var(--space-3);
+        top: 0;
+      }
+
+      .workspace-intro {
+        padding: var(--space-6) var(--space-4) var(--space-6);
+      }
+
+      .workspace-intro-links {
+        flex-wrap: wrap;
       }
     }
 
@@ -853,6 +926,26 @@
   <div class="workspace-layout" id="main-content">
     <!-- Main -->
     <main class="workspace-main">
+      <!-- Intro Strip -->
+      <section class="workspace-intro" aria-labelledby="introName">
+        <div class="workspace-intro-text">
+          <h1 id="introName" class="workspace-intro-name">Mark Rood</h1>
+          <p class="workspace-intro-tagline">
+            Product Manager at PDQ with 10+ years in IT and systems engineering. I like building things, staying curious about how the landscape is shifting, and adapting as it does. Outside of work, you'll usually find me in the woodshop, keeping up with Flyers hockey, or exploring Colorado.
+          </p>
+        </div>
+        <div class="workspace-intro-links">
+          <a href="mailto:Me@MarkRood.io" class="workspace-intro-link" aria-label="Email Mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span>Email</span>
+          </a>
+          <a href="https://www.linkedin.com/in/roodmp/" target="_blank" rel="noopener noreferrer" class="workspace-intro-link" aria-label="LinkedIn profile">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            <span>LinkedIn</span>
+          </a>
+        </div>
+      </section>
+
       <!-- Top Bar -->
       <div class="workspace-topbar">
         <div class="topbar-title">
