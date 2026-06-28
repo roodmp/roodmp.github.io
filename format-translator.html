@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<!-- Page: Format Translator — WYSIWYG editor with per-platform copy (Slack, Discord, Reddit, Markdown) -->
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Format Translator - Mark Rood</title>
+  <meta name="description" content="Write once, copy formatted text for Slack, Discord, Reddit, or standard Markdown.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Format Translator">
+  <meta property="og:description" content="Write once, copy formatted text for Slack, Discord, Reddit, or standard Markdown.">
+  <meta property="og:image" content="https://roodmp.github.io/assets/image/me_dog.png">
+  <meta property="og:url" content="https://roodmp.github.io/format-translator.html">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Format Translator">
+  <meta name="twitter:description" content="Write once, copy formatted text for Slack, Discord, Reddit, or standard Markdown.">
+
+  <link rel="icon" type="image/x-icon" href="favicon.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.2.0/dist/fonts/geist-sans/style.min.css" rel="stylesheet" />
+
+  <!-- Design System -->
+  <link rel="stylesheet" href="design-system.css" />
+
+  <!-- Marked.js for Markdown paste detection -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+
+  <!-- Icons -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js"
+    integrity="sha512-7x3zila4t2qNycrtZ31HO0NnJr8kg2VI67YLoRSyi9hGhRN66FHYWr7Axa9Y1J9tGYHVBPqIjSE1ogHrJTz51g=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+
+  <!-- Main JS (nav, easter egg) -->
+  <script src="main.js" defer></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+    }
+
+    /* ── Back header ── */
+    .tool-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-6);
+      border-bottom: 1px solid var(--surface-border);
+      background: var(--bg-primary);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: var(--text-sm);
+      transition: color 0.15s;
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-md);
+    }
+    .back-btn:hover { color: var(--text-primary); background: var(--bg-secondary); }
+
+    .tool-header-title {
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* ── Layout ── */
+    .ft-container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: var(--space-8) var(--space-6) var(--space-16);
+    }
+
+    .ft-workspace {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-6);
+      align-items: start;
+    }
+    @media (max-width: 880px) {
+      .ft-workspace { grid-template-columns: 1fr; }
+    }
+
+    .ft-pane-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      margin-bottom: var(--space-3);
+    }
+
+    .ft-intro {
+      margin-bottom: var(--space-6);
+    }
+    .ft-intro h1 {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      margin: 0 0 var(--space-2);
+    }
+    .ft-intro p {
+      color: var(--text-secondary);
+      font-size: var(--text-sm);
+      margin: 0;
+    }
+
+    /* ── Toolbar ── */
+    .editor-toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-2) var(--space-3);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-bottom: none;
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      transition: background 0.12s, color 0.12s;
+      font-family: var(--font-sans);
+    }
+    .toolbar-btn-text {
+      width: auto;
+      padding: 0 var(--space-2);
+      font-size: var(--text-xs);
+      letter-spacing: 0.02em;
+    }
+    .toolbar-btn:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+    .toolbar-btn.active {
+      background: rgba(74, 103, 133, 0.18);
+      color: var(--accent-400);
+    }
+    .toolbar-btn svg { width: 14px; height: 14px; stroke-width: 2.5; }
+
+    .toolbar-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--surface-border);
+      margin: 0 var(--space-1);
+      flex-shrink: 0;
+    }
+
+    /* ── Editor ── */
+    .editor-wrap {
+      position: relative;
+    }
+
+    #editor {
+      min-height: 280px;
+      padding: var(--space-4) var(--space-5);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      line-height: 1.65;
+      outline: none;
+      transition: border-color 0.15s;
+      word-break: break-word;
+    }
+    #editor:focus {
+      border-color: var(--accent-400);
+    }
+
+    /* Rich text rendering inside editor */
+    #editor b, #editor strong { font-weight: 700; }
+    #editor i, #editor em { font-style: italic; }
+    #editor s, #editor del { text-decoration: line-through; }
+    #editor code {
+      font-family: var(--font-mono);
+      font-size: 0.875em;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--surface-border);
+      border-radius: 3px;
+      padding: 1px 5px;
+    }
+    #editor pre {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      overflow-x: auto;
+      margin: var(--space-2) 0;
+    }
+    #editor pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: var(--text-sm);
+    }
+    #editor blockquote {
+      border-left: 3px solid var(--accent-400);
+      margin: var(--space-2) 0;
+      padding: var(--space-1) var(--space-4);
+      color: var(--text-secondary);
+    }
+    #editor a { color: var(--accent-400); text-decoration: underline; }
+    #editor ul, #editor ol { padding-left: var(--space-6); margin: var(--space-2) 0; }
+    #editor li { margin: var(--space-1) 0; }
+    #editor h1 { font-size: var(--text-2xl); font-weight: 700; margin: var(--space-3) 0 var(--space-2); }
+    #editor h2 { font-size: var(--text-xl); font-weight: 600; margin: var(--space-3) 0 var(--space-2); }
+    #editor h3 { font-size: var(--text-lg); font-weight: 600; margin: var(--space-2) 0 var(--space-1); }
+    #editor p { margin: 0 0 var(--space-2); }
+
+    .editor-placeholder {
+      position: absolute;
+      top: var(--space-4);
+      left: var(--space-5);
+      color: var(--text-tertiary);
+      font-size: var(--text-base);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* ── Tabbed copy / preview section ── */
+    .copy-section {
+      margin-top: 0;
+    }
+
+    /* Brand logo chip */
+    .platform-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .platform-icon svg { width: 13px; height: 13px; }
+    .platform-icon.slack    { background: #4A154B; }
+    .platform-icon.discord  { background: #5865F2; }
+    .platform-icon.reddit   { background: #FF4500; }
+    .platform-icon.markdown { background: var(--bg-tertiary); border: 1px solid var(--surface-border); }
+
+    /* Tab bar */
+    .platform-tabs {
+      display: flex;
+      gap: var(--space-1);
+      padding: var(--space-1);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-4);
+    }
+
+    .platform-tab {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-2);
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .platform-tab:hover {
+      color: var(--text-primary);
+      background: var(--bg-tertiary);
+    }
+    .platform-tab.active {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .platform-tab .tab-name { overflow: hidden; text-overflow: ellipsis; }
+    @media (max-width: 460px) {
+      .platform-tab .tab-name { display: none; }
+    }
+
+    /* Active panel */
+    .platform-panel {
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: border-color 0.15s;
+    }
+    .platform-panel.copied { border-color: var(--success); }
+
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-2) var(--space-4);
+      background-color: var(--brand, var(--bg-tertiary));
+      border: 1px solid var(--brand, var(--surface-border));
+      border-radius: var(--radius-md);
+      color: #fff;
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: filter 0.15s, background 0.15s, border-color 0.15s;
+    }
+    .copy-btn:hover { filter: brightness(1.12); }
+    .platform-panel.copied .copy-btn {
+      background-color: var(--success);
+      border-color: var(--success);
+      color: #fff;
+    }
+    .copy-btn svg { width: 13px; height: 13px; }
+
+    /* Live preview of converted output */
+    .copy-preview {
+      margin: 0;
+      padding: var(--space-4);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      line-height: 1.65;
+      color: var(--text-primary);
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-x: auto;
+      min-height: 160px;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+    .copy-preview.empty {
+      color: var(--text-tertiary);
+      font-style: italic;
+      font-family: var(--font-sans);
+    }
+
+    /* Footer: actions + expandable formatting guide */
+    .panel-foot {
+      border-top: 1px solid var(--surface-border-subtle);
+    }
+    .panel-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+    }
+    .guide-toggle {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 0;
+      background: transparent;
+      border: none;
+      font-family: var(--font-sans);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .guide-toggle:hover { color: var(--text-secondary); }
+    .guide-toggle .chevron {
+      width: 13px;
+      height: 13px;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .guide-toggle[aria-expanded="true"] .chevron { transform: rotate(90deg); }
+
+    .panel-guide {
+      padding: 0 var(--space-4) var(--space-4);
+    }
+    .panel-guide[hidden] { display: none; }
+    .panel-syntax {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
+    .panel-syntax span {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-sm);
+      padding: 2px 6px;
+    }
+    .panel-note {
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+    .panel-note code {
+      font-family: var(--font-mono);
+      font-size: 0.92em;
+      background: var(--bg-tertiary);
+      border-radius: 3px;
+      padding: 1px 4px;
+      color: var(--text-secondary);
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: var(--space-6);
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: var(--text-primary);
+      color: var(--text-inverse);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-full, 999px);
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 100;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Platform notes ── */
+    .platform-notes {
+      margin-top: var(--space-6);
+      padding: var(--space-4);
+      background: var(--bg-secondary);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+    }
+    .platform-notes-title {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      margin-bottom: var(--space-3);
+    }
+    .platform-note {
+      display: flex;
+      gap: var(--space-2);
+      font-size: var(--text-xs);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-2);
+      line-height: 1.5;
+    }
+    .platform-note:last-child { margin-bottom: 0; }
+    .platform-note-label {
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header class="tool-header">
+    <a href="about.html" class="back-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+      Back
+    </a>
+    <span class="tool-header-title">Format Translator</span>
+  </header>
+
+  <main class="ft-container">
+    <div class="ft-intro">
+      <h1>Format Translator</h1>
+      <p>Write or paste Markdown on the left, then copy it formatted for any platform on the right.</p>
+    </div>
+
+    <div class="ft-workspace">
+    <!-- Left pane: composer -->
+    <div class="ft-pane ft-pane-left">
+    <div class="ft-pane-label">Compose</div>
+
+    <!-- Toolbar -->
+    <div class="editor-toolbar" role="toolbar" aria-label="Formatting toolbar">
+      <button class="toolbar-btn toolbar-btn-text" data-cmd="h1" title="Heading 1">H1</button>
+      <button class="toolbar-btn toolbar-btn-text" data-cmd="h2" title="Heading 2">H2</button>
+      <button class="toolbar-btn toolbar-btn-text" data-cmd="h3" title="Heading 3">H3</button>
+      <div class="toolbar-sep"></div>
+      <button class="toolbar-btn" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+      <button class="toolbar-btn" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+      <button class="toolbar-btn" data-cmd="strikeThrough" title="Strikethrough">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <path d="M16 6H8a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h8a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2H8"/>
+        </svg>
+      </button>
+      <div class="toolbar-sep"></div>
+      <button class="toolbar-btn" data-cmd="inlineCode" title="Inline code">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+        </svg>
+      </button>
+      <button class="toolbar-btn" data-cmd="codeBlock" title="Code block">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="4" width="20" height="16" rx="2"/>
+          <path d="M9 9l-3 3 3 3M15 9l3 3-3 3"/>
+        </svg>
+      </button>
+      <div class="toolbar-sep"></div>
+      <button class="toolbar-btn" data-cmd="insertUnorderedList" title="Bullet list">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/>
+          <circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/>
+        </svg>
+      </button>
+      <button class="toolbar-btn" data-cmd="insertOrderedList" title="Numbered list">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/>
+          <text x="2" y="8" fill="currentColor" stroke="none" font-size="7" font-family="sans-serif">1.</text>
+          <text x="2" y="14" fill="currentColor" stroke="none" font-size="7" font-family="sans-serif">2.</text>
+          <text x="2" y="20" fill="currentColor" stroke="none" font-size="7" font-family="sans-serif">3.</text>
+        </svg>
+      </button>
+      <button class="toolbar-btn" data-cmd="blockquote" title="Blockquote">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/>
+          <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/>
+        </svg>
+      </button>
+      <div class="toolbar-sep"></div>
+      <button class="toolbar-btn" data-cmd="createLink" title="Link (Ctrl+K)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+      </button>
+      <div class="toolbar-sep"></div>
+      <button class="toolbar-btn" data-cmd="clearFormat" title="Clear formatting">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 7V4h16v3"/><path d="M5 20h6"/><path d="M13 4 8 20"/>
+          <line x1="18" y1="14" x2="22" y2="18"/><line x1="22" y1="14" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Editor -->
+    <div class="editor-wrap">
+      <div id="editor" contenteditable="true" spellcheck="true" role="textbox" aria-multiline="true"
+        aria-label="Message editor"></div>
+      <span class="editor-placeholder" id="placeholder">Write your message here, or paste Markdown...</span>
+    </div>
+    </div><!-- /ft-pane-left -->
+
+    <!-- Right pane: previews + copy -->
+    <div class="ft-pane ft-pane-right">
+    <div class="ft-pane-label">Preview &amp; copy</div>
+    <div class="copy-section">
+      <!-- Tabs -->
+      <div class="platform-tabs" role="tablist" aria-label="Target platform">
+        <button class="platform-tab active" data-platform="slack" role="tab" aria-selected="true">
+          <span class="platform-icon slack" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zm1.271 0a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zm0 1.271a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zm10.122 2.521a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zm-1.268 0a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zm0-1.268a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/>
+            </svg>
+          </span>
+          <span class="tab-name">Slack</span>
+        </button>
+        <button class="platform-tab" data-platform="discord" role="tab" aria-selected="false">
+          <span class="platform-icon discord" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20.317 4.3698a19.7913 19.7913 0 0 0-4.8851-1.5152.0741.0741 0 0 0-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 0 0-.0785-.037 19.7363 19.7363 0 0 0-4.8852 1.515.0699.0699 0 0 0-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 0 0 .0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 0 0 .0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 0 0-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 0 1-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 0 1 .0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 0 1 .0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 0 1-.0066.1276 12.2986 12.2986 0 0 1-1.873.8914.0766.0766 0 0 0-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 0 0 .0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 0 0 .0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 0 0-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+            </svg>
+          </span>
+          <span class="tab-name">Discord</span>
+        </button>
+        <button class="platform-tab" data-platform="reddit" role="tab" aria-selected="false">
+          <span class="platform-icon reddit" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-6.991 4.87-3.862 0-6.992-2.176-6.992-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12c-.688 0-1.25.561-1.25 1.249 0 .688.562 1.249 1.25 1.249.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.249 0 .688.561 1.249 1.249 1.249.688 0 1.249-.561 1.249-1.249 0-.688-.561-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/>
+            </svg>
+          </span>
+          <span class="tab-name">Reddit</span>
+        </button>
+        <button class="platform-tab" data-platform="markdown" role="tab" aria-selected="false">
+          <span class="platform-icon markdown" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="var(--text-secondary)" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.27 19.385H1.73A1.73 1.73 0 0 1 0 17.655V6.345a1.73 1.73 0 0 1 1.73-1.73h20.54A1.73 1.73 0 0 1 24 6.345v11.31a1.73 1.73 0 0 1-1.73 1.73zM5.769 15.923v-4.5l2.308 2.885 2.307-2.885v4.5h2.308V8.078h-2.308l-2.307 2.885-2.308-2.885H3.46v7.847zM21.232 12h-2.309V8.077h-2.307V12h-2.308l3.461 4.039z"/>
+            </svg>
+          </span>
+          <span class="tab-name">Markdown</span>
+        </button>
+      </div>
+
+      <!-- Active platform panel -->
+      <div class="platform-panel" id="panel" role="tabpanel">
+        <pre class="copy-preview" id="panel-preview"></pre>
+        <div class="panel-foot">
+          <div class="panel-actions">
+            <button class="guide-toggle" id="guide-toggle" aria-expanded="false" aria-controls="panel-guide">
+              <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+              Formatting guide
+            </button>
+            <button class="copy-btn" id="panel-copy" aria-label="Copy">
+              <svg data-feather="copy" viewBox="0 0 24 24" fill="none" stroke="currentColor"></svg>
+              Copy
+            </button>
+          </div>
+          <div class="panel-guide" id="panel-guide" hidden>
+            <div class="panel-syntax" id="panel-hint"></div>
+            <div class="panel-note" id="panel-note"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div><!-- /ft-pane-right -->
+    </div><!-- /ft-workspace -->
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    // ── Placeholder visibility ──
+    const editor = document.getElementById('editor');
+    const placeholder = document.getElementById('placeholder');
+
+    function updatePlaceholder() {
+      placeholder.style.display = editor.textContent.trim() === '' && editor.innerHTML.trim() === '' ? 'block' : 'none';
+    }
+    editor.addEventListener('input', () => { updatePlaceholder(); updatePreviews(); });
+    updatePlaceholder();
+
+    // ── Markdown paste interception ──
+    editor.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const text = e.clipboardData.getData('text/plain');
+      if (!text) return;
+
+      // Detect Markdown patterns
+      const mdPatterns = [/\*\*[^*]+\*\*/, /^#{1,6} /m, /^\s*[-*] /m, /^\s*\d+\. /m, /\[.+\]\(.+\)/, /`[^`]+`/, /^>/m];
+      const looksLikeMarkdown = mdPatterns.some(p => p.test(text));
+
+      let html;
+      if (looksLikeMarkdown && window.marked) {
+        html = marked.parse(text);
+      } else {
+        // Plain text: escape HTML and convert newlines to <br>
+        html = text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .split('\n')
+          .map(line => `<p>${line || '<br>'}</p>`)
+          .join('');
+      }
+
+      const sel = window.getSelection();
+      if (!sel.rangeCount) return;
+      sel.deleteFromDocument();
+      const range = sel.getRangeAt(0);
+      const frag = range.createContextualFragment(html);
+      range.insertNode(frag);
+      sel.collapseToEnd();
+      updatePlaceholder();
+      updatePreviews();
+    });
+
+    // ── Toolbar actions ──
+    document.querySelector('.editor-toolbar').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-cmd]');
+      if (!btn) return;
+      const cmd = btn.dataset.cmd;
+      editor.focus();
+
+      if (cmd === 'h1' || cmd === 'h2' || cmd === 'h3') {
+        // Toggle: if the block is already this heading, revert to paragraph
+        const current = document.queryCommandValue('formatBlock').toLowerCase();
+        document.execCommand('formatBlock', false, current === cmd ? 'p' : cmd.toUpperCase());
+      } else if (cmd === 'inlineCode') {
+        wrapSelection('<code>', '</code>', 'code');
+      } else if (cmd === 'codeBlock') {
+        wrapBlockSelection('<pre><code>', '</code></pre>', 'code');
+      } else if (cmd === 'blockquote') {
+        document.execCommand('formatBlock', false, 'blockquote');
+      } else if (cmd === 'createLink') {
+        const sel = window.getSelection();
+        const selectedText = sel.toString();
+        const url = prompt('Enter URL:', 'https://');
+        if (url) {
+          if (selectedText) {
+            document.execCommand('createLink', false, url);
+          } else {
+            const linkText = prompt('Link text:', url);
+            const a = `<a href="${escapeAttr(url)}">${escapeHtml(linkText || url)}</a>`;
+            document.execCommand('insertHTML', false, a);
+          }
+        }
+      } else if (cmd === 'clearFormat') {
+        document.execCommand('removeFormat', false, null);
+        document.execCommand('unlink', false, null);
+      } else {
+        document.execCommand(cmd, false, null);
+      }
+      updatePlaceholder();
+      updatePreviews();
+    });
+
+    function escapeHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+    function escapeAttr(s) {
+      return s.replace(/"/g,'&quot;');
+    }
+
+    function wrapSelection(open, close, tagName) {
+      const sel = window.getSelection();
+      if (!sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+
+      // Check if already wrapped — if ancestor is the tag, unwrap
+      const ancestor = sel.anchorNode.parentElement;
+      if (ancestor && ancestor.tagName.toLowerCase() === tagName) {
+        const parent = ancestor.parentNode;
+        while (ancestor.firstChild) parent.insertBefore(ancestor.firstChild, ancestor);
+        parent.removeChild(ancestor);
+        return;
+      }
+
+      const fragment = range.extractContents();
+      const el = document.createElement(tagName);
+      el.appendChild(fragment);
+      range.insertNode(el);
+      sel.collapseToEnd();
+    }
+
+    function wrapBlockSelection(open, close, innerTag) {
+      const sel = window.getSelection();
+      if (!sel.rangeCount) return;
+      const range = sel.getRangeAt(0);
+      const text = range.toString() || 'code here';
+      const pre = document.createElement('pre');
+      const code = document.createElement('code');
+      code.textContent = text;
+      pre.appendChild(code);
+      range.deleteContents();
+      range.insertNode(pre);
+      sel.collapseToEnd();
+    }
+
+    // ── Keyboard shortcuts ──
+    editor.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'b') { e.preventDefault(); document.execCommand('bold'); }
+        if (e.key === 'i') { e.preventDefault(); document.execCommand('italic'); }
+        if (e.key === 'k') {
+          e.preventDefault();
+          const url = prompt('Enter URL:', 'https://');
+          if (url) document.execCommand('createLink', false, url);
+        }
+      }
+      updatePlaceholder();
+      updatePreviews();
+    });
+
+    // ── HTML → Platform text conversion ──
+    function nodeToText(node, platform) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return node.textContent;
+      }
+
+      const tag = node.tagName?.toLowerCase();
+
+      // Handle <pre> specially: grab raw text content
+      if (tag === 'pre') {
+        const codeEl = node.querySelector('code');
+        const content = (codeEl || node).textContent;
+        return `\`\`\`\n${content}\n\`\`\``;
+      }
+
+      const children = Array.from(node.childNodes).map(c => nodeToText(c, platform)).join('');
+
+      switch (tag) {
+        case 'strong':
+        case 'b':
+          return platform === 'slack' ? `*${children}*` : `**${children}**`;
+
+        case 'em':
+        case 'i':
+          return platform === 'slack' ? `_${children}_` : `*${children}*`;
+
+        case 'del':
+        case 's':
+          return platform === 'slack' ? `~${children}~` : `~~${children}~~`;
+
+        case 'code':
+          return `\`${children}\``;
+
+        case 'a': {
+          const href = node.getAttribute('href') || '';
+          if (platform === 'slack') return `<${href}|${children}>`;
+          if (platform === 'discord') return href; // Discord doesn't render [text](url)
+          return `[${children}](${href})`;
+        }
+
+        case 'blockquote':
+          return children.split('\n').filter(l => l !== '').map(l => `> ${l}`).join('\n') + '\n';
+
+        case 'ul': {
+          const items = Array.from(node.children).map(li => `- ${nodeToText(li, platform)}`);
+          return items.join('\n') + '\n';
+        }
+
+        case 'ol': {
+          const items = Array.from(node.children).map((li, i) => `${i + 1}. ${nodeToText(li, platform)}`);
+          return items.join('\n') + '\n';
+        }
+
+        case 'li':
+          return children.trim();
+
+        case 'br':
+          return '\n';
+
+        case 'p': {
+          const text = children.trim();
+          return text ? text + '\n' : '\n';
+        }
+
+        case 'div': {
+          const text = children.trim();
+          return text ? text + '\n' : '\n';
+        }
+
+        case 'h1':
+        case 'h2':
+        case 'h3':
+        case 'h4':
+        case 'h5':
+        case 'h6': {
+          const level = Number(tag[1]);
+          const content = children.trim();
+          // Slack mrkdwn has no headings — '#' renders literally — so bold instead.
+          if (platform === 'slack') return `*${content}*\n`;
+          // Discord supports only three heading levels (#, ##, ###).
+          const hashes = '#'.repeat(platform === 'discord' ? Math.min(level, 3) : level);
+          return `${hashes} ${content}\n`;
+        }
+
+        default:
+          return children;
+      }
+    }
+
+    function editorToText(platform) {
+      let text = nodeToText(editor, platform);
+      // Collapse 3+ consecutive newlines to 2
+      text = text.replace(/\n{3,}/g, '\n\n').trim();
+      return text;
+    }
+
+    // ── Tabbed preview / copy ──
+    const PLATFORM_META = {
+      slack: {
+        name: 'Slack',
+        brand: '#611F69',
+        syntax: ['*bold*', '_italic_', '~strike~', '`code`', '<url|text>'],
+        note: 'Bold uses single asterisks <code>*bold*</code>, italic uses underscores <code>_italic_</code>, links use <code>&lt;url|text&gt;</code>. Slack has no headings, so headers are converted to bold.',
+      },
+      discord: {
+        name: 'Discord',
+        brand: '#5865F2',
+        syntax: ['# heading', '**bold**', '*italic*', '~~strike~~', '`code`'],
+        note: 'Only three heading levels (<code>#</code> <code>##</code> <code>###</code>) are supported. Masked links <code>[text](url)</code> don’t render in typed messages, so URLs are posted bare.',
+      },
+      reddit: {
+        name: 'Reddit',
+        brand: '#FF4500',
+        syntax: ['# heading', '**bold**', '*italic*', '~~strike~~', '`code`', '[text](url)'],
+        note: 'Strikethrough and tables render on New Reddit and mobile but not on old.reddit.com. Numbered lists need a blank line before them.',
+      },
+      markdown: {
+        name: 'Markdown',
+        brand: '#4A6785',
+        syntax: ['# heading', '**bold**', '*italic*', '~~strike~~', '`code`', '[text](url)'],
+        note: 'Standard CommonMark — renders on GitHub, Notion, and most docs tools.',
+      },
+    };
+
+    let activePlatform = 'slack';
+
+    const tabs = document.querySelectorAll('.platform-tab');
+    const panel = document.getElementById('panel');
+    const panelHint = document.getElementById('panel-hint');
+    const panelPreview = document.getElementById('panel-preview');
+    const panelNote = document.getElementById('panel-note');
+    const panelCopy = document.getElementById('panel-copy');
+
+    function escapeChip(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    const copySection = document.querySelector('.copy-section');
+    const SUCCESS_COLOR = '#7CB97E';
+
+    // Paint the copy button in the active platform's brand color.
+    function applyBrandToButton() {
+      const brand = PLATFORM_META[activePlatform].brand;
+      panelCopy.style.backgroundColor = brand;
+      panelCopy.style.borderColor = brand;
+    }
+
+    function renderPanel() {
+      const meta = PLATFORM_META[activePlatform];
+      // Drives the active tab's brand accent (CSS) ...
+      copySection.style.setProperty('--brand', meta.brand);
+      // ... and the copy button directly (reliable across engines).
+      if (!panel.classList.contains('copied')) applyBrandToButton();
+      panelHint.innerHTML = meta.syntax.map(s => `<span>${escapeChip(s)}</span>`).join('');
+      panelNote.innerHTML = meta.note;
+      const text = editorToText(activePlatform);
+      if (text) {
+        panelPreview.textContent = text;
+        panelPreview.classList.remove('empty');
+      } else {
+        panelPreview.textContent = 'Nothing to preview yet — start writing on the left.';
+        panelPreview.classList.add('empty');
+      }
+    }
+    // Alias used by editor event handlers
+    const updatePreviews = renderPanel;
+
+    // Formatting guide expand/collapse
+    const guideToggle = document.getElementById('guide-toggle');
+    const guideBody = document.getElementById('panel-guide');
+    guideToggle.addEventListener('click', () => {
+      const open = guideToggle.getAttribute('aria-expanded') === 'true';
+      guideToggle.setAttribute('aria-expanded', open ? 'false' : 'true');
+      guideBody.hidden = open;
+    });
+
+    // Tab switching
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        activePlatform = tab.dataset.platform;
+        tabs.forEach(t => {
+          const on = t === tab;
+          t.classList.toggle('active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        renderPanel();
+      });
+    });
+
+    // Copy active platform
+    let copyResetTimer;
+    panelCopy.addEventListener('click', async () => {
+      const text = editorToText(activePlatform);
+      if (!text) {
+        showToast('Nothing to copy — write something first.');
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast(`Copied for ${PLATFORM_META[activePlatform].name}`);
+        panel.classList.add('copied');
+        panelCopy.style.backgroundColor = SUCCESS_COLOR;
+        panelCopy.style.borderColor = SUCCESS_COLOR;
+        panelCopy.innerHTML = `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied`;
+        clearTimeout(copyResetTimer);
+        copyResetTimer = setTimeout(() => {
+          panel.classList.remove('copied');
+          applyBrandToButton();
+          panelCopy.innerHTML = `<svg data-feather="copy" viewBox="0 0 24 24" fill="none" stroke="currentColor"></svg> Copy`;
+          feather.replace();
+        }, 2000);
+      } catch {
+        showToast('Copy failed — try selecting and copying manually.');
+      }
+    });
+
+    // ── Toast ──
+    let toastTimer;
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // ── Feather icons + initial preview ──
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.feather) feather.replace();
+      updatePreviews();
+    });
+  </script>
+</body>
+</html>
