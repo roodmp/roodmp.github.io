@@ -16,19 +16,20 @@
 ## Pages
 | File | Description |
 |------|-------------|
-| `index.html` | Resume/CV (default page) |
+| `index.html` | Resume/CV (default/home page) |
 | `about.html` | Workspace/project browser (board + list views) |
 | `resources.html` | Resources & links |
-| `powershell.html` | PowerShell utilities |
+| `powershell.html` | PowerShell verb challenge quiz (standalone, no nav) |
 | `pswindowsupdate.html` | PSWindowsUpdate tool |
 | `seat-planner.html` | Drag-and-drop seat assignment |
 | `should-i-use-ai.html` | AI decision flowchart |
+| `mcp-server-setup.html` | MCP server setup instructions |
+| `format-translator.html` | Format translator tool |
 | `games/brick-breaker.html` | Brick Breaker game |
 | `games/solitaire.html` | Klondike solitaire game |
 | `games/klotski.html` | Klotski sliding puzzle |
 | `agent-workflow-visualizer.html` | Agent workflow diagram |
 | `design-system-v2.html` | Design system preview |
-| `games/red-panda-flappy.html` | Easter egg Flappy Bird clone |
 
 ## Code Style Guidelines
 - **HTML**: Semantic HTML5 with proper accessibility attributes (ARIA labels, roles)
@@ -41,14 +42,15 @@
 - **Design Tokens**: `design-system.css` defines canonical CSS custom properties
 
 ## Navigation Maintenance
-Navigation HTML is duplicated across all pages (index.html, about.html, resources.html, powershell.html).
-When updating navigation, update ALL pages to maintain consistency.
+Navigation HTML is duplicated across the 3 main pages (index.html, about.html, resources.html).
+`powershell.html` has no navigation at all (standalone quiz page).
+When updating navigation, update all 3 main pages to maintain consistency.
 
 ## Adding a New Page
 1. Create HTML file with dark-mode boilerplate (copy `<head>` from existing page)
 2. Choose header: floating nav (main pages) or compact back-arrow (tools/games)
-3. Update nav on 4 main pages if adding to top nav bar
-4. Add entry to `projects` array in `about.html` (next ID: MR-022)
+3. Update nav on 3 main pages if adding to top nav bar
+4. Add entry to `projects` array in `about.html` (next ID: MR-026)
 
 ## Projects Array Enum Values
 - **status**: `shipped` | `in-progress` | `backlog`
