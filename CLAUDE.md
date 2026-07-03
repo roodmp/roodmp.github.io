@@ -59,6 +59,7 @@ roodmp.github.io/
 ```
 
 **Key Files:**
+- `design.md` - Centralized design system documentation (tokens, components, page patterns, conformance rules) — read before styling any page
 - `index.html` - Resume/CV page (default page per _config.yml)
 - `about.html` - About/Workspace page (project browser with board/list views), set as index_page in Jekyll config
 - `main.js` - Core JavaScript for navigation, mobile menu, and easter egg functionality

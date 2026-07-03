@@ -55,7 +55,7 @@
             max-width: fit-content;
             margin: 0 auto;
             padding: var(--space-2) var(--space-4);
-            background: rgba(46, 46, 43, 0.95);
+            background: rgba(34, 34, 31, 0.95);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--surface-border);
@@ -178,7 +178,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(38, 38, 36, 0.85);
+            background: rgba(26, 26, 24, 0.85);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             z-index: 50;
@@ -392,7 +392,7 @@
 
         // --- Design tokens ---
         const COLORS = {
-            bg: '#262624',
+            bg: '#1A1A18',
             paddle: '#4A6785',
             paddleGlow: 'rgba(74, 103, 133, 0.4)',
             ball: '#F5F5F4',
@@ -404,7 +404,7 @@
             textPrimary: '#F5F5F4',
             textSecondary: '#A8A8A4',
             textTertiary: '#6B6B67',
-            uiBg: 'rgba(46, 46, 43, 0.7)',
+            uiBg: 'rgba(34, 34, 31, 0.7)',
             border: 'rgba(255, 255, 255, 0.08)',
         };
 
@@ -1725,7 +1725,7 @@
             const cy = fallingCapsule.y - capH / 2;
 
             // Dark fill with colored border
-            ctx.fillStyle = 'rgba(38, 38, 36, 0.85)';
+            ctx.fillStyle = 'rgba(26, 26, 24, 0.85)';
             roundRect(ctx, cx, cy, capW, capH, 10);
             ctx.fill();
 
