@@ -155,6 +155,97 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+// ── Dot-grid "MR" monogram with cursor-origin hover ripple ──
+// Progressive enhancement: replaces the static favicon nav logo with an
+// interactive dot grid. Falls back to the plain favicon image without JS.
+function initMonogram() {
+  const logos = document.querySelectorAll('.nav-logo img');
+  if (!logos.length) return;
+
+  if (!document.getElementById('mr-mono-style')) {
+    const s = document.createElement('style');
+    s.id = 'mr-mono-style';
+    s.textContent = `
+      .mr-mono { --mr-dot:#E8845A; position:relative; display:grid;
+        grid-template-columns:repeat(13,1fr); grid-template-rows:repeat(13,1fr);
+        width:28px; height:28px; background:#22221F; border-radius:22%;
+        padding:6%; box-sizing:border-box;
+        border:1px solid rgba(255,255,255,0.08); }
+      .mr-mono .mr-c { display:grid; place-items:center; }
+      .mr-mono .mr-d { width:22%; aspect-ratio:1; border-radius:50%;
+        background:var(--mr-dot); opacity:.12; --mr-bo:.12; will-change:transform,opacity; }
+      .mr-mono .mr-d.on { width:62%; opacity:1; --mr-bo:1; }
+      .mr-mono .mr-d.go { animation:mrRipple 620ms cubic-bezier(.22,.61,.36,1) var(--mr-dl,0ms); }
+      @keyframes mrRipple { 0%,100%{opacity:var(--mr-bo);transform:scale(1)}
+        32%{opacity:1;transform:scale(1.85)} }
+      @media (prefers-reduced-motion: reduce){ .mr-mono .mr-d.go{animation:none} }
+    `;
+    document.head.appendChild(s);
+  }
+
+  const M = ["10001", "11011", "10101", "10001", "10001", "10001", "10001"];
+  const R = ["11110", "10001", "10001", "11110", "10100", "10010", "10001"];
+  const core = [];
+  for (let r = 0; r < 7; r++) core.push((M[r] + "0" + R[r]).split("").map(Number));
+  const PX = 1, PY = 3, cols = core[0].length + PX * 2, rows = core.length + PY * 2;
+  const GRID = Array.from({ length: rows }, () => Array(cols).fill(0));
+  for (let r = 0; r < core.length; r++) for (let c = 0; c < core[0].length; c++) GRID[r + PY][c + PX] = core[r][c];
+
+  logos.forEach((img) => {
+    const mono = document.createElement('span');
+    mono.className = 'mr-mono';
+    mono.setAttribute('aria-hidden', 'true');
+    const dots = [];
+    GRID.forEach((row) => row.forEach((v) => {
+      const cell = document.createElement('span');
+      cell.className = 'mr-c';
+      const dot = document.createElement('span');
+      dot.className = 'mr-d' + (v ? ' on' : '');
+      cell.appendChild(dot);
+      mono.appendChild(cell);
+      dots.push(dot);
+    }));
+
+    // Strictly decorative: swap in the mono, then neutralize the wrapping
+    // link so the logo is a hover effect only — not a button / nav target.
+    const link = img.closest('a.nav-logo');
+    img.replaceWith(mono);
+    if (link) {
+      const span = document.createElement('span');
+      span.className = link.className;
+      while (link.firstChild) span.appendChild(link.firstChild);
+      link.replaceWith(span);
+    }
+
+    let rects = null;
+    const cache = () => {
+      const b = mono.getBoundingClientRect();
+      rects = dots.map((d) => { const r = d.getBoundingClientRect(); return { x: r.left + r.width / 2 - b.left, y: r.top + r.height / 2 - b.top }; });
+    };
+    // Fire the wave from a given client point. Normalize the per-dot delay by
+    // badge size so the ripple sweeps in a consistent, visible time at any scale.
+    const fire = (clientX, clientY) => {
+      cache();
+      const b = mono.getBoundingClientRect();
+      const ox = clientX - b.left, oy = clientY - b.top;
+      const SPREAD = 300;
+      const reach = mono.clientWidth || 28;
+      dots.forEach((d, i) => {
+        const dist = Math.hypot(rects[i].x - ox, rects[i].y - oy);
+        d.style.setProperty('--mr-dl', ((dist / reach) * SPREAD).toFixed(0) + 'ms');
+        d.classList.remove('go');
+        void d.offsetWidth;
+        d.classList.add('go');
+      });
+    };
+    // Desktop: hover. Touch / click: tap, rippling from the press point.
+    mono.addEventListener('pointerenter', (e) => fire(e.clientX, e.clientY));
+    mono.addEventListener('pointerdown', (e) => fire(e.clientX, e.clientY));
+    dots.forEach((d) => d.addEventListener('animationend', () => d.classList.remove('go')));
+    window.addEventListener('resize', () => { rects = null; });
+  });
+}
+
 document.addEventListener("DOMContentLoaded", (event) => {
   // Initialize Feather icons with error handling
   try {
@@ -164,6 +255,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
   } catch (error) {
     console.warn('Feather icons failed to load:', error);
   }
+
+  // Swap the static favicon nav logo for the interactive dot-grid monogram
+  initMonogram();
 
   // Highlight current page in navigation
   const navLinks = document.querySelectorAll(".nav-link");
