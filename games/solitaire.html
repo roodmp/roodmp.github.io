@@ -41,11 +41,11 @@
                             600: '#B54E2A'
                         },
                         surface: {
-                            primary: '#262624',
-                            secondary: '#2E2E2B',
-                            tertiary: '#363633',
-                            elevated: '#3E3E3A',
-                            hover: '#464642'
+                            primary: '#1A1A18',
+                            secondary: '#22221F',
+                            tertiary: '#2A2A27',
+                            elevated: '#32322F',
+                            hover: '#3A3A36'
                         },
                         text: {
                             primary: '#F5F5F4',
@@ -76,6 +76,7 @@
         .card {
             width: 128px;
             height: 176px;
+            padding: var(--space-2);
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             -khtml-user-select: none;
@@ -1041,10 +1042,9 @@
             // Mobile responsive text sizes
             const rankSize = window.innerWidth <= 480 ? 'text-sm' : window.innerWidth <= 768 ? 'text-lg' : 'text-2xl';
             const suitSize = window.innerWidth <= 480 ? 'text-xl' : window.innerWidth <= 768 ? 'text-2xl' : 'text-4xl';
-            const padding = window.innerWidth <= 480 ? 'p-1' : window.innerWidth <= 768 ? 'p-1.5' : 'p-2';
-            
+
             cardElement.innerHTML = `
-                <div class="${padding} h-full flex flex-col justify-between">
+                <div class="h-full flex flex-col justify-between">
                     <div class="${rankSize} font-bold ${suitColors[card.suit]}">
                         ${card.rank}
                     </div>
@@ -1854,7 +1854,7 @@
                 });
                 
                 // Replace the container's classes and content with the card element
-                wasteContainer.className = 'card flex items-center justify-center';
+                wasteContainer.className = 'flex items-center justify-center';
                 wasteContainer.appendChild(cardElement);
             } else {
                 wasteContainer.className = 'card border-2 border-dashed border-white/10 rounded-xl transition-all hover:border-white/25 cursor-pointer flex items-center justify-center';
