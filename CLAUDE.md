@@ -26,7 +26,6 @@ This is a personal portfolio website for Mark Rood (roodmp.github.io) deployed v
 - Pure HTML/CSS/JavaScript with no build system or framework dependencies
 - Uses Tailwind CSS via CDN for styling
 - Feather Icons for iconography
-- Material-UI dependencies in package.json (for future React components)
 
 **File Tree:**
 ```
@@ -51,7 +50,7 @@ roodmp.github.io/
 ├── styles.css                  # Additional shared styles
 ├── assets/
 │   └── css/tailwind.css        # Tailwind overrides
-├── klonski.md                  # Klotski game PRD/dev handoff doc
+├── klotski.md                  # Klotski game PRD/dev handoff doc
 ├── _config.yml                 # Jekyll/GitHub Pages config
 ├── AGENTS.md                   # Cross-agent quick reference
 └── .github/
@@ -64,7 +63,7 @@ roodmp.github.io/
 - `about.html` - About/Workspace page (project browser with board/list views), set as index_page in Jekyll config
 - `main.js` - Core JavaScript for navigation, mobile menu, and easter egg functionality
 - `design-system.css` - CSS custom properties (colors, typography, spacing) used by design-system-v2.html and newer pages
-- `klonski.md` - PRD/dev handoff document for the Klotski sliding puzzle game
+- `klotski.md` - PRD/dev handoff document for the Klotski sliding puzzle game
 - `_config.yml` - Jekyll/GitHub Pages configuration
 - `.github/workflows/pages.yml` - GitHub Actions deployment workflow
 
@@ -115,7 +114,7 @@ npx serve . -p 3000
 - Local server shows exact deployed appearance
 
 **Dependencies:**
-- Material-UI packages installed for potential future React integration
+- No npm dependencies — all functionality uses CDN resources (Tailwind, Feather Icons)
 - All current functionality uses CDN resources (Tailwind, Feather Icons)
 
 ## Code Conventions

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mark-rood": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/mark/github/roodmp.github.io/mcp-server/dist/index.js"
+      ],
+      "env": {}
+    }
+  }
+}

@@ -10,43 +10,47 @@
     <link rel="icon" type="image/x-icon" href="../favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Instrument+Serif:ital,wght@0,400;1,400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../design-system.css" />
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        // Palette mirrors design-system.css tokens (warm charcoal / steel blue / panda orange)
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
                         primary: {
-                            50: '#EBF4FF',
-                            100: '#D1E7FF',
-                            200: '#A6D0FF',
-                            300: '#7AB8FF',
-                            400: '#4F9FFF',
-                            500: '#2563EB',
-                            600: '#1E40AF',
-                            700: '#1E3A8A',
-                            800: '#1E2A69',
-                            900: '#1A1F37'
+                            50: '#F0F4F7',
+                            100: '#DCE4EB',
+                            200: '#B9C9D7',
+                            300: '#8BA7BD',
+                            400: '#6B8CAE',
+                            500: '#4A6785',
+                            600: '#3D566E',
+                            700: '#324758',
+                            800: '#283844',
+                            900: '#1F2B34'
                         },
-                        ai: {
-                            cyan: '#06B6D4',
-                            purple: '#8B5CF6',
-                            blue: '#3B82F6',
-                            indigo: '#6366F1',
-                            violet: '#7C3AED'
+                        panda: {
+                            100: '#FCE8E1',
+                            200: '#F9D0C2',
+                            300: '#F4A989',
+                            400: '#E8845A',
+                            500: '#D4693D',
+                            600: '#B54E2A'
                         },
                         surface: {
-                            primary: '#0F0F0F',
-                            secondary: '#1A1A1A',
-                            tertiary: '#262626',
-                            border: '#404040'
+                            primary: '#262624',
+                            secondary: '#2E2E2B',
+                            tertiary: '#363633',
+                            elevated: '#3E3E3A',
+                            hover: '#464642'
                         },
                         text: {
-                            primary: '#FFFFFF',
-                            secondary: '#E2E8F0',
-                            tertiary: '#CBD5E1'
+                            primary: '#F5F5F4',
+                            secondary: '#A8A8A4',
+                            tertiary: '#A8A8A4'
                         }
                     }
                 }
@@ -56,25 +60,12 @@
     <style>
         @keyframes single-pulse-glow {
             0%, 100% {
-                border-color: rgb(156 163 175);
-                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+                border-color: rgba(255, 255, 255, 0.08);
+                box-shadow: 0 0 0 0 rgba(139, 167, 189, 0);
             }
             50% {
-                border-color: rgb(59 130 246);
-                box-shadow: 0 0 8px 2px rgba(59, 130, 246, 0.4);
-            }
-        }
-
-        @media (prefers-color-scheme: dark) {
-            @keyframes single-pulse-glow {
-                0%, 100% {
-                    border-color: rgb(75 85 99);
-                    box-shadow: 0 0 0 0 rgba(147, 197, 253, 0);
-                }
-                50% {
-                    border-color: rgb(147 197 253);
-                    box-shadow: 0 0 8px 2px rgba(147, 197, 253, 0.4);
-                }
+                border-color: #8BA7BD;
+                box-shadow: 0 0 8px 2px rgba(139, 167, 189, 0.4);
             }
         }
 
@@ -159,13 +150,13 @@
             position: absolute;
             width: 4px;
             height: 4px;
-            background: radial-gradient(circle, rgba(6, 182, 212, 0.8), transparent);
+            background: radial-gradient(circle, rgba(139, 167, 189, 0.7), transparent);
             border-radius: 50%;
             animation: particle-float 12s linear infinite;
         }
-        
+
         .floating-particle:nth-child(odd) {
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.8), transparent);
+            background: radial-gradient(circle, rgba(232, 132, 90, 0.6), transparent);
             animation-duration: 15s;
         }
         
@@ -175,27 +166,80 @@
             66% { transform: translateY(15px) rotate(240deg); }
         }
 
-        .theme-logo {
-            transition: all 0.3s ease;
-            filter: invert(1) brightness(1.2) drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+        /* Floating nav — same pattern as brick-breaker / rest of the site */
+        .game-header {
+            position: fixed;
+            top: var(--space-4);
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 0 var(--space-4);
+            pointer-events: none;
         }
 
-        .theme-logo:hover {
-            transform: scale(1.05);
-            filter: invert(1) brightness(1.3) drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+        @media (min-width: 640px) {
+            .game-header {
+                top: var(--space-6);
+            }
         }
 
-        .nav-link {
-            color: #E2E8F0;
-            transition: all 0.2s ease;
-            padding: 0.5rem;
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
+        .game-nav {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            max-width: fit-content;
+            margin: 0 auto;
+            padding: var(--space-2) var(--space-4);
+            background: rgba(46, 46, 43, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-lg);
+            pointer-events: auto;
         }
 
-        .nav-link:hover {
-            color: #FFFFFF;
-            transform: scale(1.05);
+        .game-nav .nav-logo {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .game-nav .nav-logo img {
+            height: 28px;
+            width: auto;
+            border-radius: var(--radius-md);
+        }
+
+        .game-nav .nav-links {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .game-nav .nav-link {
+            position: relative;
+            padding: var(--space-2) var(--space-4);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--text-sm);
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+        }
+
+        .game-nav .nav-link:hover {
+            color: var(--text-primary);
+            background-color: var(--bg-hover);
+        }
+
+        @media (max-width: 480px) {
+            .game-nav .nav-links {
+                display: none;
+            }
         }
 
         /* Enhanced mobile selection styles */
@@ -208,10 +252,10 @@
         /* Pulse animation for mobile selection */
         @keyframes mobile-selection-pulse {
             0%, 100% {
-                box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.7);
+                box-shadow: 0 0 0 0 rgba(232, 132, 90, 0.7);
             }
             50% {
-                box-shadow: 0 0 0 8px rgba(251, 191, 36, 0);
+                box-shadow: 0 0 0 8px rgba(232, 132, 90, 0);
             }
         }
 
@@ -300,80 +344,49 @@
         }
 
         .modal-btn-primary {
-            background: linear-gradient(135deg, #2563EB, #1E40AF);
-            color: white;
-            box-shadow: 0 2px 8px -2px rgba(37, 99, 235, 0.25);
+            background: var(--accent-500);
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px -2px rgba(74, 103, 133, 0.4);
         }
 
         .modal-btn-primary:hover {
-            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            background: var(--accent-400);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.35);
+            box-shadow: 0 4px 12px -2px rgba(74, 103, 133, 0.5);
         }
 
+        /* Celebration / success actions get the panda orange */
         .modal-btn-accent {
-            background: linear-gradient(135deg, #06B6D4, #0891B2);
-            color: white;
-            box-shadow: 0 2px 8px -2px rgba(6, 182, 212, 0.25);
+            background: var(--panda-500);
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px -2px rgba(212, 105, 61, 0.4);
         }
 
         .modal-btn-accent:hover {
-            background: linear-gradient(135deg, #22D3EE, #06B6D4);
+            background: var(--panda-400);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px -2px rgba(6, 182, 212, 0.35);
+            box-shadow: 0 4px 12px -2px rgba(212, 105, 61, 0.5);
         }
 
         .modal-btn-secondary {
-            background: #262626;
-            color: #E2E8F0;
-            border: 1px solid #404040;
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--surface-border);
         }
 
         .modal-btn-secondary:hover {
-            background: #404040;
-            border-color: #525252;
+            background: var(--bg-hover);
+            border-color: var(--surface-border-accent);
         }
 
         .modal-btn-ghost {
             background: transparent;
-            color: #94A3B8;
+            color: var(--text-secondary);
         }
 
         .modal-btn-ghost:hover {
-            color: #E2E8F0;
+            color: var(--text-primary);
             background: rgba(255, 255, 255, 0.05);
-        }
-
-        /* Animated rotating border */
-        .modal-border-glow {
-            position: absolute;
-            inset: 0;
-            border-radius: 1rem;
-            padding: 2px;
-            background: conic-gradient(
-                from var(--border-angle, 0deg),
-                #2563EB,
-                #06B6D4,
-                #8B5CF6,
-                #2563EB
-            );
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            animation: rotate-border 4s linear infinite;
-        }
-
-        @keyframes rotate-border {
-            to {
-                --border-angle: 360deg;
-            }
-        }
-
-        @property --border-angle {
-            syntax: '<angle>';
-            initial-value: 0deg;
-            inherits: false;
         }
 
         @media (max-width: 768px) {
@@ -384,14 +397,14 @@
             /* Enhanced undo button for mobile thumb access */
             #undoBtn {
                 border-radius: 12px;
-                background-color: rgb(55 65 81); /* gray-700 */
-                color: white;
-                border: 1px solid rgb(75 85 99); /* gray-600 */
+                background-color: var(--bg-elevated);
+                color: var(--text-primary);
+                border: 1px solid var(--surface-border);
                 transition: all 0.2s ease;
             }
-            
+
             #undoBtn:hover {
-                background-color: rgb(75 85 99); /* gray-600 */
+                background-color: var(--bg-hover);
                 transform: scale(1.05);
             }
             
@@ -424,7 +437,7 @@
     </style>
 </head>
 
-<body class="bg-surface-primary min-h-screen font-['Inter',system-ui,sans-serif] antialiased overflow-x-hidden">
+<body class="bg-surface-primary min-h-screen font-['Geist',system-ui,sans-serif] antialiased overflow-x-hidden">
     <!-- Floating particles background -->
     <div class="fixed inset-0 pointer-events-none overflow-hidden">
         <div class="floating-particle" style="left: 10%; top: 20%; animation-delay: 0s;"></div>
@@ -436,20 +449,15 @@
         <div class="floating-particle" style="left: 70%; top: 40%; animation-delay: -18s;"></div>
     </div>
 
-    <header class="fixed top-4 sm:top-6 left-0 right-0 z-50 px-2 sm:px-4" role="banner">
-        <nav class="bg-surface-secondary/95 backdrop-blur-md rounded-full shadow-lg hover:shadow-xl transition-all duration-300 max-w-fit mx-auto border border-surface-border/50" role="navigation" aria-label="Main navigation">
-            <div class="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2">
-                <!-- Logo -->
-                <a href="../about.html" class="flex-shrink-0" aria-label="Home - Mark Rood Portfolio">
-                    <img src="../favicon.png" alt="Mark Rood Logo" class="h-7 w-auto theme-logo" />
-                </a>
-
-                <!-- Middle navigation links -->
-                <div class="flex items-center gap-3 sm:gap-4">
-                    <a href="../about.html" class="nav-link" aria-label="About page">About</a>
-                    <a href="../index.html" class="nav-link" aria-label="Resume page">Resumé</a>
-                    <a href="../resources.html" class="nav-link" aria-label="Resources page">Resources</a>
-                </div>
+    <header class="game-header" role="banner">
+        <nav class="game-nav" role="navigation" aria-label="Game navigation">
+            <a href="../about.html" class="nav-logo" aria-label="Home - Mark Rood Portfolio">
+                <img src="../favicon.png" alt="Mark Rood Logo" />
+            </a>
+            <div class="nav-links">
+                <a href="../about.html" class="nav-link">About</a>
+                <a href="../index.html" class="nav-link">Resumé</a>
+                <a href="../resources.html" class="nav-link">Resources</a>
             </div>
         </nav>
     </header>
@@ -463,12 +471,12 @@
                 <h1 class="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-text-primary">Solitaire</h1>
                 <!-- Desktop controls -->
                 <div class="hidden md:flex gap-2 sm:gap-3" role="group" aria-label="Game controls">
-                    <button id="undoBtnDesktop" class="hidden p-3 text-gray-600 dark:text-gray-400 rounded-xl font-medium transition-colors hover:text-gray-900 dark:hover:text-white" title="Undo last move" aria-label="Undo last move">
+                    <button id="undoBtnDesktop" class="hidden p-3 text-text-secondary rounded-xl font-medium transition-colors hover:text-text-primary" title="Undo last move" aria-label="Undo last move">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
                         </svg>
                     </button>
-                    <button id="newGameBtnDesktop" class="px-3 py-2 sm:px-4 sm:py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-xl font-medium transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 text-sm sm:text-base" aria-label="Start a new game">
+                    <button id="newGameBtnDesktop" class="px-3 py-2 sm:px-4 sm:py-2 bg-surface-elevated border border-white/10 text-text-primary rounded-xl font-medium transition-colors hover:bg-surface-hover hover:border-white/20 text-sm sm:text-base" aria-label="Start a new game">
                         New Game
                     </button>
                 </div>
@@ -481,7 +489,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
                     </svg>
                 </button>
-                <button id="newGameBtn" class="px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-xl font-medium transition-all text-sm" aria-label="Start a new game">
+                <button id="newGameBtn" class="px-4 py-3 bg-surface-elevated border border-white/10 text-text-primary rounded-xl font-medium transition-all text-sm" aria-label="Start a new game">
                     New Game
                 </button>
             </div>
@@ -506,14 +514,14 @@
                     <div class="flex gap-1 sm:gap-2 md:gap-4 flex-shrink-0 ml-1" role="group" aria-label="Stock and waste piles">
                         <!-- Waste (discard) -->
                         <div class="flex flex-col items-center">
-                            <div id="wastePile" class="card border-2 border-dashed border-gray-300 dark:border-gray-500 rounded-xl transition-all hover:border-gray-400 dark:hover:border-gray-400 cursor-pointer flex items-center justify-center" role="button" aria-label="Waste pile - top card available for play" tabindex="0">
+                            <div id="wastePile" class="card border-2 border-dashed border-white/10 rounded-xl transition-all hover:border-white/25 cursor-pointer flex items-center justify-center" role="button" aria-label="Waste pile - top card available for play" tabindex="0">
                                 <!-- Waste cards will be rendered here -->
                             </div>
                         </div>
 
                         <!-- Stock (new cards) -->
                         <div class="flex flex-col items-center">
-                            <div id="stockPile" class="card border-2 border-dashed border-gray-300 dark:border-gray-500 rounded-xl transition-all hover:border-gray-400 dark:hover:border-gray-400 cursor-pointer hover:shadow-lg transition-shadow flex items-center justify-center" role="button" aria-label="Stock pile - click to draw new cards" tabindex="0">
+                            <div id="stockPile" class="card border-2 border-dashed border-white/10 rounded-xl transition-all hover:border-white/25 cursor-pointer hover:shadow-lg transition-shadow flex items-center justify-center" role="button" aria-label="Stock pile - click to draw new cards" tabindex="0">
                                 <!-- Stock cards will be rendered here -->
                             </div>
                         </div>
@@ -536,14 +544,11 @@
         <!-- Modal container -->
         <div class="absolute inset-0 flex items-center justify-center p-4">
             <div id="modalPanel" class="relative w-full max-w-md modal-panel-enter">
-                <!-- Animated rotating border -->
-                <div class="modal-border-glow"></div>
-
-                <!-- Gradient glow effect -->
-                <div class="absolute -inset-4 bg-gradient-to-r from-primary-500 via-ai-cyan to-ai-purple rounded-3xl opacity-[0.08] blur-2xl"></div>
+                <!-- Soft glow effect -->
+                <div class="absolute -inset-4 bg-gradient-to-r from-primary-500 via-panda-400 to-primary-300 rounded-3xl opacity-[0.07] blur-2xl"></div>
 
                 <!-- Modal content -->
-                <div class="relative bg-surface-secondary rounded-2xl overflow-hidden">
+                <div class="relative bg-surface-secondary border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
                     <div id="modalContent" class="p-8 text-center">
                         <!-- Icon container with glow -->
                         <div class="relative inline-flex items-center justify-center w-16 h-16 mb-6">
@@ -588,10 +593,10 @@
         };
 
         const suitColors = {
-            hearts: 'text-red-600 dark:text-red-400',
-            diamonds: 'text-red-600 dark:text-red-400',
-            clubs: 'text-gray-900 dark:text-white',
-            spades: 'text-gray-900 dark:text-white'
+            hearts: 'text-panda-300',
+            diamonds: 'text-panda-300',
+            clubs: 'text-text-primary',
+            spades: 'text-text-primary'
         };
 
         // Haptic feedback utility
@@ -736,13 +741,13 @@
             </svg>`
         };
 
-        // Icon color mapping
+        // Icon color mapping (design-system tokens)
         const iconColors = {
-            trophy: '#06B6D4',    // Cyan for win
-            sparkles: '#8B5CF6', // Purple for auto-solve
-            xCircle: '#EF4444',  // Red for error
-            plus: '#2563EB',     // Primary blue for new
-            refresh: '#06B6D4'   // Cyan for restore
+            trophy: '#E8845A',   // Panda orange for win
+            sparkles: '#E8845A', // Panda orange for auto-solve
+            xCircle: '#C97373',  // Muted red for error
+            plus: '#8BA7BD',     // Steel blue for new
+            refresh: '#8BA7BD'   // Steel blue for restore
         };
 
         // Modal functions
@@ -999,7 +1004,7 @@
             cardElement.className = `card rounded-xl cursor-pointer transition-all shadow-sm ${extraClasses}`;
             
             if (!card) {
-                cardElement.className += ' border-2 border-dashed border-gray-300 dark:border-gray-500 hover:border-gray-400 dark:hover:border-gray-400';
+                cardElement.className += ' border-2 border-dashed border-white/10 hover:border-white/25';
                 cardElement.setAttribute('role', 'button');
                 cardElement.setAttribute('aria-label', `Empty ${cardContext} pile`);
                 cardElement.setAttribute('tabindex', '0');
@@ -1009,7 +1014,7 @@
             cardElement.dataset.cardId = card.id;
             
             if (!card.faceUp) {
-                cardElement.className += ' bg-gray-800 dark:bg-gray-900 border-2 border-blue-600 dark:border-blue-400';
+                cardElement.className += ' bg-primary-900 border-2 border-primary-600';
                 cardElement.setAttribute('aria-label', 'Face down card');
                 
                 // Responsive back card design
@@ -1017,13 +1022,13 @@
                 
                 cardElement.innerHTML = `
                     <div class="w-full h-full flex items-center justify-center">
-                        <div class="${backSize} bg-gray-700 dark:bg-gray-800 rounded-lg"></div>
+                        <div class="${backSize} bg-primary-800 rounded-lg"></div>
                     </div>
                 `;
                 return cardElement;
             }
             
-            cardElement.className += ' bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500';
+            cardElement.className += ' bg-surface-elevated border border-white/10 hover:border-white/25';
             cardElement.draggable = true;
             
             // Add ARIA labels for face-up cards
@@ -1075,17 +1080,7 @@
             if (foundationComplete) {
                 gameState.gameWon = true;
                 triggerHapticFeedback('success'); // Haptic feedback for win
-                setTimeout(() => {
-                    showModal({
-                        title: 'Congratulations!',
-                        message: `You won! Moves: ${gameState.moves}`,
-                        icon: 'trophy',
-                        buttons: [
-                            { text: 'New Game', primary: true, action: startNewGame },
-                            { text: 'Close', primary: false, subtle: true }
-                        ]
-                    });
-                }, 500);
+                celebrateWin();
                 return;
             }
 
@@ -1097,24 +1092,24 @@
             if (allTableauFaceUp && gameState.stock.length === 0 && canAutoSolve()) {
                 setTimeout(() => {
                     showModal({
-                        title: 'Auto-Solve Available',
-                        message: 'All cards are revealed! Would you like to auto-solve the remaining moves?',
+                        title: 'All cards revealed',
+                        message: 'The hard part is done — the rest is just cleanup. Want me to run the victory lap for you?',
                         icon: 'sparkles',
                         buttons: [
                             { text: 'Auto-Solve', primary: true, action: autoSolve },
-                            { text: 'Continue Playing', primary: false }
+                            { text: "I'll finish it myself", primary: false, subtle: true }
                         ]
                     });
                 }, 500);
             } else if (isGameUnwinnable()) {
                 setTimeout(() => {
                     showModal({
-                        title: 'Game Unwinnable',
-                        message: 'This game cannot be won with the current card arrangement. Would you like to start a new game?',
+                        title: 'No moves left',
+                        message: "This deal can't be won — bad shuffles happen to the best of us. Deal a fresh one?",
                         icon: 'xCircle',
                         buttons: [
-                            { text: 'New Game', primary: true, action: startNewGame },
-                            { text: 'Close', primary: false }
+                            { text: 'New Deal', primary: true, action: startNewGame },
+                            { text: 'Keep looking', primary: false, subtle: true }
                         ]
                     });
                 }, 500);
@@ -1358,15 +1353,121 @@
                 }
                 
                 renderGame();
-                
-                // Add a small delay to show the moves
+
+                // Show the moves, speeding up as momentum builds
                 if (moved) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
+                    triggerHapticFeedback('light');
+                    const delay = Math.max(35, 110 - attempts * 6);
+                    await new Promise(resolve => setTimeout(resolve, delay));
                 }
             }
-            
+
             // Final win check
             checkForWin();
+        }
+
+        // ── Win celebration ──
+        const CELEBRATION_COLORS = ['#E8845A', '#F4A989', '#8BA7BD', '#4A6785', '#F5F5F4', '#7CB97E'];
+
+        function showWinModal() {
+            showModal({
+                title: 'You won!',
+                message: `All 52 cards home in ${gameState.moves} moves. Take a bow.`,
+                icon: 'trophy',
+                buttons: [
+                    { text: 'Deal me in again', primary: true, action: startNewGame },
+                    { text: 'Bask in it', primary: false, subtle: true }
+                ]
+            });
+        }
+
+        function celebrateWin() {
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                setTimeout(showWinModal, 400);
+                return;
+            }
+            launchConfetti();
+            cascadeCards();
+            setTimeout(showWinModal, 2600);
+        }
+
+        function launchConfetti() {
+            const canvas = document.createElement('canvas');
+            canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60;';
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            document.body.appendChild(canvas);
+            const ctx = canvas.getContext('2d');
+            const pieces = Array.from({ length: 160 }, () => ({
+                x: Math.random() * canvas.width,
+                y: -20 - Math.random() * canvas.height * 0.5,
+                w: 6 + Math.random() * 6,
+                h: 8 + Math.random() * 8,
+                vx: (Math.random() - 0.5) * 3,
+                vy: 2 + Math.random() * 3.5,
+                rot: Math.random() * Math.PI * 2,
+                vr: (Math.random() - 0.5) * 0.25,
+                color: CELEBRATION_COLORS[Math.floor(Math.random() * CELEBRATION_COLORS.length)]
+            }));
+            const start = performance.now();
+            (function frame(now) {
+                const t = now - start;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                pieces.forEach(p => {
+                    p.x += p.vx + Math.sin((t + p.y) / 300) * 0.6;
+                    p.y += p.vy;
+                    p.rot += p.vr;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rot);
+                    ctx.globalAlpha = Math.max(0, 1 - t / 4000);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                    ctx.restore();
+                });
+                if (t < 4200) requestAnimationFrame(frame);
+                else canvas.remove();
+            })(start);
+        }
+
+        function cascadeCards() {
+            // Classic solitaire send-off: cards leap off the foundations and bounce across the felt
+            const foundationPiles = document.querySelectorAll('#foundations .card');
+            if (!foundationPiles.length) return;
+            const cardW = foundationPiles[0].offsetWidth || 128;
+            const cardH = foundationPiles[0].offsetHeight || 176;
+            foundationPiles.forEach((pileEl, i) => {
+                const rect = pileEl.getBoundingClientRect();
+                for (let j = 0; j < 3; j++) {
+                    setTimeout(() => {
+                        const suit = suits[i % 4];
+                        const ghost = document.createElement('div');
+                        ghost.className = 'card rounded-xl bg-surface-elevated border border-white/10 flex items-center justify-center shadow-lg';
+                        ghost.style.cssText = `position:fixed;left:${rect.left}px;top:${rect.top}px;width:${cardW}px;height:${cardH}px;z-index:55;pointer-events:none;`;
+                        ghost.innerHTML = `<span class="text-4xl ${suitColors[suit]}">${suitSymbols[suit]}</span>`;
+                        document.body.appendChild(ghost);
+                        let x = rect.left, y = rect.top, rot = 0;
+                        let vx = (Math.random() < 0.5 ? -1 : 1) * (3 + Math.random() * 5);
+                        let vy = -(6 + Math.random() * 4);
+                        const vrot = (Math.random() - 0.5) * 8;
+                        const floor = window.innerHeight - cardH;
+                        (function step() {
+                            vy += 0.5; // gravity
+                            x += vx;
+                            y += vy;
+                            rot += vrot;
+                            if (y > floor) { y = floor; vy *= -0.65; } // bounce
+                            ghost.style.transform = `translate(${x - rect.left}px, ${y - rect.top}px) rotate(${rot}deg)`;
+                            if (x > -cardW * 2 && x < window.innerWidth + cardW * 2 && document.body.contains(ghost)) {
+                                requestAnimationFrame(step);
+                            } else {
+                                ghost.remove();
+                            }
+                        })();
+                        setTimeout(() => ghost.remove(), 4200);
+                    }, (i * 3 + j) * 140);
+                }
+            });
         }
 
         function updateUndoButton() {
@@ -1627,7 +1728,7 @@
         function updateSelectedCardVisuals() {
             // Remove previous selection styles
             document.querySelectorAll('.card').forEach(card => {
-                card.classList.remove('ring-2', 'ring-4', 'ring-blue-500', 'ring-primary-500', 'ring-yellow-400', 'shadow-lg', 'shadow-yellow-400/50', 'scale-105', 'selected-card-mobile');
+                card.classList.remove('ring-2', 'ring-4', 'ring-primary-500', 'ring-panda-400', 'shadow-lg', 'shadow-panda-400/50', 'scale-105', 'selected-card-mobile');
             });
             
             if (selectedCard) {
@@ -1648,7 +1749,7 @@
                     // Enhanced mobile-friendly selection styling
                     if (window.innerWidth <= 768) {
                         // Mobile: larger, more visible selection with animation
-                        targetElement.classList.add('ring-4', 'ring-yellow-400', 'shadow-lg', 'shadow-yellow-400/50', 'scale-105', 'selected-card-mobile');
+                        targetElement.classList.add('ring-4', 'ring-panda-400', 'shadow-lg', 'shadow-panda-400/50', 'scale-105', 'selected-card-mobile');
                     } else {
                         // Desktop: subtle ring
                         targetElement.classList.add('ring-2', 'ring-primary-500');
@@ -1756,7 +1857,7 @@
                 wasteContainer.className = 'card flex items-center justify-center';
                 wasteContainer.appendChild(cardElement);
             } else {
-                wasteContainer.className = 'card border-2 border-dashed border-gray-300 dark:border-gray-500 rounded-xl transition-all hover:border-gray-400 dark:hover:border-gray-400 cursor-pointer flex items-center justify-center';
+                wasteContainer.className = 'card border-2 border-dashed border-white/10 rounded-xl transition-all hover:border-white/25 cursor-pointer flex items-center justify-center';
             }
         }
 
@@ -1765,14 +1866,14 @@
             stockContainer.innerHTML = '';
             
             if (gameState.stock.length > 0) {
-                stockContainer.className = 'card bg-gray-800 dark:bg-gray-900 rounded-xl border-2 border-blue-600 dark:border-blue-400 cursor-pointer shadow-sm hover:shadow-lg transition-shadow flex items-center justify-center';
+                stockContainer.className = 'card bg-primary-900 rounded-xl border-2 border-primary-600 cursor-pointer shadow-sm hover:shadow-lg transition-shadow flex items-center justify-center';
                 stockContainer.innerHTML = `
                     <div class="w-full h-full flex items-center justify-center">
-                        <div class="w-16 h-22 bg-gray-700 dark:bg-gray-800 rounded-lg"></div>
+                        <div class="w-16 h-22 bg-primary-800 rounded-lg"></div>
                     </div>
                 `;
             } else {
-                stockContainer.className = 'card border-2 border-dashed border-gray-300 dark:border-gray-500 rounded-xl transition-all hover:border-gray-400 dark:hover:border-gray-400 cursor-pointer hover:shadow-lg transition-shadow flex items-center justify-center';
+                stockContainer.className = 'card border-2 border-dashed border-white/10 rounded-xl transition-all hover:border-white/25 cursor-pointer hover:shadow-lg transition-shadow flex items-center justify-center';
             }
             
             stockContainer.addEventListener('click', handleStockClick);
@@ -1858,7 +1959,7 @@
             const cardElements = tableauContainer.querySelectorAll('.card');
             
             cardElements.forEach(cardEl => {
-                cardEl.classList.remove('border-blue-400', 'dark:border-blue-300');
+                cardEl.classList.remove('border-primary-300');
             });
             
             if (hoveredCard) {
@@ -1867,7 +1968,7 @@
                 
                 // Highlight hovered card and all cards below it
                 for (let i = hoveredCard.cardIndex; i < cards.length; i++) {
-                    cards[i].classList.add('border-blue-400', 'dark:border-blue-300');
+                    cards[i].classList.add('border-primary-300');
                 }
             }
         }
@@ -2066,8 +2167,8 @@
                     if (window.innerWidth <= 768) {
                         setTimeout(() => {
                             showModal({
-                                title: 'Game Restored',
-                                message: 'Your previous game has been restored. Continue playing or start a new game.',
+                                title: 'Welcome back',
+                                message: 'Picked up right where you left off. Keep going, or deal a fresh one.',
                                 icon: 'refresh',
                                 buttons: [
                                     { text: 'Continue', primary: true },

@@ -15,8 +15,18 @@
       "Bash(cd:*)",
       "Bash(git add:*)",
       "Bash(git commit -m ':*)",
-      "Bash(git rm:*)"
+      "Bash(git rm:*)",
+      "Bash(claude mcp:*)",
+      "WebFetch(domain:developers.openai.com)",
+      "WebFetch(domain:opencode.ai)",
+      "WebFetch(domain:localhost)",
+      "Bash(git stash:*)",
+      "Bash(git pull:*)"
     ],
     "defaultMode": "acceptEdits"
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "mark-rood"
+  ]
 }

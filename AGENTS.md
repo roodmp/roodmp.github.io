@@ -60,4 +60,4 @@ Live site: https://roodmp.github.io
 
 ## Further Reading
 - `CLAUDE.md` — full project documentation (architecture, conventions, file tree)
-- `klonski.md` — PRD/dev handoff for the Klotski puzzle game
+- `klotski.md` — PRD/dev handoff for the Klotski puzzle game
