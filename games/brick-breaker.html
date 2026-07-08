@@ -276,6 +276,7 @@
             color: var(--text-secondary);
         }
     </style>
+    <script src="../main.js" defer></script>
 </head>
 
 <body>
@@ -442,6 +443,13 @@
         function getPaddleWidth() {
             const multipliers = [1.0, 1.5, 1.8, 2.0];
             return paddle.baseWidth * multipliers[paddlePowerup.type === 'wide' ? paddlePowerup.level : 0];
+        }
+
+        // Shield sits below the paddle so it only saves a ball the paddle
+        // actually missed, instead of intercepting every ball before the
+        // paddle gets a chance to.
+        function getShieldY() {
+            return paddle.y + paddle.height + 10;
         }
 
         function getBallSpeedMultiplier() {
@@ -863,7 +871,7 @@
                 }
 
                 // Shield reflection
-                const SHIELD_Y = BASE_H - 50;
+                const SHIELD_Y = getShieldY();
                 if (shieldState.active && !shieldState.broken && b.dy > 0) {
                     if (b.y + b.radius >= SHIELD_Y && b.y - b.radius <= SHIELD_Y + 4) {
                         b.y = SHIELD_Y - b.radius;
@@ -1080,7 +1088,7 @@
                     shieldState.broken = false;
                     shieldState.active = true;
                     shieldState.regenTimer = 0;
-                    createParticles(BASE_W / 2, BASE_H - 50, '#00CED1', 12);
+                    createParticles(BASE_W / 2, getShieldY(), '#00CED1', 12);
                 }
             }
         }
@@ -1776,7 +1784,7 @@
 
         function drawShield() {
             if (!shieldState.active) return;
-            const SHIELD_Y = BASE_H - 50;
+            const SHIELD_Y = getShieldY();
 
             if (shieldState.broken) {
                 // Show fading regen progress for lv2+
