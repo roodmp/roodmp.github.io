@@ -119,6 +119,87 @@
             gap: 0px;
         }
 
+        @media (max-width: 480px) {
+            .canvas-container {
+                padding: 76px 8px 6px;
+            }
+        }
+
+        .canvas-stage {
+            position: relative;
+            display: inline-flex;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* Floating touch controls — only shown on touch/coarse-pointer devices */
+        .touch-controls {
+            display: none;
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        @media (hover: none), (pointer: coarse) {
+            .touch-controls {
+                display: flex;
+            }
+        }
+
+        .touch-btn {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--text-primary);
+            background: rgba(34, 34, 31, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-lg);
+            touch-action: manipulation;
+            cursor: pointer;
+        }
+
+        .touch-btn:active {
+            background: var(--bg-hover);
+        }
+
+        .rotate-hint {
+            display: none;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+            padding: 4px 4px 8px;
+        }
+
+        @media (max-width: 600px) and (orientation: portrait) {
+            .rotate-hint.show {
+                display: flex;
+            }
+        }
+
+        /* Control hint variants: desktop (mouse/keyboard) vs touch */
+        .overlay-controls .touch-only {
+            display: none;
+        }
+
+        @media (hover: none), (pointer: coarse) {
+            .overlay-controls .desktop-only {
+                display: none;
+            }
+            .overlay-controls .touch-only {
+                display: block;
+            }
+        }
+
         /* HUD top bar */
         .game-hud-top {
             display: flex;
@@ -317,7 +398,15 @@
                 </div>
             </div>
 
-            <canvas id="gameCanvas"></canvas>
+            <div class="rotate-hint" id="rotateHint">Tip: rotate your device for a bigger board</div>
+
+            <div class="canvas-stage">
+                <canvas id="gameCanvas"></canvas>
+                <div class="touch-controls">
+                    <button class="touch-btn" id="orientationBtn" aria-label="Toggle wall direction">↕</button>
+                    <button class="touch-btn" id="pauseBtn" aria-label="Pause game">❚❚</button>
+                </div>
+            </div>
         </div>
 
         <!-- Start overlay -->
@@ -327,9 +416,12 @@
                 <div class="overlay-subtitle">Build walls to trap the bouncing balls. Capture 75% of the field to advance.</div>
                 <button class="overlay-btn" id="startBtn">Start Game</button>
                 <div class="overlay-controls">
-                    <div><kbd>Click</kbd> to build a wall</div>
-                    <div><kbd>Right-click</kbd> or <kbd>X</kbd> to toggle direction</div>
-                    <div><kbd>Space</kbd> to pause</div>
+                    <div class="desktop-only"><kbd>Click</kbd> to build a wall</div>
+                    <div class="desktop-only"><kbd>Right-click</kbd> or <kbd>X</kbd> to toggle direction</div>
+                    <div class="desktop-only"><kbd>Space</kbd> to pause</div>
+                    <div class="touch-only">Tap to build a wall</div>
+                    <div class="touch-only">Use the ↕ button to toggle direction</div>
+                    <div class="touch-only">Use the ❚❚ button to pause</div>
                 </div>
             </div>
         </div>
@@ -378,18 +470,20 @@
         const hudLevel = document.getElementById('hudLevel');
         const hudPercent = document.getElementById('hudPercent');
         const hudLives = document.getElementById('hudLives');
+        const rotateHint = document.getElementById('rotateHint');
 
         const BASE_W = 800;
         const BASE_H = 600;
         let scale = 1;
 
         function resize() {
-            const container = canvas.parentElement;
+            const container = canvas.closest('.canvas-container');
             const style = getComputedStyle(container);
             const padTop = parseFloat(style.paddingTop);
             const padBot = parseFloat(style.paddingBottom);
             const maxW = container.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-            const hudH = hudTop.offsetHeight + 4;
+            const hintH = rotateHint.classList.contains('show') ? rotateHint.offsetHeight : 0;
+            const hudH = hudTop.offsetHeight + 4 + hintH;
             const maxH = container.clientHeight - padTop - padBot - hudH;
             const ratio = Math.min(maxW / BASE_W, maxH / BASE_H, 1.5);
             scale = ratio;
@@ -398,8 +492,15 @@
             hudTop.style.width = canvas.width + 'px';
         }
 
-        window.addEventListener('resize', resize);
-        resize();
+        const portraitQuery = window.matchMedia('(max-width: 600px) and (orientation: portrait)');
+        function updateRotateHint() {
+            rotateHint.classList.toggle('show', portraitQuery.matches);
+            resize();
+        }
+        portraitQuery.addEventListener('change', updateRotateHint);
+
+        window.addEventListener('resize', updateRotateHint);
+        updateRotateHint();
 
         // --- Constants ---
         const CELL = 25;
@@ -792,8 +893,12 @@
         }
 
         // --- Input ---
-        // Small named handlers so touch (pointerdown/tap + an on-screen toggle)
-        // can be layered on later without restructuring.
+        // Small named handlers shared by mouse and touch input.
+        const orientationBtn = document.getElementById('orientationBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+
+        // toLogical accepts anything with clientX/clientY — a MouseEvent or a
+        // Touch object both satisfy that shape.
         function toLogical(e) {
             const rect = canvas.getBoundingClientRect();
             return { x: (e.clientX - rect.left) / scale, y: (e.clientY - rect.top) / scale };
@@ -814,6 +919,14 @@
         function handleOrientationToggle() {
             orientation = orientation === 'v' ? 'h' : 'v';
             canvas.dataset.orientation = orientation;
+            orientationBtn.textContent = orientation === 'v' ? '↕' : '↔';
+        }
+
+        function handlePauseTap() {
+            if (gameState === 'playing') {
+                setGameState('paused');
+                showOverlay('paused');
+            }
         }
 
         function handleKeyDown(e) {
@@ -849,6 +962,39 @@
             handleOrientationToggle();
         });
         window.addEventListener('keydown', handleKeyDown);
+
+        // Touch: live preview while dragging, commit the wall on lift.
+        // preventDefault on touchend suppresses the trailing synthetic click
+        // so a tap never builds two walls.
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const t = e.touches[0];
+            if (t) {
+                const p = toLogical(t);
+                handlePointerMove(p.x, p.y);
+            }
+        }, { passive: false });
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const t = e.touches[0];
+            if (t) {
+                const p = toLogical(t);
+                handlePointerMove(p.x, p.y);
+            }
+        }, { passive: false });
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const t = e.changedTouches[0];
+            if (t) {
+                const p = toLogical(t);
+                handlePrimaryAction(p.x, p.y);
+            }
+            hoverCell = null;
+        }, { passive: false });
+        canvas.addEventListener('touchcancel', () => { hoverCell = null; });
+
+        orientationBtn.addEventListener('click', handleOrientationToggle);
+        pauseBtn.addEventListener('click', handlePauseTap);
 
         // --- Overlays ---
         const overlays = {
