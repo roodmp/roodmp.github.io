@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<!-- Page: JezzBall — classic JezzBall clone: build walls to capture 75% of the field -->
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JezzBall - Mark Rood</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../design-system.css" />
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .game-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--bg-primary);
+        }
+
+        /* Floating nav */
+        .game-header {
+            position: fixed;
+            top: var(--space-4);
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 0 var(--space-4);
+            pointer-events: none;
+        }
+
+        @media (min-width: 640px) {
+            .game-header {
+                top: var(--space-6);
+            }
+        }
+
+        .game-nav {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            max-width: fit-content;
+            margin: 0 auto;
+            padding: var(--space-2) var(--space-4);
+            background: rgba(34, 34, 31, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-lg);
+            pointer-events: auto;
+        }
+
+        .game-nav .nav-logo {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .game-nav .nav-logo img {
+            height: 28px;
+            width: auto;
+            border-radius: var(--radius-md);
+        }
+
+        .game-nav .nav-links {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .game-nav .nav-link {
+            position: relative;
+            padding: var(--space-2) var(--space-4);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--text-sm);
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+        }
+
+        .game-nav .nav-link:hover {
+            color: var(--text-primary);
+            background-color: var(--bg-hover);
+        }
+
+        @media (max-width: 480px) {
+            .game-nav .nav-links {
+                display: none;
+            }
+        }
+
+        /* Canvas container */
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 100px 16px 8px;
+            gap: 0px;
+        }
+
+        /* HUD top bar */
+        .game-hud-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            width: 100%;
+            max-width: 800px;
+            font-family: var(--font-mono);
+            padding: 0 4px 4px;
+        }
+
+        .hud-left, .hud-center, .hud-right {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .hud-center {
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hud-score {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .hud-level {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .hud-percent {
+            color: var(--text-accent);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .hud-lives {
+            color: #E8845A;
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+
+        canvas {
+            display: block;
+            border-radius: var(--radius-lg);
+            max-width: 100%;
+            max-height: 100%;
+            touch-action: none;
+            cursor: crosshair;
+            border: 1px solid rgba(74, 103, 133, 0.2);
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Overlays */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(26, 26, 24, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .overlay-content {
+            text-align: center;
+            max-width: 400px;
+            padding: var(--space-8);
+        }
+
+        .overlay-title {
+            font-family: var(--font-sans);
+            font-size: var(--text-4xl);
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+            margin-bottom: var(--space-4);
+        }
+
+        .overlay-subtitle {
+            font-family: var(--font-sans);
+            font-size: var(--text-lg);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-6);
+            line-height: 1.6;
+        }
+
+        .overlay-score {
+            font-family: var(--font-mono);
+            font-size: var(--text-2xl);
+            color: var(--accent-300);
+            margin-bottom: var(--space-2);
+        }
+
+        .overlay-high-score {
+            font-family: var(--font-mono);
+            font-size: var(--text-sm);
+            color: var(--text-tertiary);
+            margin-bottom: var(--space-6);
+        }
+
+        .overlay-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-3) var(--space-8);
+            font-family: var(--font-sans);
+            font-size: var(--text-base);
+            font-weight: 600;
+            color: white;
+            background: var(--accent-500);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .overlay-btn:hover {
+            background: var(--accent-600);
+            box-shadow: var(--shadow-accent);
+        }
+
+        .overlay-hint {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+            margin-top: var(--space-4);
+        }
+
+        .overlay-controls {
+            margin-top: var(--space-6);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+            font-size: var(--text-sm);
+            color: var(--text-tertiary);
+        }
+
+        .overlay-controls kbd {
+            display: inline-block;
+            padding: 2px 8px;
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            background: var(--bg-elevated);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+        }
+    </style>
+    <script src="../main.js" defer></script>
+</head>
+
+<body>
+    <div class="game-wrapper">
+        <!-- Navigation -->
+        <header class="game-header" role="banner">
+            <nav class="game-nav" role="navigation" aria-label="Game navigation">
+                <a href="../about.html" class="nav-logo" aria-label="Home">
+                    <img src="../favicon.png" alt="Mark Rood" />
+                </a>
+                <div class="nav-links">
+                    <a href="../about.html" class="nav-link">About</a>
+                    <a href="../index.html" class="nav-link">Resume</a>
+                    <a href="../resources.html" class="nav-link">Resources</a>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Canvas -->
+        <div class="canvas-container">
+            <!-- Top HUD bar -->
+            <div class="game-hud-top" id="hudTop">
+                <div class="hud-left">
+                    <span class="hud-score" id="hudScore">0</span>
+                </div>
+                <div class="hud-center">
+                    <span class="hud-level" id="hudLevel">Level 1</span>
+                    <span class="hud-percent" id="hudPercent">0% / 75%</span>
+                </div>
+                <div class="hud-right">
+                    <span class="hud-lives" id="hudLives">❤ ❤</span>
+                </div>
+            </div>
+
+            <canvas id="gameCanvas"></canvas>
+        </div>
+
+        <!-- Start overlay -->
+        <div id="startOverlay" class="overlay visible">
+            <div class="overlay-content">
+                <div class="overlay-title">JezzBall</div>
+                <div class="overlay-subtitle">Build walls to trap the bouncing balls. Capture 75% of the field to advance.</div>
+                <button class="overlay-btn" id="startBtn">Start Game</button>
+                <div class="overlay-controls">
+                    <div><kbd>Click</kbd> to build a wall</div>
+                    <div><kbd>Right-click</kbd> or <kbd>X</kbd> to toggle direction</div>
+                    <div><kbd>Space</kbd> to pause</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paused overlay -->
+        <div id="pauseOverlay" class="overlay">
+            <div class="overlay-content">
+                <div class="overlay-title">Paused</div>
+                <button class="overlay-btn" id="resumeBtn">Resume</button>
+                <div class="overlay-hint">Press <kbd>Space</kbd> to resume</div>
+            </div>
+        </div>
+
+        <!-- Level complete overlay -->
+        <div id="levelOverlay" class="overlay">
+            <div class="overlay-content">
+                <div class="overlay-title">Level Complete</div>
+                <div class="overlay-score" id="levelScore"></div>
+                <button class="overlay-btn" id="nextLevelBtn">Next Level</button>
+                <div class="overlay-hint">Press <kbd>Space</kbd> to continue</div>
+            </div>
+        </div>
+
+        <!-- Game over overlay -->
+        <div id="gameOverOverlay" class="overlay">
+            <div class="overlay-content">
+                <div class="overlay-title">Game Over</div>
+                <div class="overlay-score" id="finalScore"></div>
+                <div class="overlay-high-score" id="highScore"></div>
+                <button class="overlay-btn" id="restartBtn">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        'use strict';
+
+        // --- Canvas setup ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // HUD DOM elements
+        const hudTop = document.getElementById('hudTop');
+        const hudScore = document.getElementById('hudScore');
+        const hudLevel = document.getElementById('hudLevel');
+        const hudPercent = document.getElementById('hudPercent');
+        const hudLives = document.getElementById('hudLives');
+
+        const BASE_W = 800;
+        const BASE_H = 600;
+        let scale = 1;
+
+        function resize() {
+            const container = canvas.parentElement;
+            const style = getComputedStyle(container);
+            const padTop = parseFloat(style.paddingTop);
+            const padBot = parseFloat(style.paddingBottom);
+            const maxW = container.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+            const hudH = hudTop.offsetHeight + 4;
+            const maxH = container.clientHeight - padTop - padBot - hudH;
+            const ratio = Math.min(maxW / BASE_W, maxH / BASE_H, 1.5);
+            scale = ratio;
+            canvas.width = Math.floor(BASE_W * ratio);
+            canvas.height = Math.floor(BASE_H * ratio);
+            hudTop.style.width = canvas.width + 'px';
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        // --- Constants ---
+        const CELL = 25;
+        const GRID_COLS = BASE_W / CELL;  // 32
+        const GRID_ROWS = BASE_H / CELL;  // 24
+        const TOTAL_CELLS = GRID_COLS * GRID_ROWS;
+
+        const EMPTY = 0, WALL = 1, CAPTURED = 2;
+
+        const BALL_SPEED = 3.75;
+        const BALL_AXIS = BALL_SPEED / Math.SQRT2;
+        const BALL_RADIUS = 6;
+        const WALL_SPEED = 5;
+        const CAPTURE_TARGET = 75;
+
+        // Gameplay palette mirrors design-system.css tokens
+        const COLORS = {
+            bg: '#1A1A18',
+            wall: '#4A6785',
+            wallEdge: '#8BA7BD',
+            captured: '#2A3542',
+            growing: '#8BA7BD',
+            ball: '#F5F5F4',
+            danger: '#E8845A',
+            preview: 'rgba(139, 167, 189, 0.5)',
+        };
+
+        // --- Utilities ---
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        function triggerHapticFeedback(type = 'light') {
+            if ('vibrate' in navigator) {
+                switch (type) {
+                    case 'light': navigator.vibrate(50); break;
+                    case 'medium': navigator.vibrate(100); break;
+                    case 'success': navigator.vibrate([100, 50, 100]); break;
+                    case 'error': navigator.vibrate([200, 100, 200]); break;
+                }
+            }
+        }
+
+        function circleIntersectsRect(cx, cy, r, rect) {
+            const closestX = Math.max(rect.x, Math.min(cx, rect.x + rect.w));
+            const closestY = Math.max(rect.y, Math.min(cy, rect.y + rect.h));
+            const dx = cx - closestX;
+            const dy = cy - closestY;
+            return (dx * dx + dy * dy) < (r * r);
+        }
+
+        // --- Game state ---
+        let gameState = 'start'; // start | playing | paused | levelComplete | gameOver
+        let score = 0;
+        let lives = 2;
+        let level = 1;
+        let percentCaptured = 0;
+        let highScoreVal = parseInt(localStorage.getItem('jezzball_high_score')) || 0;
+        let frameCount = 0;
+        let orientation = 'v'; // 'v' | 'h'
+        let hoverCell = null;
+
+        function setGameState(s) {
+            gameState = s;
+            document.body.dataset.gameState = s;
+        }
+
+        // --- Grid ---
+        let grid = [];
+        let capturedAt = [];
+
+        function resetGrid() {
+            grid = [];
+            capturedAt = [];
+            for (let r = 0; r < GRID_ROWS; r++) {
+                grid.push(new Array(GRID_COLS).fill(EMPTY));
+                capturedAt.push(new Array(GRID_COLS).fill(0));
+            }
+        }
+
+        // Out-of-bounds counts as solid so the playfield edges behave as walls.
+        function isSolidCell(row, col) {
+            if (row < 0 || row >= GRID_ROWS || col < 0 || col >= GRID_COLS) return true;
+            return grid[row][col] !== EMPTY;
+        }
+
+        // Flood fill from each ball's cell; EMPTY cells no ball can reach become
+        // CAPTURED. Flooding from the balls (not the regions) guarantees a region
+        // holding a ball can never be captured.
+        function runCaptureCheck() {
+            const reached = new Uint8Array(TOTAL_CELLS);
+            const stack = [];
+
+            for (const b of balls) {
+                const br = Math.max(0, Math.min(GRID_ROWS - 1, Math.floor(b.y / CELL)));
+                const bc = Math.max(0, Math.min(GRID_COLS - 1, Math.floor(b.x / CELL)));
+                const startIdx = br * GRID_COLS + bc;
+                if (reached[startIdx] || grid[br][bc] !== EMPTY) continue;
+                reached[startIdx] = 1;
+                stack.push(startIdx);
+                while (stack.length) {
+                    const i = stack.pop();
+                    const r = (i / GRID_COLS) | 0;
+                    const c = i % GRID_COLS;
+                    if (r > 0 && grid[r - 1][c] === EMPTY && !reached[i - GRID_COLS]) { reached[i - GRID_COLS] = 1; stack.push(i - GRID_COLS); }
+                    if (r < GRID_ROWS - 1 && grid[r + 1][c] === EMPTY && !reached[i + GRID_COLS]) { reached[i + GRID_COLS] = 1; stack.push(i + GRID_COLS); }
+                    if (c > 0 && grid[r][c - 1] === EMPTY && !reached[i - 1]) { reached[i - 1] = 1; stack.push(i - 1); }
+                    if (c < GRID_COLS - 1 && grid[r][c + 1] === EMPTY && !reached[i + 1]) { reached[i + 1] = 1; stack.push(i + 1); }
+                }
+            }
+
+            const captured = [];
+            for (let r = 0; r < GRID_ROWS; r++) {
+                for (let c = 0; c < GRID_COLS; c++) {
+                    if (grid[r][c] === EMPTY && !reached[r * GRID_COLS + c]) {
+                        grid[r][c] = CAPTURED;
+                        capturedAt[r][c] = frameCount;
+                        captured.push([r, c]);
+                    }
+                }
+            }
+
+            if (captured.length) {
+                score += captured.length * 10;
+                for (let i = 0; i < captured.length; i += 4) {
+                    const [r, c] = captured[i];
+                    createParticles(c * CELL + CELL / 2, r * CELL + CELL / 2, COLORS.wallEdge, 3);
+                }
+                triggerHapticFeedback('medium');
+            }
+
+            let solid = 0;
+            for (let r = 0; r < GRID_ROWS; r++) {
+                for (let c = 0; c < GRID_COLS; c++) {
+                    if (grid[r][c] !== EMPTY) solid++;
+                }
+            }
+            percentCaptured = (solid / TOTAL_CELLS) * 100;
+
+            if (percentCaptured >= CAPTURE_TARGET && gameState === 'playing') levelComplete();
+        }
+
+        // --- Balls ---
+        let balls = [];
+
+        function spawnBalls(n) {
+            balls = [];
+            const margin = 2;
+            let attempts = 0;
+            while (balls.length < n && attempts < 1000) {
+                attempts++;
+                const r = margin + Math.floor(Math.random() * (GRID_ROWS - margin * 2));
+                const c = margin + Math.floor(Math.random() * (GRID_COLS - margin * 2));
+                const x = c * CELL + CELL / 2;
+                const y = r * CELL + CELL / 2;
+                if (balls.some(b => Math.abs(b.x - x) < CELL * 2 && Math.abs(b.y - y) < CELL * 2)) continue;
+                balls.push({
+                    x: x,
+                    y: y,
+                    dx: (Math.random() < 0.5 ? -1 : 1) * BALL_AXIS,
+                    dy: (Math.random() < 0.5 ? -1 : 1) * BALL_AXIS,
+                });
+            }
+        }
+
+        function ballOverlapsSolid(x, y) {
+            const c0 = Math.floor((x - BALL_RADIUS) / CELL);
+            const c1 = Math.floor((x + BALL_RADIUS) / CELL);
+            const r0 = Math.floor((y - BALL_RADIUS) / CELL);
+            const r1 = Math.floor((y + BALL_RADIUS) / CELL);
+            for (let r = r0; r <= r1; r++) {
+                for (let c = c0; c <= c1; c++) {
+                    if (isSolidCell(r, c)) return true;
+                }
+            }
+            return false;
+        }
+
+        // Axis-separated movement: corners resolve as two independent axis flips.
+        function updateBalls() {
+            for (const b of balls) {
+                const nx = b.x + b.dx;
+                if (ballOverlapsSolid(nx, b.y)) b.dx = -b.dx; else b.x = nx;
+                const ny = b.y + b.dy;
+                if (ballOverlapsSolid(b.x, ny)) b.dy = -b.dy; else b.y = ny;
+            }
+
+            if (activeWall) {
+                // Capture a stable reference: killHalf() can end the game (or a
+                // sibling half's solidify can complete the level) and null out
+                // the global activeWall mid-loop. Reading the global again on a
+                // later iteration would then pass null into halfRect().
+                const wall = activeWall;
+                for (const half of wall.halves) {
+                    if (half.state !== 'growing') continue;
+                    const rect = halfRect(wall, half);
+                    for (const b of balls) {
+                        if (circleIntersectsRect(b.x, b.y, BALL_RADIUS, rect)) {
+                            killHalf(half, rect);
+                            break;
+                        }
+                    }
+                }
+                clearWallIfDone();
+            }
+        }
+
+        // After a solidify/capture lands on a ball's cells, push the ball to the
+        // nearest EMPTY cell so it can't reflect forever inside a wall.
+        function ejectBallsFromSolid() {
+            for (const b of balls) {
+                if (!ballOverlapsSolid(b.x, b.y)) continue;
+                const br = Math.max(0, Math.min(GRID_ROWS - 1, Math.floor(b.y / CELL)));
+                const bc = Math.max(0, Math.min(GRID_COLS - 1, Math.floor(b.x / CELL)));
+                let best = null;
+                let bestD = Infinity;
+                const maxRadius = Math.max(GRID_ROWS, GRID_COLS);
+                for (let radius = 0; radius <= maxRadius; radius++) {
+                    for (let r = br - radius; r <= br + radius; r++) {
+                        for (let c = bc - radius; c <= bc + radius; c++) {
+                            if (Math.max(Math.abs(r - br), Math.abs(c - bc)) !== radius) continue;
+                            if (r < 0 || r >= GRID_ROWS || c < 0 || c >= GRID_COLS) continue;
+                            if (grid[r][c] !== EMPTY) continue;
+                            const cx = c * CELL + CELL / 2;
+                            const cy = r * CELL + CELL / 2;
+                            const d = (cx - b.x) * (cx - b.x) + (cy - b.y) * (cy - b.y);
+                            if (d < bestD) { bestD = d; best = { cx, cy }; }
+                        }
+                    }
+                    if (best) break;
+                }
+                if (best) { b.x = best.cx; b.y = best.cy; }
+            }
+        }
+
+        // --- Wall building ---
+        let activeWall = null;
+
+        function startWall(x, y) {
+            if (gameState !== 'playing' || activeWall) return;
+            const row = Math.floor(y / CELL);
+            const col = Math.floor(x / CELL);
+            if (row < 0 || row >= GRID_ROWS || col < 0 || col >= GRID_COLS) return;
+            if (grid[row][col] !== EMPTY) return;
+            activeWall = {
+                orientation: orientation,
+                row: row,
+                col: col,
+                originX: col * CELL + CELL / 2,
+                originY: row * CELL + CELL / 2,
+                halves: [
+                    { dir: -1, lengthPx: 0, state: 'growing' },
+                    { dir: 1, lengthPx: 0, state: 'growing' },
+                ],
+            };
+            triggerHapticFeedback('light');
+        }
+
+        function halfRect(wall, half) {
+            if (wall.orientation === 'v') {
+                const x = wall.col * CELL;
+                const y = half.dir === -1 ? wall.originY - half.lengthPx : wall.originY;
+                return { x: x, y: y, w: CELL, h: half.lengthPx };
+            }
+            const y = wall.row * CELL;
+            const x = half.dir === -1 ? wall.originX - half.lengthPx : wall.originX;
+            return { x: x, y: y, w: half.lengthPx, h: CELL };
+        }
+
+        function updateWall() {
+            if (!activeWall) return;
+            const w = activeWall;
+            for (const half of w.halves) {
+                if (half.state !== 'growing') continue;
+                half.lengthPx += WALL_SPEED;
+                const origin = w.orientation === 'v' ? w.originY : w.originX;
+                const edge = origin + half.dir * half.lengthPx;
+                const edgeCell = Math.floor(edge / CELL);
+                const solidHit = w.orientation === 'v'
+                    ? isSolidCell(edgeCell, w.col)
+                    : isSolidCell(w.row, edgeCell);
+                if (solidHit) {
+                    const boundary = half.dir === -1 ? (edgeCell + 1) * CELL : edgeCell * CELL;
+                    half.lengthPx = half.dir === -1 ? origin - boundary : boundary - origin;
+                    solidifyHalf(w, half);
+                }
+            }
+            clearWallIfDone();
+        }
+
+        function solidifyHalf(wall, half) {
+            half.state = 'done';
+            if (wall.orientation === 'v') {
+                let r0, r1;
+                if (half.dir === -1) {
+                    r0 = Math.round((wall.originY - half.lengthPx) / CELL);
+                    r1 = wall.row;
+                } else {
+                    r0 = wall.row;
+                    r1 = Math.round((wall.originY + half.lengthPx) / CELL) - 1;
+                }
+                for (let r = r0; r <= r1; r++) {
+                    if (grid[r][wall.col] === EMPTY) {
+                        grid[r][wall.col] = WALL;
+                        capturedAt[r][wall.col] = frameCount;
+                    }
+                }
+            } else {
+                let c0, c1;
+                if (half.dir === -1) {
+                    c0 = Math.round((wall.originX - half.lengthPx) / CELL);
+                    c1 = wall.col;
+                } else {
+                    c0 = wall.col;
+                    c1 = Math.round((wall.originX + half.lengthPx) / CELL) - 1;
+                }
+                for (let c = c0; c <= c1; c++) {
+                    if (grid[wall.row][c] === EMPTY) {
+                        grid[wall.row][c] = WALL;
+                        capturedAt[wall.row][c] = frameCount;
+                    }
+                }
+            }
+            ejectBallsFromSolid();
+            runCaptureCheck();
+        }
+
+        function killHalf(half, rect) {
+            half.state = 'dead';
+            const len = Math.max(rect.w, rect.h, 1);
+            const steps = Math.max(1, Math.floor(len / CELL));
+            for (let i = 0; i <= steps; i++) {
+                const px = rect.w > rect.h ? rect.x + (rect.w * i / steps) : rect.x + CELL / 2;
+                const py = rect.h >= rect.w ? rect.y + (rect.h * i / steps) : rect.y + CELL / 2;
+                createParticles(px, py, COLORS.danger, 6);
+            }
+            lives--;
+            triggerHapticFeedback('error');
+            if (lives <= 0) endGame();
+        }
+
+        function clearWallIfDone() {
+            if (activeWall && activeWall.halves.every(h => h.state !== 'growing')) {
+                activeWall = null;
+            }
+        }
+
+        // --- Particles ---
+        const MAX_PARTICLES = 200;
+        let particles = [];
+
+        function createParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                if (particles.length >= MAX_PARTICLES) break;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 1 + Math.random() * 3;
+                particles.push({
+                    x: x,
+                    y: y,
+                    dx: Math.cos(angle) * speed,
+                    dy: Math.sin(angle) * speed,
+                    life: 20 + Math.random() * 15,
+                    maxLife: 0,
+                    color: color,
+                    size: 2 + Math.random() * 2,
+                });
+                particles[particles.length - 1].maxLife = particles[particles.length - 1].life;
+            }
+        }
+
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.dx;
+                p.y += p.dy;
+                p.dy += 0.05; // slight gravity
+                p.life--;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+        }
+
+        // --- Input ---
+        // Small named handlers so touch (pointerdown/tap + an on-screen toggle)
+        // can be layered on later without restructuring.
+        function toLogical(e) {
+            const rect = canvas.getBoundingClientRect();
+            return { x: (e.clientX - rect.left) / scale, y: (e.clientY - rect.top) / scale };
+        }
+
+        function handlePointerMove(x, y) {
+            const row = Math.floor(y / CELL);
+            const col = Math.floor(x / CELL);
+            hoverCell = (row >= 0 && row < GRID_ROWS && col >= 0 && col < GRID_COLS)
+                ? { row: row, col: col }
+                : null;
+        }
+
+        function handlePrimaryAction(x, y) {
+            startWall(x, y);
+        }
+
+        function handleOrientationToggle() {
+            orientation = orientation === 'v' ? 'h' : 'v';
+            canvas.dataset.orientation = orientation;
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === ' ' || e.key === 'Spacebar') {
+                e.preventDefault();
+                if (gameState === 'start' || gameState === 'gameOver') {
+                    startGame();
+                } else if (gameState === 'levelComplete') {
+                    nextLevel();
+                } else if (gameState === 'playing') {
+                    setGameState('paused');
+                    showOverlay('paused');
+                } else if (gameState === 'paused') {
+                    setGameState('playing');
+                    showOverlay(null);
+                }
+            } else if (e.key === 'x' || e.key === 'X') {
+                handleOrientationToggle();
+            }
+        }
+
+        canvas.addEventListener('mousemove', (e) => {
+            const p = toLogical(e);
+            handlePointerMove(p.x, p.y);
+        });
+        canvas.addEventListener('mouseleave', () => { hoverCell = null; });
+        canvas.addEventListener('click', (e) => {
+            const p = toLogical(e);
+            handlePrimaryAction(p.x, p.y);
+        });
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            handleOrientationToggle();
+        });
+        window.addEventListener('keydown', handleKeyDown);
+
+        // --- Overlays ---
+        const overlays = {
+            start: document.getElementById('startOverlay'),
+            paused: document.getElementById('pauseOverlay'),
+            levelComplete: document.getElementById('levelOverlay'),
+            gameOver: document.getElementById('gameOverOverlay'),
+        };
+
+        function showOverlay(name) {
+            Object.values(overlays).forEach(o => o.classList.remove('visible'));
+            if (name && overlays[name]) {
+                overlays[name].classList.add('visible');
+            }
+        }
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('resumeBtn').addEventListener('click', () => {
+            setGameState('playing');
+            showOverlay(null);
+        });
+        document.getElementById('nextLevelBtn').addEventListener('click', nextLevel);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+
+        // --- Game flow ---
+        function initLevel() {
+            resetGrid();
+            particles = [];
+            activeWall = null;
+            percentCaptured = 0;
+            const ballCount = level + 1;
+            lives = ballCount;
+            spawnBalls(ballCount);
+        }
+
+        function startGame() {
+            score = 0;
+            level = 1;
+            initLevel();
+            setGameState('playing');
+            showOverlay(null);
+        }
+
+        function nextLevel() {
+            level++;
+            initLevel();
+            setGameState('playing');
+            showOverlay(null);
+        }
+
+        function levelComplete() {
+            const bonus = Math.round((percentCaptured - CAPTURE_TARGET) * 100) + lives * 250;
+            score += bonus;
+            activeWall = null;
+            setGameState('levelComplete');
+            document.getElementById('levelScore').textContent =
+                `Captured ${percentCaptured.toFixed(1)}% · Bonus ${bonus}`;
+            showOverlay('levelComplete');
+            triggerHapticFeedback('success');
+        }
+
+        function endGame() {
+            setGameState('gameOver');
+            activeWall = null;
+            if (score > highScoreVal) {
+                highScoreVal = score;
+                localStorage.setItem('jezzball_high_score', highScoreVal);
+            }
+            document.getElementById('finalScore').textContent = `Score: ${score}`;
+            document.getElementById('highScore').textContent = `High Score: ${highScoreVal}`;
+            showOverlay('gameOver');
+        }
+
+        // --- HUD DOM updates ---
+        function updateHUD() {
+            hudScore.textContent = score;
+            hudLevel.textContent = 'Level ' + level;
+            hudPercent.textContent = Math.floor(percentCaptured) + '% / ' + CAPTURE_TARGET + '%';
+            hudLives.textContent = lives <= 8
+                ? '❤ '.repeat(Math.max(0, lives)).trim()
+                : '❤ × ' + lives;
+        }
+
+        // --- Draw ---
+        function drawCells() {
+            for (let r = 0; r < GRID_ROWS; r++) {
+                for (let c = 0; c < GRID_COLS; c++) {
+                    const s = grid[r][c];
+                    if (s === EMPTY) continue;
+                    const age = frameCount - capturedAt[r][c];
+                    const alpha = Math.min(1, age / 20);
+                    ctx.globalAlpha = alpha;
+                    ctx.fillStyle = s === WALL ? COLORS.wall : COLORS.captured;
+                    ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
+                    if (s === WALL) {
+                        ctx.globalAlpha = alpha * 0.35;
+                        ctx.fillStyle = COLORS.wallEdge;
+                        ctx.fillRect(c * CELL, r * CELL, CELL, 1.5);
+                    }
+                }
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawGrowingWall() {
+            if (!activeWall) return;
+            for (const half of activeWall.halves) {
+                if (half.state !== 'growing') continue;
+                const rect = halfRect(activeWall, half);
+                if (rect.w <= 0 || rect.h <= 0) continue;
+                ctx.globalAlpha = 0.75;
+                ctx.fillStyle = COLORS.growing;
+                ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+                ctx.globalAlpha = 1;
+                ctx.fillStyle = COLORS.ball;
+                if (activeWall.orientation === 'v') {
+                    const capY = half.dir === -1 ? rect.y : rect.y + rect.h - 3;
+                    ctx.fillRect(rect.x, capY, rect.w, 3);
+                } else {
+                    const capX = half.dir === -1 ? rect.x : rect.x + rect.w - 3;
+                    ctx.fillRect(capX, rect.y, 3, rect.h);
+                }
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawBalls() {
+            for (const b of balls) {
+                ctx.shadowColor = 'rgba(245, 245, 244, 0.5)';
+                ctx.shadowBlur = 8;
+                ctx.fillStyle = COLORS.ball;
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, BALL_RADIUS, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        function drawParticles() {
+            for (const p of particles) {
+                const alpha = p.life / p.maxLife;
+                const size = p.size * (p.life / p.maxLife);
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = p.color;
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawCursorPreview() {
+            if (gameState !== 'playing' || activeWall || !hoverCell) return;
+            if (grid[hoverCell.row][hoverCell.col] !== EMPTY) return;
+            const x = hoverCell.col * CELL;
+            const y = hoverCell.row * CELL;
+            const cx = x + CELL / 2;
+            const cy = y + CELL / 2;
+            const stub = CELL * 1.5;
+            ctx.strokeStyle = COLORS.preview;
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(x + 1, y + 1, CELL - 2, CELL - 2);
+            ctx.beginPath();
+            if (orientation === 'v') {
+                ctx.moveTo(cx, cy - stub);
+                ctx.lineTo(cx, cy + stub);
+            } else {
+                ctx.moveTo(cx - stub, cy);
+                ctx.lineTo(cx + stub, cy);
+            }
+            ctx.stroke();
+        }
+
+        function draw() {
+            ctx.save();
+            ctx.scale(scale, scale);
+
+            // Background
+            ctx.fillStyle = COLORS.bg;
+            ctx.fillRect(0, 0, BASE_W, BASE_H);
+
+            // Subtle ambient grid
+            ctx.strokeStyle = 'rgba(74, 103, 133, 0.04)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < BASE_W; x += 48) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, BASE_H);
+                ctx.stroke();
+            }
+            for (let y = 0; y < BASE_H; y += 48) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(BASE_W, y);
+                ctx.stroke();
+            }
+
+            drawCells();
+            drawGrowingWall();
+            drawBalls();
+            drawParticles();
+            drawCursorPreview();
+
+            // Play area border
+            ctx.strokeStyle = 'rgba(74, 103, 133, 0.25)';
+            ctx.lineWidth = 2;
+            roundRect(ctx, 1, 1, BASE_W - 2, BASE_H - 2, 6);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // --- Game loop ---
+        function loop() {
+            if (gameState === 'playing') {
+                frameCount++;
+                updateWall();
+                updateBalls();
+                updateParticles();
+            }
+            draw();
+            updateHUD();
+            requestAnimationFrame(loop);
+        }
+
+        // Boot
+        resetGrid();
+        canvas.dataset.orientation = orientation;
+        document.body.dataset.gameState = gameState;
+        requestAnimationFrame(loop);
+        showOverlay('start');
+
+    })();
+    </script>
+</body>
+
+</html>
