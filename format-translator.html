@@ -926,7 +926,7 @@
         name: 'Markdown',
         brand: '#4A6785',
         syntax: ['# heading', '**bold**', '*italic*', '~~strike~~', '`code`', '[text](url)'],
-        note: 'Standard CommonMark — renders on GitHub, Notion, and most docs tools.',
+        note: 'Standard CommonMark. Renders on GitHub, Notion, and most docs tools.',
       },
     };
 
@@ -966,7 +966,7 @@
         panelPreview.textContent = text;
         panelPreview.classList.remove('empty');
       } else {
-        panelPreview.textContent = 'Nothing to preview yet — start writing on the left.';
+        panelPreview.textContent = 'Nothing to preview yet. Start writing on the left.';
         panelPreview.classList.add('empty');
       }
     }
@@ -1000,7 +1000,7 @@
     panelCopy.addEventListener('click', async () => {
       const text = editorToText(activePlatform);
       if (!text) {
-        showToast('Nothing to copy — write something first.');
+        showToast('Nothing to copy. Write something first.');
         return;
       }
       try {
@@ -1018,7 +1018,7 @@
           feather.replace();
         }, 2000);
       } catch {
-        showToast('Copy failed — try selecting and copying manually.');
+        showToast('Copy failed. Try selecting and copying manually.');
       }
     });
 
