@@ -1231,6 +1231,15 @@
         }
 
         function canBlockMoveInDirection(block, direction) {
+            // Once the hero has reached the exit lip (y=4), its edge cells are
+            // already past the last real grid row, so the generic edge-cell
+            // math below (which adds another step) lands two rows past the
+            // board and never matches the exit special case. Defer to
+            // canMoveBlock, which already handles the exit correctly.
+            if (block.id === 'hero' && direction === 'down' && block.y >= 4) {
+                return canMoveBlock(block.id, block.x, block.y + 1);
+            }
+
             // Check if the block has space to slide in this direction
             let deltaX = 0, deltaY = 0;
             switch (direction) {
@@ -1321,21 +1330,27 @@
                 }, 300);
             }
             
-            // Clear old position from grid
+            // Clear old position from grid. Rows beyond the board (the hero
+            // mid-exit at y=4, spanning into the nonexistent row 5) have no
+            // grid row to clear, so skip those.
             for (let dy = 0; dy < block.height; dy++) {
+                const gy = block.y + dy;
+                if (gy >= 5) continue;
                 for (let dx = 0; dx < block.width; dx++) {
-                    gameState.grid[block.y + dy][block.x + dx] = null;
+                    gameState.grid[gy][block.x + dx] = null;
                 }
             }
-            
+
             // Update block position
             block.x = newX;
             block.y = newY;
-            
-            // Set new position in grid
+
+            // Set new position in grid (same out-of-board guard as above)
             for (let dy = 0; dy < block.height; dy++) {
+                const gy = newY + dy;
+                if (gy >= 5) continue;
                 for (let dx = 0; dx < block.width; dx++) {
-                    gameState.grid[newY + dy][newX + dx] = blockId;
+                    gameState.grid[gy][newX + dx] = blockId;
                 }
             }
             
@@ -1491,9 +1506,10 @@
                 const newY = block.y + dir.y;
                 
                 if (canMoveBlock(blockId, newX, newY)) {
-                    moveBlock(blockId, newX, newY);
+                    // moveBlockWithAnimation already renders and checks the win
+                    // condition; there's no separate un-animated moveBlock().
+                    moveBlockWithAnimation(blockId, newX, newY);
                     triggerHapticFeedback('medium');
-                    renderGame();
                     return;
                 }
             }
