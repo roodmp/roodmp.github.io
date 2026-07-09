@@ -1639,17 +1639,27 @@
             renderGame();
         }
 
-        function loadNewPuzzle() {
-            // Get config key from whichever selector triggered the change
+        function loadNewPuzzle(e) {
+            // Both selects exist in the DOM at once (one is just CSS-hidden
+            // depending on viewport), so reading "the desktop one" here
+            // unconditionally used to silently ignore changes made on the
+            // mobile dropdown. Read whichever select actually fired the
+            // change event, and mirror the value onto its counterpart so
+            // they don't drift out of sync (e.g. after a device rotation).
             const sidebarSelect = document.getElementById('puzzleSelectDesktop');
             const mobileSelect = document.getElementById('puzzleSelectMobile');
-            
-            let configKey = 'classic';
-            // Check desktop sidebar selector first (main selector now)
-            if (sidebarSelect) {
-                configKey = sidebarSelect.value;
-            } else if (mobileSelect) {
-                configKey = mobileSelect.value;
+
+            let configKey;
+            if (e && e.target && e.target.tagName === 'SELECT') {
+                configKey = e.target.value;
+                if (sidebarSelect) sidebarSelect.value = configKey;
+                if (mobileSelect) mobileSelect.value = configKey;
+            } else {
+                // Triggered by a "New Puzzle" button, not a select - keep
+                // whichever difficulty is currently shown.
+                configKey = 'classic';
+                if (sidebarSelect) configKey = sidebarSelect.value;
+                else if (mobileSelect) configKey = mobileSelect.value;
             }
             gameState = initializeGame(configKey);
             gameHistory = [];
