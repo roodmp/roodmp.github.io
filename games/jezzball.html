@@ -736,6 +736,8 @@
                 if (ballOverlapsSolid(b.x, ny)) b.dy = -b.dy; else b.y = ny;
             }
 
+            handleBallCollisions();
+
             if (activeWall) {
                 // Capture a stable reference: killHalf() can end the game (or a
                 // sibling half's solidify can complete the level) and null out
@@ -753,6 +755,61 @@
                     }
                 }
                 clearWallIfDone();
+            }
+        }
+
+        // Equal-mass elastic collision: the velocity components along the line
+        // between the two centers are exchanged; the tangential components are
+        // untouched. Speeds are renormalized to BALL_SPEED afterwards so every
+        // ball keeps the same arcade pace no matter how many collisions it takes.
+        function handleBallCollisions() {
+            const minDist = BALL_RADIUS * 2;
+            for (let i = 0; i < balls.length; i++) {
+                for (let j = i + 1; j < balls.length; j++) {
+                    const a = balls[i];
+                    const b = balls[j];
+                    const dx = b.x - a.x;
+                    const dy = b.y - a.y;
+                    const distSq = dx * dx + dy * dy;
+                    if (distSq === 0 || distSq >= minDist * minDist) continue;
+                    const dist = Math.sqrt(distSq);
+                    const nx = dx / dist;
+                    const ny = dy / dist;
+
+                    // Only respond while approaching, so an overlapping pair
+                    // that is already separating doesn't re-bounce every frame.
+                    const rel = (a.dx - b.dx) * nx + (a.dy - b.dy) * ny;
+                    if (rel > 0) {
+                        a.dx -= rel * nx;
+                        a.dy -= rel * ny;
+                        b.dx += rel * nx;
+                        b.dy += rel * ny;
+                        normalizeBallSpeed(a);
+                        normalizeBallSpeed(b);
+                    }
+
+                    // Push the pair apart so they aren't overlapping next frame,
+                    // unless that would shove a ball into a wall or captured area.
+                    const overlap = (minDist - dist) / 2;
+                    const ax = a.x - nx * overlap;
+                    const ay = a.y - ny * overlap;
+                    if (!ballOverlapsSolid(ax, ay)) { a.x = ax; a.y = ay; }
+                    const bx = b.x + nx * overlap;
+                    const by = b.y + ny * overlap;
+                    if (!ballOverlapsSolid(bx, by)) { b.x = bx; b.y = by; }
+                }
+            }
+        }
+
+        function normalizeBallSpeed(ball) {
+            const s = Math.hypot(ball.dx, ball.dy);
+            if (s > 0.001) {
+                ball.dx = (ball.dx / s) * BALL_SPEED;
+                ball.dy = (ball.dy / s) * BALL_SPEED;
+            } else {
+                // Degenerate case (velocities cancelled out): restart on a diagonal.
+                ball.dx = (Math.random() < 0.5 ? -1 : 1) * BALL_AXIS;
+                ball.dy = (Math.random() < 0.5 ? -1 : 1) * BALL_AXIS;
             }
         }
 
