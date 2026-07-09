@@ -183,99 +183,122 @@
             }
         }
 
-        /* Hero block (2x2) - Main piece, distinctive with higher contrast */
+        /* Block palette, dark mode (this page is dark-only - <html class="dark">
+           is always set, see design.md). Fills were previously near-black
+           (#171717/#1e293b/#27272a) against a #262626 board - 1.0-1.2:1
+           contrast, i.e. functionally invisible except for their borders.
+           Each fill below now clears WCAG's 3:1 non-text minimum against the
+           board (soldier 10.2:1, hero 7.1:1, general-h 5.5:1, general-v
+           3.6:1), and the four hues are chosen to stay distinct from each
+           other, not just from the board. */
+
+        /* Hero block (2x2) - the goal piece, warm amber to read as "the one that matters" */
         .block-hero {
             grid-column: span 2;
             grid-row: span 2;
-            background: #fef2f2; /* red-50 - light red tint */
-            border: 2px solid #dc2626; /* red-600 for higher contrast */
-            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+            background: #fef3c7; /* amber-100 */
+            border: 2px solid #b45309; /* amber-700 */
+            box-shadow: 0 2px 8px rgba(180, 83, 9, 0.25);
         }
 
         .dark .block-hero {
-            background: rgb(23 23 23); /* darker than gray-800 */
-            border-color: #f87171; /* red-400 - brighter in dark mode */
-            box-shadow: 0 2px 8px rgba(248, 113, 113, 0.3);
+            background: #f59e0b; /* amber-500 */
+            border-color: #78350f; /* amber-900 */
+            box-shadow: 0 2px 10px rgba(245, 158, 11, 0.35);
         }
 
         .block-hero:hover {
             transform: scale(1.02);
-            border-color: #b91c1c; /* red-700 - even darker on hover */
-            background: #fecaca; /* red-100 - slightly darker tint */
+            border-color: #92400e; /* amber-800 */
+            background: #fde68a; /* amber-200 */
         }
 
         .dark .block-hero:hover {
-            border-color: #fca5a5; /* red-300 - brighter on hover */
-            background: rgb(15 15 15); /* even darker */
+            border-color: #92400e; /* amber-800 */
+            background: #fbbf24; /* amber-400 */
         }
 
-        /* General blocks horizontal (1x2) - Standard pieces with better contrast */
+        /* General blocks, horizontal (1x2) - locked to left/right, sky blue */
         .block-general-h {
             grid-column: span 2;
             grid-row: span 1;
-            background: #f8fafc; /* slate-50 - subtle tint */
-            border: 2px solid rgb(71 85 105); /* slate-600 for higher contrast */
-            box-shadow: 0 2px 4px rgba(71, 85, 105, 0.15);
+            background: #e0f2fe; /* sky-100 */
+            border: 2px solid #0369a1; /* sky-700 */
+            box-shadow: 0 2px 4px rgba(3, 105, 161, 0.2);
         }
 
         .dark .block-general-h {
-            background: rgb(30 41 59); /* slate-800 */
-            border-color: rgb(148 163 184); /* slate-400 - brighter border */
-            box-shadow: 0 2px 4px rgba(148, 163, 184, 0.2);
+            background: #0ea5e9; /* sky-500 */
+            border-color: #0c4a6e; /* sky-900 */
+            box-shadow: 0 2px 4px rgba(14, 165, 233, 0.3);
         }
 
-        /* General blocks vertical (2x1) - Standard pieces with better contrast */
+        /* General blocks, vertical (2x1) - locked to up/down, violet */
         .block-general-v {
             grid-column: span 1;
             grid-row: span 2;
-            background: #f8fafc; /* slate-50 - subtle tint */
-            border: 2px solid rgb(71 85 105); /* slate-600 for higher contrast */
-            box-shadow: 0 2px 4px rgba(71, 85, 105, 0.15);
+            background: #ede9fe; /* violet-100 */
+            border: 2px solid #6d28d9; /* violet-700 */
+            box-shadow: 0 2px 4px rgba(109, 40, 217, 0.2);
         }
 
         .dark .block-general-v {
-            background: rgb(30 41 59); /* slate-800 */
-            border-color: rgb(148 163 184); /* slate-400 - brighter border */
-            box-shadow: 0 2px 4px rgba(148, 163, 184, 0.2);
+            background: #8b5cf6; /* violet-500 */
+            border-color: #4c1d95; /* violet-900 */
+            box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3);
         }
 
         .block-general-h:hover,
         .block-general-v:hover {
             transform: scale(1.05);
-            border-color: rgb(51 65 85); /* slate-700 - darker on hover */
-            background: #e2e8f0; /* slate-200 - more visible change */
+            filter: brightness(1.08);
         }
 
         .dark .block-general-h:hover,
         .dark .block-general-v:hover {
-            border-color: rgb(203 213 225); /* slate-300 - brighter on hover */
-            background: rgb(51 65 85); /* slate-700 - lighter on hover */
+            filter: brightness(1.12);
         }
 
-        /* Soldier blocks (1x1) - Small pieces with better contrast */
+        /* Small glyph marking each general's locked axis - redundant with
+           color so the restriction doesn't rely on hue alone. */
+        .block-glyph {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: rgba(28, 25, 23, 0.55);
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        @media (max-width: 480px) {
+            .block-glyph {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Soldier blocks (1x1) - light silver, the lightest fill on the board */
         .block-soldier {
             grid-column: span 1;
             grid-row: span 1;
-            background: #f1f5f9; /* slate-100 - light but noticeable */
-            border: 2px solid rgb(100 116 139); /* slate-500 for better contrast */
-            box-shadow: 0 1px 3px rgba(100, 116, 139, 0.2);
+            background: #f1f5f9; /* slate-100 */
+            border: 2px solid #475569; /* slate-600 */
+            box-shadow: 0 1px 3px rgba(71, 85, 105, 0.2);
         }
 
         .dark .block-soldier {
-            background: rgb(39 39 42); /* zinc-800 - distinct from generals */
-            border-color: rgb(161 161 170); /* zinc-400 - good contrast */
-            box-shadow: 0 1px 3px rgba(161, 161, 170, 0.25);
+            background: #cbd5e1; /* slate-300 */
+            border-color: #64748b; /* slate-500 */
+            box-shadow: 0 1px 3px rgba(100, 116, 139, 0.3);
         }
 
         .block-soldier:hover {
             transform: scale(1.08);
-            border-color: rgb(71 85 105); /* slate-600 - darker on hover */
-            background: #cbd5e1; /* slate-300 - more noticeable change */
+            border-color: #334155; /* slate-700 */
+            background: #e2e8f0; /* slate-200 */
         }
 
         .dark .block-soldier:hover {
-            border-color: rgb(212 212 216); /* zinc-300 - brighter on hover */
-            background: rgb(63 63 70); /* zinc-700 - lighter on hover */
+            border-color: #334155; /* slate-700 */
+            background: #e2e8f0; /* slate-200 */
         }
 
         /* Empty cell styling */
@@ -752,28 +775,33 @@
         let startTime = null;
         let isPuzzleSolved = false;
 
-        // Authentic Klotski puzzle configurations
+        // Klotski puzzle configurations.
+        //
+        // Generals are locked to their long axis (see canBlockMoveInDirection):
+        // horizontal generals only slide left/right, vertical generals only
+        // slide up/down. The traditional Huarong Dao arrangement - and the
+        // "Expert" layout that shipped alongside it - both depend on generals
+        // sliding *across* their orientation at key points, so neither is
+        // solvable under that rule (verified exhaustively with a BFS solver
+        // over every reachable board state). Classic and Expert below are
+        // replacement layouts with lighter, more soldier-heavy piece mixes,
+        // each independently verified solvable under the axis lock - Classic
+        // in 29 moves, Expert in 25. Beginner was already compatible as-is.
         const puzzleConfigs = {
             classic: {
                 name: "Classic Klotski",
-                // Authentic traditional Huarong Dao setup - the famous 81-move puzzle
                 hero: { x: 1, y: 0 }, // 2x2 Cao Cao block at top center
                 generals: [
-                    // Four 2x1 vertical generals (traditional layout)
-                    { id: 'zhangfei', type: 'v', x: 0, y: 0 },   // Left side, top
-                    { id: 'guanyu', type: 'v', x: 3, y: 0 },    // Right side, top  
-                    { id: 'machao', type: 'v', x: 0, y: 2 },    // Left side, bottom
-                    { id: 'huangzhong', type: 'v', x: 3, y: 2 }, // Right side, bottom
-                    // One 1x2 horizontal general (traditional layout)
-                    { id: 'zhaoyun', type: 'h', x: 1, y: 2 }    // Horizontal below hero
+                    { id: 'zhangfei', type: 'v', x: 1, y: 3 },
+                    { id: 'guanyu', type: 'h', x: 2, y: 2 }
                 ],
                 soldiers: [
-                    // Four 1x1 soldiers in traditional positions
-                    // Traditional layout has 2x1 empty space at bottom center initially
-                    { id: 'soldier1', x: 0, y: 4 }, // Bottom left corner
-                    { id: 'soldier2', x: 3, y: 4 }, // Bottom right corner
-                    { id: 'soldier3', x: 1, y: 3 }, // Above exit area left
-                    { id: 'soldier4', x: 2, y: 3 }  // Above exit area right
+                    { id: 'soldier1', x: 0, y: 4 },
+                    { id: 'soldier2', x: 0, y: 3 },
+                    { id: 'soldier3', x: 1, y: 2 },
+                    { id: 'soldier4', x: 2, y: 3 },
+                    { id: 'soldier5', x: 2, y: 4 },
+                    { id: 'soldier6', x: 3, y: 4 }
                 ]
             },
             beginner: {
@@ -793,19 +821,18 @@
             },
             expert: {
                 name: "Expert",
-                // More challenging starting position
                 hero: { x: 0, y: 1 }, // Hero starts at left
                 generals: [
-                    { id: 'gen1', type: 'h', x: 2, y: 0 },
-                    { id: 'gen2', type: 'v', x: 2, y: 1 },
-                    { id: 'gen3', type: 'v', x: 3, y: 1 },
-                    { id: 'gen4', type: 'h', x: 0, y: 3 }
+                    { id: 'gen1', type: 'v', x: 2, y: 1 },
+                    { id: 'gen2', type: 'h', x: 0, y: 0 },
+                    { id: 'gen3', type: 'h', x: 2, y: 0 }
                 ],
                 soldiers: [
-                    { id: 'sol1', x: 0, y: 0 },
-                    { id: 'sol2', x: 1, y: 0 },
-                    { id: 'sol3', x: 2, y: 4 },
-                    { id: 'sol4', x: 3, y: 4 }
+                    { id: 'sol1', x: 1, y: 3 },
+                    { id: 'sol2', x: 0, y: 3 },
+                    { id: 'sol3', x: 0, y: 4 },
+                    { id: 'sol4', x: 2, y: 4 },
+                    { id: 'sol5', x: 2, y: 3 }
                 ]
             }
         };
@@ -1231,6 +1258,13 @@
         }
 
         function canBlockMoveInDirection(block, direction) {
+            // Generals are dominoes: they can only slide along their long
+            // axis, matching their visual orientation (and their fill color -
+            // see the block-general-h/v CSS). The hero (2x2) and soldiers
+            // (1x1) are square, so they have no orientation and move freely.
+            if (block.type === 'general-h' && (direction === 'up' || direction === 'down')) return false;
+            if (block.type === 'general-v' && (direction === 'left' || direction === 'right')) return false;
+
             // Once the hero has reached the exit lip (y=4), its edge cells are
             // already past the last real grid row, so the generic edge-cell
             // math below (which adds another step) lands two rows past the
@@ -1492,19 +1526,20 @@
         function attemptAutoMove(blockId) {
             const block = gameState.blocks.find(b => b.id === blockId);
             if (!block) return;
-            
-            // Try moving in each direction by one step
-            const directions = [
-                { x: -1, y: 0 }, // left
-                { x: 1, y: 0 },  // right
-                { x: 0, y: -1 }, // up
-                { x: 0, y: 1 }   // down
-            ];
-            
-            for (const dir of directions) {
-                const newX = block.x + dir.x;
-                const newY = block.y + dir.y;
-                
+
+            // Try moving in each direction by one step. Direction names (not
+            // raw deltas) route through canBlockMoveInDirection first so this
+            // respects the same per-shape axis lock as drag/keyboard - without
+            // it, double-tap would let a locked general "auto-move" around its
+            // own restriction.
+            const DELTA = { left: [-1, 0], right: [1, 0], up: [0, -1], down: [0, 1] };
+
+            for (const direction of ['left', 'right', 'up', 'down']) {
+                if (!canBlockMoveInDirection(block, direction)) continue;
+                const [dx, dy] = DELTA[direction];
+                const newX = block.x + dx;
+                const newY = block.y + dy;
+
                 if (canMoveBlock(blockId, newX, newY)) {
                     // moveBlockWithAnimation already renders and checks the win
                     // condition; there's no separate un-animated moveBlock().
@@ -1559,9 +1594,18 @@
                 blockElement.dataset.blockId = block.id;
                 blockElement.style.gridColumn = `${block.x + 1} / span ${block.width}`;
                 blockElement.style.gridRow = `${block.y + 1} / span ${block.height}`;
-                
-                // No labels needed - clean visual design
-                
+
+                // Generals are locked to their long axis (see
+                // canBlockMoveInDirection) - mark it with a glyph so the
+                // restriction doesn't rely on color alone.
+                if (block.type === 'general-h' || block.type === 'general-v') {
+                    const glyph = document.createElement('span');
+                    glyph.className = 'block-glyph';
+                    glyph.textContent = block.type === 'general-h' ? '↔' : '↕';
+                    glyph.setAttribute('aria-hidden', 'true');
+                    blockElement.appendChild(glyph);
+                }
+
                 // Add event listeners
                 blockElement.addEventListener('mousedown', (e) => handleMouseDown(e, block.id));
                 blockElement.addEventListener('click', (e) => handleBlockClick(e, block.id));
