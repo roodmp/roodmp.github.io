@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<!-- Page: Gravity Run — Three.js 3D endless runner (Run 3–inspired) -->
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Gravity Run - Mark Rood</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../design-system.css" />
+    <!-- Three.js r160 (ES-modules only) pinned via jsDelivr import map — the
+         site's first JS library dependency, following the pinned-CDN convention. -->
+    <script type="importmap">
+      { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js" } }
+    </script>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .game-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--bg-primary);
+        }
+
+        /* Floating nav */
+        .game-header {
+            position: fixed;
+            top: var(--space-4);
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 0 var(--space-4);
+            pointer-events: none;
+        }
+
+        @media (min-width: 640px) {
+            .game-header {
+                top: var(--space-6);
+            }
+        }
+
+        .game-nav {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            max-width: fit-content;
+            margin: 0 auto;
+            padding: var(--space-2) var(--space-4);
+            background: rgba(34, 34, 31, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-lg);
+            pointer-events: auto;
+        }
+
+        .game-nav .nav-logo {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .game-nav .nav-logo img {
+            height: 28px;
+            width: auto;
+            border-radius: var(--radius-md);
+        }
+
+        .game-nav .nav-links {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .game-nav .nav-link {
+            position: relative;
+            padding: var(--space-2) var(--space-4);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: var(--text-sm);
+            font-weight: 500;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+        }
+
+        .game-nav .nav-link:hover {
+            color: var(--text-primary);
+            background-color: var(--bg-hover);
+        }
+
+        /* On mobile the floating header gives way to the site's bottom tab bar
+           (.bottom-tab-bar styles come from design-system.css at the same breakpoint) */
+        @media (max-width: 640px) {
+            .game-header {
+                display: none;
+            }
+        }
+
+        /* Canvas container */
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 100px 16px 8px;
+            gap: 0px;
+            min-height: 0;
+        }
+
+        @media (max-width: 640px) {
+            .canvas-container {
+                /* Header is hidden; bottom padding clears the fixed tab bar */
+                padding: 12px 8px calc(52px + var(--space-4) + var(--space-2) + env(safe-area-inset-bottom, 0px));
+            }
+        }
+
+        /* HUD top bar */
+        .game-hud-top {
+            width: 100%;
+            max-width: 900px;
+            font-family: var(--font-mono);
+            padding: 0 4px 4px;
+        }
+
+        .hud-main-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            width: 100%;
+        }
+
+        .hud-left, .hud-right {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .hud-right {
+            align-items: center;
+        }
+
+        .hud-distance {
+            font-family: var(--font-mono);
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .hud-unit {
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        .hud-best {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        canvas {
+            display: block;
+            border-radius: var(--radius-lg);
+            touch-action: none;
+            border: 1px solid rgba(74, 103, 133, 0.2);
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Overlays */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(26, 26, 24, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .overlay-content {
+            text-align: center;
+            max-width: 420px;
+            padding: var(--space-8);
+        }
+
+        .overlay-title {
+            font-family: var(--font-sans);
+            font-size: var(--text-4xl);
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+            margin-bottom: var(--space-4);
+        }
+
+        .overlay-subtitle {
+            font-family: var(--font-sans);
+            font-size: var(--text-lg);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-6);
+            line-height: 1.6;
+        }
+
+        .overlay-score {
+            font-family: var(--font-mono);
+            font-size: var(--text-2xl);
+            color: var(--accent-300);
+            margin-bottom: var(--space-2);
+        }
+
+        .overlay-high-score {
+            font-family: var(--font-mono);
+            font-size: var(--text-sm);
+            color: var(--text-tertiary);
+            margin-bottom: var(--space-6);
+        }
+
+        .overlay-newbest {
+            font-family: var(--font-sans);
+            font-size: var(--text-base);
+            font-weight: 600;
+            color: var(--panda-400);
+            margin-bottom: var(--space-4);
+            display: none;
+        }
+
+        .overlay-newbest.show {
+            display: block;
+        }
+
+        .overlay-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-3) var(--space-8);
+            font-family: var(--font-sans);
+            font-size: var(--text-base);
+            font-weight: 600;
+            color: white;
+            background: var(--accent-500);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .overlay-btn:hover {
+            background: var(--accent-600);
+            box-shadow: var(--shadow-accent);
+        }
+
+        .overlay-btn:focus-visible {
+            outline: 2px solid var(--accent-300);
+            outline-offset: 2px;
+        }
+
+        .overlay-hint {
+            font-size: var(--text-xs);
+            color: var(--text-tertiary);
+            margin-top: var(--space-4);
+        }
+
+        .overlay-controls {
+            margin-top: var(--space-6);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+            font-size: var(--text-sm);
+            color: var(--text-tertiary);
+        }
+
+        .overlay-controls kbd {
+            display: inline-block;
+            padding: 2px 8px;
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            background: var(--bg-elevated);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+        }
+
+        /* Control hint variants: desktop (keyboard) vs touch (swipe/tap) */
+        .touch-only {
+            display: none;
+        }
+
+        @media (hover: none), (pointer: coarse) {
+            .desktop-only {
+                display: none;
+            }
+            .touch-only {
+                display: block;
+            }
+        }
+
+        /* Small pause button in the HUD, touch/coarse-pointer devices only. */
+        .pause-btn {
+            display: none;
+            width: 28px;
+            height: 28px;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            background: var(--bg-elevated);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-full);
+            touch-action: manipulation;
+            cursor: pointer;
+        }
+
+        .pause-btn:active {
+            background: var(--bg-hover);
+        }
+
+        .pause-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        @media (hover: none), (pointer: coarse) {
+            .pause-btn {
+                display: flex;
+            }
+        }
+    </style>
+    <script src="../main.js" defer></script>
+</head>
+
+<body>
+    <div class="game-wrapper">
+        <!-- Navigation -->
+        <header class="game-header" role="banner">
+            <nav class="game-nav" role="navigation" aria-label="Game navigation">
+                <a href="../about.html" class="nav-logo" aria-label="Home">
+                    <img src="../favicon.png" alt="Mark Rood" />
+                </a>
+                <div class="nav-links">
+                    <a href="../about.html" class="nav-link">About</a>
+                    <a href="../index.html" class="nav-link">Resume</a>
+                    <a href="../resources.html" class="nav-link">Resources</a>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Mobile bottom tab bar (same pattern as the main pages; inline SVGs
+             because this page doesn't load the Feather icons script) -->
+        <nav class="bottom-tab-bar" aria-label="Mobile navigation">
+            <a href="../about.html" class="tab-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                <span class="tab-label">About</span>
+            </a>
+            <a href="../index.html" class="tab-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <span class="tab-label">Resum&eacute;</span>
+            </a>
+            <a href="../resources.html" class="tab-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                <span class="tab-label">Resources</span>
+            </a>
+        </nav>
+
+        <!-- Canvas -->
+        <div class="canvas-container">
+            <!-- Top HUD bar -->
+            <div class="game-hud-top" id="hudTop">
+                <div class="hud-main-row">
+                    <div class="hud-left">
+                        <span class="hud-distance" id="hudDistance">0</span>
+                        <span class="hud-unit">m</span>
+                    </div>
+                    <div class="hud-right">
+                        <span class="hud-best" id="hudBest">Best 0 m</span>
+                        <button class="pause-btn" id="pauseBtn" aria-label="Pause game">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <canvas id="gameCanvas" role="img" aria-label="Gravity Run play area"></canvas>
+        </div>
+
+        <!-- Start overlay -->
+        <div id="startOverlay" class="overlay visible">
+            <div class="overlay-content">
+                <div class="overlay-title">Gravity Run</div>
+                <div class="overlay-subtitle">Sprint through a hexagonal space tunnel. Jump the gaps, and strafe onto the walls to rotate gravity beneath you.</div>
+                <button class="overlay-btn" id="startBtn">Start Run</button>
+                <div class="overlay-controls">
+                    <div class="desktop-only"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> strafe &nbsp;&middot;&nbsp; <kbd>Space</kbd> jump</div>
+                    <div class="desktop-only"><kbd>P</kbd> / <kbd>Esc</kbd> pause</div>
+                    <div class="touch-only">Swipe left / right to strafe</div>
+                    <div class="touch-only">Tap to jump</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paused overlay -->
+        <div id="pauseOverlay" class="overlay">
+            <div class="overlay-content">
+                <div class="overlay-title">Paused</div>
+                <button class="overlay-btn" id="resumeBtn">Resume</button>
+                <div class="overlay-hint desktop-only">Press <kbd>P</kbd> to resume</div>
+            </div>
+        </div>
+
+        <!-- Game over overlay -->
+        <div id="gameOverOverlay" class="overlay">
+            <div class="overlay-content">
+                <div class="overlay-title">Game Over</div>
+                <div class="overlay-newbest" id="newBest">New best!</div>
+                <div class="overlay-score" id="finalScore"></div>
+                <div class="overlay-high-score" id="highScore"></div>
+                <button class="overlay-btn" id="restartBtn">Run Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+    import * as THREE from 'three';
+
+    (function () {
+        'use strict';
+
+        // ---- Design tokens mirrored for in-scene materials (see design-system.css) ----
+        const COLORS = {
+            bg:        0x1A1A18, // --bg-primary  (also fog)
+            tileA:     0x2A2A27, // --bg-tertiary
+            tileB:     0x32322F, // --bg-elevated
+            accent:    0x4A6785, // --accent-500 (tile edge tint)
+            blob:      0xE8845A, // --panda-400  (rationed panda-orange, blob only)
+            star:      0xF5F5F4,
+        };
+
+        // ---- Tunnel geometry ----
+        const FACES = 6, LANES = 3, TILE = 2.0;
+        const R = 6;                                          // apothem: axis → face centre
+        const FACE_W = 2 * R * Math.tan(Math.PI / FACES);     // width of one face
+        const LANE_W = FACE_W / LANES;                        // width of one lane
+        const TILE_THICK = 0.35;
+        const BLOB_R = 0.72;
+        const FLOOR_REST = -R + TILE_THICK / 2 + BLOB_R;      // blob centre y when grounded
+        const DEATH_DROP = -3.2;                              // py below which the run ends
+        const ROW_COUNT = 46;                                 // pooled rows kept alive
+        const SAFE_START_ROWS = 10;                           // guaranteed-solid launch runway
+        const RECYCLE_BEHIND = 6;                             // recycle a row this far behind camera
+
+        // ---- Physics tuning ----
+        const RUN_SPEED_MIN = 12, RUN_SPEED_MAX = 30;         // units/s
+        const SPEED_RAMP_DIST = 1200;                         // metres to reach top speed (slow, steady climb)
+        const JUMP_VELOCITY = 14;                             // units/s upward
+        const GRAVITY = 42;                                   // units/s²
+        const STRAFE_REPEAT_MS = 180;
+        const ROT_EASE = 12;                                  // tunnel rotation ease rate
+
+        const faceAngle = f => f * (Math.PI * 2 / FACES);
+
+        // ---- Procedural generation: hand-authored, tier-tagged chunk patterns ----
+        // Each row is 3 chars = the 3 lanes of the *current floor face* ('1' tile, '0' gap).
+        // Non-floor faces are always solid, so a wall is always a safe escape — no run
+        // can ever be impossible and no path-checking code is required.
+        // Every gap runs at least two tiles long (no single-tile nicks), so a hole always
+        // reads as a real span to jump or route around.
+        const PATTERNS = [
+            // Tier 1 — gentle
+            { tier: 1, rows: ['111', '111', '111', '111'] },                                  // safe straight
+            { tier: 1, rows: ['111', '111', '000', '000', '111', '111'] },                    // double gap (jump)
+            { tier: 1, rows: ['111', '110', '110', '111'] },                                  // lane-2 hole
+            { tier: 1, rows: ['111', '011', '011', '111'] },                                  // lane-0 hole
+            // Tier 2 — needs jumps / lane changes
+            { tier: 2, rows: ['111', '000', '000', '000', '111', '111'] },                    // triple gap (jump)
+            { tier: 2, rows: ['111', '011', '011', '110', '110', '111'] },                    // staggered → lane change
+            { tier: 2, rows: ['111', '000', '000', '111', '111', '000', '000', '111'] },      // two double gaps
+            // Tier 3 — forces a wall transition
+            { tier: 3, rows: ['111', '000', '000', '000', '000', '000', '111'] },             // floor erosion
+            { tier: 3, rows: ['111', '000', '000', '110', '110', '000', '000', '111'] },      // gap + shift
+            // Tier 4 — tighter combinations
+            { tier: 4, rows: ['111', '000', '000', '000', '010', '010', '000', '000', '111'] },
+            { tier: 4, rows: ['111', '000', '000', '110', '110', '011', '011', '000', '000', '111'] },
+        ];
+
+        function currentTier(dist) {
+            return Math.min(4, 1 + Math.floor(dist / 400));
+        }
+
+        // Generator state — produces 18-byte rows for strictly increasing row indices.
+        let patternQueue = [];   // [{ row3, startsNewPattern, tier }]
+        let genFace = 0;         // face the current pattern's gaps are authored onto
+
+        function pickPattern(tier) {
+            const pool = PATTERNS.filter(p => p.tier <= tier);
+            // Weight toward the current tier so difficulty actually tracks distance.
+            const atTier = pool.filter(p => p.tier === tier);
+            const src = (atTier.length && Math.random() < 0.65) ? atTier : pool;
+            return src[(Math.random() * src.length) | 0];
+        }
+
+        function enqueuePattern(dist) {
+            const p = pickPattern(currentTier(dist));
+            p.rows.forEach((r, i) => patternQueue.push({ row3: r, startsNewPattern: i === 0, tier: p.tier }));
+            // Always follow a hard pattern with ≥2 fully safe rows so demands never stack.
+            if (p.tier >= 3) {
+                patternQueue.push({ row3: '111', startsNewPattern: false, tier: p.tier });
+                patternQueue.push({ row3: '111', startsNewPattern: false, tier: p.tier });
+            }
+        }
+
+        // rowIndex → Uint8Array(18); only the near-player slice is retained.
+        const rowDataByIndex = new Map();
+
+        function generateRowData(rowIndex) {
+            const data = new Uint8Array(18).fill(1);
+            if (rowIndex < SAFE_START_ROWS) return data;      // solid launch runway
+            if (patternQueue.length === 0) enqueuePattern(rowIndex * TILE);
+            const item = patternQueue.shift();
+            if (item.startsNewPattern) genFace = player.floorFace; // author gaps under the player
+            for (let L = 0; L < LANES; L++) {
+                data[genFace * LANES + L] = item.row3.charCodeAt(L) === 49 ? 1 : 0; // '1' === 49
+            }
+            return data;
+        }
+
+        function tileSolid(rowIndex, face, lane) {
+            const d = rowDataByIndex.get(rowIndex);
+            if (!d) return true;               // outside the generated window → never a cheap death
+            return d[face * LANES + lane] === 1;
+        }
+
+        // ---- Three.js scene ----
+        const canvas = document.getElementById('gameCanvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(COLORS.bg);
+        scene.fog = new THREE.Fog(COLORS.bg, 18, 68);
+
+        const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 250);
+        camera.position.set(0, -2.35, 8.5);    // raised a touch so the path reads over the blob
+        camera.lookAt(0, -5.4, -22);           // fixed: never moves, never rotates
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+        const dir = new THREE.DirectionalLight(0xffffff, 0.9);
+        dir.position.set(4, 6, 10);
+        scene.add(dir);
+
+        // Starfield — a single drifting Points cloud outside the tunnel.
+        const starGroup = new THREE.Group();
+        (function buildStars() {
+            const N = 500;
+            const pos = new Float32Array(N * 3);
+            for (let i = 0; i < N; i++) {
+                const a = Math.random() * Math.PI * 2;
+                const rad = 24 + Math.random() * 90;
+                pos[i * 3]     = Math.cos(a) * rad;
+                pos[i * 3 + 1] = Math.sin(a) * rad;
+                pos[i * 3 + 2] = -160 + Math.random() * 200;
+            }
+            const g = new THREE.BufferGeometry();
+            g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            const m = new THREE.PointsMaterial({ color: COLORS.star, size: 0.55, sizeAttenuation: true, transparent: true, opacity: 0.7, fog: false });
+            starGroup.add(new THREE.Points(g, m));
+        })();
+        scene.add(starGroup);
+
+        // Tunnel group — rotation.z is gravity, position.z is scroll.
+        const tunnelGroup = new THREE.Group();
+        scene.add(tunnelGroup);
+
+        // Shared geometry + two alternating materials (subtle accent emissive = surface tint).
+        const tileGeo = new THREE.BoxGeometry(LANE_W * 0.86, TILE_THICK, TILE * 0.9);
+        const tileMatA = new THREE.MeshLambertMaterial({ color: COLORS.tileA, emissive: COLORS.accent, emissiveIntensity: 0.12 });
+        const tileMatB = new THREE.MeshLambertMaterial({ color: COLORS.tileB, emissive: COLORS.accent, emissiveIntensity: 0.12 });
+        // A missing cell is not left open to the void — it's filled with a dark, recessed
+        // "empty tile" so it reads as a hollow socket in the tunnel surface rather than a
+        // window to space, while still clearly distinct from the lit solid tiles.
+        const tileMatGap = new THREE.MeshLambertMaterial({ color: 0x222220 });
+        // A thin accent edge frames every tile; solid tiles get the bright edge, empty
+        // tiles a dim one, so the surface still reads as a continuous grid.
+        const tileEdgeGeo = new THREE.EdgesGeometry(tileGeo);
+        const tileEdgeMat = new THREE.LineBasicMaterial({ color: COLORS.accent, transparent: true, opacity: 0.55 });
+        const tileEdgeMatGap = new THREE.LineBasicMaterial({ color: COLORS.accent, transparent: true, opacity: 0.16 });
+        const GAP_RECESS = 0.7;   // how far an empty tile sinks below the walking surface
+
+        // Precompute the fixed local transform of every slot (face×lane): its position on
+        // the walking surface, plus a recessed position (pushed radially outward) used when
+        // the cell is an empty tile. Only a row's z and per-tile material/position toggle
+        // at stamp time → zero per-frame allocation.
+        const slotXform = [];
+        for (let f = 0; f < FACES; f++) {
+            for (let L = 0; L < LANES; L++) {
+                const x0 = (L - 1) * LANE_W;
+                const y0 = -R;
+                const a = faceAngle(f);
+                const x = x0 * Math.cos(a) - y0 * Math.sin(a);
+                const y = x0 * Math.sin(a) + y0 * Math.cos(a);
+                const k = (R + GAP_RECESS) / R;   // scale radius outward, keeping direction
+                slotXform.push({ x, y, rot: a, rx: x * k, ry: y * k });
+            }
+        }
+
+        // Pooled rows.
+        const rows = [];
+        for (let i = 0; i < ROW_COUNT; i++) {
+            const group = new THREE.Group();
+            const tiles = [];
+            for (let s = 0; s < FACES * LANES; s++) {
+                const mesh = new THREE.Mesh(tileGeo, tileMatA);
+                mesh.position.set(slotXform[s].x, slotXform[s].y, 0);
+                mesh.rotation.z = slotXform[s].rot;
+                const edge = new THREE.LineSegments(tileEdgeGeo, tileEdgeMat);
+                mesh.add(edge);
+                mesh.userData.edge = edge;
+                group.add(mesh);
+                tiles.push(mesh);
+            }
+            tunnelGroup.add(group);
+            rows.push({ group, tiles, rowIndex: -1 });
+        }
+        let maxRowIndex = 0;
+
+        function stampRow(row, rowIndex) {
+            const data = generateRowData(rowIndex);
+            rowDataByIndex.set(rowIndex, data);
+            row.rowIndex = rowIndex;
+            row.group.position.z = -rowIndex * TILE;
+            const mat = (rowIndex & 1) ? tileMatA : tileMatB;
+            for (let s = 0; s < row.tiles.length; s++) {
+                const t = row.tiles[s];
+                const x = slotXform[s];
+                if (data[s] === 1) {
+                    t.material = mat;
+                    t.position.set(x.x, x.y, 0);
+                    t.userData.edge.material = tileEdgeMat;
+                } else {
+                    // Empty tile: dark, recessed, dim edge.
+                    t.material = tileMatGap;
+                    t.position.set(x.rx, x.ry, 0);
+                    t.userData.edge.material = tileEdgeMatGap;
+                }
+            }
+        }
+
+        // ---- Blob ----
+        // A mottled texture gives the sphere surface detail so its rolling reads as real
+        // forward motion (a smooth sphere would look like it's just floating in place).
+        function makeBlobTexture() {
+            const cv = document.createElement('canvas');
+            cv.width = cv.height = 128;
+            const g = cv.getContext('2d');
+            g.fillStyle = '#E8845A';                     // panda-400 base
+            g.fillRect(0, 0, 128, 128);
+            g.fillStyle = 'rgba(190, 96, 58, 0.9)';      // darker mottling
+            for (const [x, y, r] of [[30, 40, 17], [86, 30, 13], [58, 82, 20], [104, 96, 11], [18, 96, 10], [96, 64, 9]]) {
+                g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+            }
+            const tex = new THREE.CanvasTexture(cv);
+            tex.anisotropy = 4;
+            return tex;
+        }
+        // Pivot carries world position + landing squash (kept upright); the inner mesh
+        // carries the rolling/tumble rotation, so a squash never skews mid-roll.
+        const blobPivot = new THREE.Group();
+        const blob = new THREE.Mesh(
+            new THREE.SphereGeometry(BLOB_R, 24, 18),
+            new THREE.MeshStandardMaterial({ map: makeBlobTexture(), color: COLORS.blob, emissive: COLORS.blob, emissiveIntensity: 0.15, roughness: 0.55, metalness: 0.0 })
+        );
+        blobPivot.add(blob);
+        scene.add(blobPivot);
+
+        const PLAYER_Z = 0;
+
+        // ---- Game state ----
+        let gameState = 'start';   // start | playing | paused | dying | gameover
+        let scroll = 0;            // world units travelled
+        let speed = RUN_SPEED_MIN;
+        let distance = 0;          // metres shown in HUD
+        let finalDistance = 0;
+        let deathTimer = 0;
+        let highScoreVal = parseInt(localStorage.getItem('gravity_run_high_score')) || 0;
+
+        const player = {
+            floorFace: 0,
+            lane: 1,
+            py: 0,               // vertical offset above rest position
+            vy: 0,
+            grounded: true,
+            targetRot: 0,        // desired tunnelGroup.rotation.z
+            displayX: 0,         // eased horizontal position of the blob
+            squash: 0,           // landing squash timer (s)
+            tumble: 0,           // death tumble angle
+            roll: 0,             // accumulated forward-rolling angle
+        };
+
+        // ---- HUD ----
+        const hudDistance = document.getElementById('hudDistance');
+        const hudBest = document.getElementById('hudBest');
+        hudBest.textContent = 'Best ' + highScoreVal + ' m';
+
+        function updateHUD() {
+            hudDistance.textContent = distance;
+        }
+
+        // ---- Overlays ----
+        const overlays = {
+            start: document.getElementById('startOverlay'),
+            paused: document.getElementById('pauseOverlay'),
+            gameover: document.getElementById('gameOverOverlay'),
+        };
+        function showOverlay(name) {
+            Object.values(overlays).forEach(o => o.classList.remove('visible'));
+            if (name && overlays[name]) overlays[name].classList.add('visible');
+        }
+
+        // ---- Run lifecycle ----
+        function initRun() {
+            scroll = 0;
+            speed = RUN_SPEED_MIN;
+            distance = 0;
+            deathTimer = 0;
+            patternQueue = [];
+            genFace = 0;
+            rowDataByIndex.clear();
+            player.floorFace = 0;
+            player.lane = 1;
+            player.py = 0;
+            player.vy = 0;
+            player.grounded = true;
+            player.targetRot = 0;
+            player.displayX = 0;
+            player.squash = 0;
+            player.tumble = 0;
+            player.roll = 0;
+            tunnelGroup.rotation.z = 0;
+            tunnelGroup.position.z = 0;
+            blob.rotation.set(0, 0, 0);
+            blobPivot.scale.set(1, 1, 1);
+            for (let i = 0; i < rows.length; i++) stampRow(rows[i], i);
+            maxRowIndex = rows.length - 1;
+            updateHUD();
+        }
+
+        function startGame() {
+            initRun();
+            gameState = 'playing';
+            showOverlay(null);
+        }
+
+        function die() {
+            if (gameState !== 'playing') return;
+            finalDistance = distance;
+            gameState = 'dying';
+            deathTimer = 0;
+            player.grounded = false;
+            if (player.vy > -2) player.vy = -6;   // start tumbling into the void
+        }
+
+        function endRun() {
+            let newBest = false;
+            if (finalDistance > highScoreVal) {
+                highScoreVal = finalDistance;
+                localStorage.setItem('gravity_run_high_score', highScoreVal);
+                newBest = true;
+            }
+            document.getElementById('finalScore').textContent = finalDistance + ' m';
+            document.getElementById('highScore').textContent = 'Best  ' + highScoreVal + ' m';
+            document.getElementById('newBest').classList.toggle('show', newBest);
+            hudBest.textContent = 'Best ' + highScoreVal + ' m';
+            gameState = 'gameover';
+            showOverlay('gameover');
+        }
+
+        function togglePause() {
+            if (gameState === 'playing') {
+                gameState = 'paused';
+                showOverlay('paused');
+            } else if (gameState === 'paused') {
+                gameState = 'playing';
+                showOverlay(null);
+            }
+        }
+
+        // ---- Actions ----
+        function strafe(dir) {
+            if (gameState !== 'playing') return;
+            if (dir > 0) {
+                if (player.lane < LANES - 1) player.lane++;
+                else { player.floorFace = (player.floorFace + 1) % FACES; player.lane = 0; player.targetRot -= Math.PI / 3; }
+            } else {
+                if (player.lane > 0) player.lane--;
+                else { player.floorFace = (player.floorFace + FACES - 1) % FACES; player.lane = LANES - 1; player.targetRot += Math.PI / 3; }
+            }
+        }
+
+        function jump() {
+            if (gameState !== 'playing') return;
+            if (player.grounded) {
+                player.vy = JUMP_VELOCITY;
+                player.grounded = false;
+            }
+        }
+
+        // ---- Overlay buttons ----
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+        document.getElementById('resumeBtn').addEventListener('click', togglePause);
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            if (gameState === 'playing' || gameState === 'paused') togglePause();
+        });
+
+        // ---- Keyboard ----
+        let heldStrafe = 0;       // -1 | 0 | 1
+        let lastStrafeTime = 0;
+
+        window.addEventListener('keydown', (e) => {
+            const k = e.key;
+            if (k === 'ArrowLeft' || k === 'a' || k === 'A') {
+                e.preventDefault();
+                if (!e.repeat) { strafe(-1); heldStrafe = -1; lastStrafeTime = performance.now(); }
+            } else if (k === 'ArrowRight' || k === 'd' || k === 'D') {
+                e.preventDefault();
+                if (!e.repeat) { strafe(1); heldStrafe = 1; lastStrafeTime = performance.now(); }
+            } else if (k === 'ArrowUp' || k === 'w' || k === 'W' || k === ' ' || k === 'Spacebar') {
+                e.preventDefault();
+                if (gameState === 'start' || gameState === 'gameover') startGame();
+                else jump();
+            } else if (k === 'p' || k === 'P' || k === 'Escape') {
+                e.preventDefault();
+                togglePause();
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const k = e.key;
+            if ((k === 'ArrowLeft' || k === 'a' || k === 'A') && heldStrafe === -1) heldStrafe = 0;
+            if ((k === 'ArrowRight' || k === 'd' || k === 'D') && heldStrafe === 1) heldStrafe = 0;
+        });
+
+        // ---- Touch: swipe to strafe, tap to jump ----
+        let touchStartX = 0, touchStartY = 0, touchMoved = false;
+        const SWIPE_PX = 30;
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const t = e.changedTouches[0];
+            touchStartX = t.clientX;
+            touchStartY = t.clientY;
+            touchMoved = false;
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const t = e.changedTouches[0];
+            if (Math.abs(t.clientX - touchStartX) > SWIPE_PX || Math.abs(t.clientY - touchStartY) > SWIPE_PX) {
+                touchMoved = true;
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (gameState === 'start' || gameState === 'gameover') { startGame(); return; }
+            const t = e.changedTouches[0];
+            const dx = t.clientX - touchStartX;
+            if (Math.abs(dx) > SWIPE_PX) strafe(dx > 0 ? 1 : -1);
+            else if (!touchMoved) jump();
+        }, { passive: false });
+
+        // Auto-pause when the tab is hidden.
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && gameState === 'playing') togglePause();
+        });
+
+        // ---- Update ----
+        function updatePlaying(dt) {
+            const now = performance.now();
+            // Held-strafe auto-repeat.
+            if (heldStrafe !== 0 && now - lastStrafeTime >= STRAFE_REPEAT_MS) {
+                strafe(heldStrafe);
+                lastStrafeTime = now;
+            }
+
+            // Speed ramp with distance.
+            speed = Math.min(RUN_SPEED_MAX, RUN_SPEED_MIN + (RUN_SPEED_MAX - RUN_SPEED_MIN) * (scroll / SPEED_RAMP_DIST));
+            scroll += speed * dt;
+            tunnelGroup.position.z = scroll;
+            distance = Math.floor(scroll);
+
+            const currentRow = Math.round((scroll - PLAYER_Z) / TILE);
+
+            // Vertical physics: a plain 1-D jump/fall against the tile under (row, face, lane).
+            if (player.grounded) {
+                if (!tileSolid(currentRow, player.floorFace, player.lane)) {
+                    player.grounded = false;   // ran off the edge of the floor into a gap
+                    player.vy = 0;
+                }
+            } else {
+                const prevPy = player.py;
+                player.vy -= GRAVITY * dt;
+                player.py += player.vy * dt;
+                // Landing only happens on the frame the blob crosses the floor plane
+                // going down (prevPy ≥ 0 → py ≤ 0). Once below the plane over a gap,
+                // it can never re-land on a floor-level tile — it falls to its death.
+                if (player.vy <= 0 && prevPy >= 0 && player.py <= 0) {
+                    if (tileSolid(currentRow, player.floorFace, player.lane)) {
+                        player.py = 0;
+                        player.vy = 0;
+                        player.grounded = true;
+                        player.squash = 0.16;
+                    }
+                }
+                if (!player.grounded && player.py < DEATH_DROP) die();
+            }
+            if (player.squash > 0) player.squash = Math.max(0, player.squash - dt);
+
+            // Recycle rows that have scrolled behind the camera.
+            for (let i = 0; i < rows.length; i++) {
+                const worldZ = scroll + rows[i].group.position.z;
+                if (worldZ > camera.position.z + RECYCLE_BEHIND) {
+                    stampRow(rows[i], ++maxRowIndex);
+                }
+            }
+            // Prune stale row data.
+            const cutoff = currentRow - 4;
+            if (cutoff > 0 && (cutoff & 15) === 0) {
+                for (const key of rowDataByIndex.keys()) {
+                    if (key < cutoff) rowDataByIndex.delete(key);
+                }
+            }
+        }
+
+        function updateDying(dt) {
+            player.vy -= GRAVITY * dt;
+            player.py += player.vy * dt;
+            player.tumble += dt * 6;
+            deathTimer += dt;
+            if (deathTimer > 0.95) endRun();
+        }
+
+        function updateVisuals(dt) {
+            // Ease the tunnel toward the target gravity rotation.
+            const k = Math.min(1, dt * ROT_EASE);
+            tunnelGroup.rotation.z += (player.targetRot - tunnelGroup.rotation.z) * k;
+
+            // Ease blob horizontal position (also smooths the lane-wrap on face transitions).
+            const targetX = (player.lane - 1) * LANE_W;
+            player.displayX += (targetX - player.displayX) * Math.min(1, dt * 14);
+            blobPivot.position.set(player.displayX, FLOOR_REST + player.py, PLAYER_Z);
+
+            // Roll the blob forward at the rolling speed (v = ωr) so it reads as moving,
+            // not floating. Negative X-rotation rolls the top away down the tunnel (−Z).
+            if (gameState === 'playing') player.roll -= (speed / BLOB_R) * dt;
+
+            // Landing squash lives on the upright pivot so it stays vertical while rolling.
+            const sq = player.squash > 0 ? player.squash / 0.16 : 0;   // 1 → 0 over the squash
+            blobPivot.scale.set(1 + 0.28 * sq, 1 - 0.35 * sq, 1 + 0.28 * sq);
+            // Rolling on the mesh; death tumble layers on top.
+            blob.rotation.set(player.roll + player.tumble * 0.7, 0, player.tumble);
+
+            // Drift the starfield.
+            starGroup.rotation.z += dt * 0.01;
+        }
+
+        // ---- Main loop (delta-time; movement is in units/second) ----
+        let lastFrameTime = null;
+        function loop(now) {
+            let dt = 0;
+            if (lastFrameTime !== null) {
+                dt = Math.min(now - lastFrameTime, 50) / 1000;   // clamp stutters / tab returns
+            }
+            lastFrameTime = now;
+
+            if (gameState === 'playing') updatePlaying(dt);
+            else if (gameState === 'dying') updateDying(dt);
+            updateVisuals(dt);
+            updateHUD();
+            renderer.render(scene, camera);
+            requestAnimationFrame(loop);
+        }
+
+        // ---- Resize ----
+        function resize() {
+            const container = canvas.parentElement;
+            const style = getComputedStyle(container);
+            const hudTop = document.getElementById('hudTop');
+            const padL = parseFloat(style.paddingLeft), padR = parseFloat(style.paddingRight);
+            const padT = parseFloat(style.paddingTop), padB = parseFloat(style.paddingBottom);
+            const w = Math.max(1, container.clientWidth - padL - padR);
+            const h = Math.max(1, container.clientHeight - padT - padB - hudTop.offsetHeight - 4);
+            renderer.setSize(w, h, false);
+            canvas.style.width = w + 'px';
+            canvas.style.height = h + 'px';
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            hudTop.style.width = w + 'px';
+        }
+        window.addEventListener('resize', resize);
+
+        // ---- Boot ----
+        initRun();
+        gameState = 'start';
+        resize();
+        showOverlay('start');
+        requestAnimationFrame(loop);
+    })();
+    </script>
+</body>
+
+</html>
