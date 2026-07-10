@@ -513,7 +513,7 @@
         const BLOB_R = 0.72;
         const FLOOR_REST = -R + TILE_THICK / 2 + BLOB_R;      // blob centre y when grounded
         const DEATH_DROP = -3.2;                              // py below which the run ends
-        const ROW_COUNT = 28;                                 // compact visible runway for low-end GPUs
+        const ROW_COUNT = 38;                                 // enough depth for the full fogged tunnel
         const SLOTS_PER_ROW = FACES * LANES;
         const SAFE_START_ROWS = 10;                           // guaranteed-solid launch runway
         const RECYCLE_BEHIND = 6;                             // recycle a row this far behind camera
@@ -626,22 +626,27 @@
         // This game favors a stable frame cadence over antialiased micro-detail. Asking for
         // the high-performance adapter and avoiding MSAA keeps software/embedded contexts
         // from multiplying the cost of every canvas pixel.
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance', precision: 'mediump' });
-        const RENDER_PIXEL_BUDGETS = [600000, 400000, 250000];
-        const MAX_RENDER_PIXEL_RATIO = 1;
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+        const RENDER_PIXEL_BUDGETS = [1250000, 750000, 450000];
+        const MAX_RENDER_PIXEL_RATIO = 1.25;
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(COLORS.bg);
-        scene.fog = new THREE.Fog(COLORS.bg, 16, 54);
+        scene.fog = new THREE.Fog(COLORS.bg, 18, 68);
 
         const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 250);
         camera.position.set(0, -2.35, 8.5);    // raised a touch so the path reads over the blob
         camera.lookAt(0, -5.4, -22);           // fixed: never moves, never rotates
 
+        scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+        const dir = new THREE.DirectionalLight(0xffffff, 0.9);
+        dir.position.set(4, 6, 10);
+        scene.add(dir);
+
         // Starfield — a single drifting Points cloud outside the tunnel.
         const starGroup = new THREE.Group();
         (function buildStars() {
-            const N = 160;
+            const N = 500;
             const pos = new Float32Array(N * 3);
             for (let i = 0; i < N; i++) {
                 const a = Math.random() * Math.PI * 2;
@@ -661,16 +666,18 @@
         const tunnelGroup = new THREE.Group();
         scene.add(tunnelGroup);
 
-        // Unlit materials keep the shader path predictable on older integrated GPUs.
+        // The tunnel stays richly lit; global instancing carries the performance work.
         const tileGeo = new THREE.BoxGeometry(LANE_W * 0.86, TILE_THICK, TILE * 0.9);
-        const tileMat = new THREE.MeshBasicMaterial({ color: COLORS.tileA, fog: false });
+        const tileMat = new THREE.MeshLambertMaterial({ color: 0xffffff, vertexColors: true, emissive: COLORS.accent, emissiveIntensity: 0.12 });
+        const tileColorA = new THREE.Color(COLORS.tileA);
+        const tileColorB = new THREE.Color(COLORS.tileB);
         // A missing cell is not left open to the void — it's filled with a dark, recessed
         // "empty tile" so it reads as a hollow socket in the tunnel surface rather than a
         // window to space, while still clearly distinct from the lit solid tiles.
-        const tileMatGap = new THREE.MeshBasicMaterial({ color: 0x222220, fog: false });
+        const tileMatGap = new THREE.MeshLambertMaterial({ color: 0x222220 });
         const GAP_RECESS = 0.7;   // how far an empty tile sinks below the walking surface
         const wallGeo = new THREE.BoxGeometry(LANE_W * 0.72, 2.15, 0.42);
-        const wallMat = new THREE.MeshBasicMaterial({ color: 0x76505b, fog: false });
+        const wallMat = new THREE.MeshLambertMaterial({ color: 0x76505b, emissive: 0x4a2630, emissiveIntensity: 0.32 });
 
         // Precompute the fixed local transform of every slot (face×lane): its position on
         // the walking surface, plus a recessed position (pushed radially outward) used when
@@ -748,9 +755,11 @@
                 const canShow = !flat || s < LANES;
                 setTileInstance(solidTiles, row.tileOffset + s, x, z, canShow && data[s] === 1);
                 setTileInstance(gapTiles, row.tileOffset + s, { x: x.rx, y: x.ry, rot: x.rot }, z, canShow && data[s] === 0);
+                if (canShow && data[s] === 1) solidTiles.setColorAt(row.tileOffset + s, (rowIndex & 1) ? tileColorA : tileColorB);
             }
             for (let L = 0; L < LANES; L++) setWallInstance(row.wallOffset + L, L, z, flat && hazards.charCodeAt(L) === 87);
             solidTiles.instanceMatrix.needsUpdate = true;
+            if (solidTiles.instanceColor) solidTiles.instanceColor.needsUpdate = true;
             gapTiles.instanceMatrix.needsUpdate = true;
             wallTiles.instanceMatrix.needsUpdate = true;
         }
@@ -769,15 +778,15 @@
                 g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
             }
             const tex = new THREE.CanvasTexture(cv);
-            tex.anisotropy = 1;
+            tex.anisotropy = 4;
             return tex;
         }
         // Pivot carries world position + landing squash (kept upright); the inner mesh
         // carries the rolling/tumble rotation, so a squash never skews mid-roll.
         const blobPivot = new THREE.Group();
-        const blobMaterial = new THREE.MeshBasicMaterial({ map: makeBlobTexture('#E8845A'), color: COLORS.blob, fog: false });
+        const blobMaterial = new THREE.MeshStandardMaterial({ map: makeBlobTexture('#E8845A'), color: COLORS.blob, emissive: COLORS.blob, emissiveIntensity: 0.15, roughness: 0.55, metalness: 0.0 });
         const blob = new THREE.Mesh(
-            new THREE.SphereGeometry(BLOB_R, 16, 12),
+            new THREE.SphereGeometry(BLOB_R, 24, 18),
             blobMaterial
         );
         blobPivot.add(blob);
