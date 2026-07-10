@@ -259,20 +259,65 @@
             filter: brightness(1.12);
         }
 
-        /* Small glyph marking each general's locked axis - redundant with
+        /* Small icon marking each general's locked axis - redundant with
            color so the restriction doesn't rely on hue alone. */
         .block-glyph {
-            font-size: 1.1rem;
-            font-weight: 700;
+            display: block;
+            width: 1.1rem;
+            height: 1.1rem;
             color: rgba(28, 25, 23, 0.55);
-            line-height: 1;
             pointer-events: none;
+        }
+
+        .block-glyph svg {
+            display: block;
+            width: 100%;
+            height: 100%;
         }
 
         @media (max-width: 480px) {
             .block-glyph {
-                font-size: 0.9rem;
+                width: 0.9rem;
+                height: 0.9rem;
             }
+        }
+
+        /* Difficulty scale - segmented control replacing the old dropdown.
+           Colors are hard-coded (not CSS vars) to match this page's inlined
+           Tailwind config extend.colors, same as the rest of this <style>
+           block - see the comment near the mobile tab bar above. */
+        .difficulty-scale {
+            display: flex;
+            width: 100%;
+            border: 1px solid #404040; /* surface-border */
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .difficulty-btn {
+            flex: 1;
+            padding: 0.5rem 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #E2E8F0; /* text-secondary */
+            background: transparent;
+            border: none;
+            border-left: 1px solid #404040; /* surface-border */
+            cursor: pointer;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .difficulty-btn:first-child {
+            border-left: none;
+        }
+
+        .difficulty-btn:hover {
+            color: #FFFFFF; /* text-primary */
+        }
+
+        .difficulty-btn.active {
+            background: #1E40AF; /* primary-600 */
+            color: #fff;
         }
 
         /* Soldier blocks (1x1) - light silver, the lightest fill on the board */
@@ -677,14 +722,14 @@
                             </div>
                         </div>
                         
-                        <!-- Difficulty selector for desktop -->
+                        <!-- Difficulty scale for desktop -->
                         <div class="bg-surface-secondary rounded-xl p-6 border border-surface-border">
                             <h3 class="text-sm font-semibold text-text-primary mb-3">Difficulty</h3>
-                            <select id="puzzleSelectDesktop" class="w-full bg-surface-secondary border border-surface-border text-text-primary rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent">
-                                <option value="beginner">Beginner</option>
-                                <option value="classic">Classic Klotski</option>
-                                <option value="expert">Expert</option>
-                            </select>
+                            <div id="difficultyScaleDesktop" class="difficulty-scale" role="group" aria-label="Difficulty">
+                                <button type="button" class="difficulty-btn" data-config="beginner" aria-pressed="false">Beginner</button>
+                                <button type="button" class="difficulty-btn active" data-config="classic" aria-pressed="true">Classic</button>
+                                <button type="button" class="difficulty-btn" data-config="expert" aria-pressed="false">Expert</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -696,14 +741,14 @@
                         <!-- Grid cells will be generated here -->
                     </div>
                     
-                    <!-- Puzzle selector -->
+                    <!-- Difficulty scale -->
                     <div class="mt-2 sm:mt-3">
-                        <label for="puzzleSelectMobile" class="block text-text-secondary text-xs mb-1">Difficulty:</label>
-                        <select id="puzzleSelectMobile" class="w-full bg-surface-secondary border border-surface-border text-text-primary rounded-lg px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent max-w-48 mx-auto">
-                            <option value="beginner">Beginner</option>
-                            <option value="classic">Classic Klotski</option>
-                            <option value="expert">Expert</option>
-                        </select>
+                        <div class="text-text-secondary text-xs mb-1 text-center">Difficulty</div>
+                        <div id="difficultyScaleMobile" class="difficulty-scale max-w-64 mx-auto" role="group" aria-label="Difficulty">
+                            <button type="button" class="difficulty-btn" data-config="beginner" aria-pressed="false">Beginner</button>
+                            <button type="button" class="difficulty-btn active" data-config="classic" aria-pressed="true">Classic</button>
+                            <button type="button" class="difficulty-btn" data-config="expert" aria-pressed="false">Expert</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1601,8 +1646,10 @@
                 if (block.type === 'general-h' || block.type === 'general-v') {
                     const glyph = document.createElement('span');
                     glyph.className = 'block-glyph';
-                    glyph.textContent = block.type === 'general-h' ? '↔' : '↕';
                     glyph.setAttribute('aria-hidden', 'true');
+                    glyph.innerHTML = block.type === 'general-h'
+                        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><polyline points="8 6 3 12 8 18"></polyline><polyline points="16 6 21 12 16 18"></polyline></svg>'
+                        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"></line><polyline points="6 8 12 3 18 8"></polyline><polyline points="6 16 12 21 18 16"></polyline></svg>';
                     blockElement.appendChild(glyph);
                 }
 
@@ -1639,28 +1686,28 @@
             renderGame();
         }
 
-        function loadNewPuzzle(e) {
-            // Both selects exist in the DOM at once (one is just CSS-hidden
-            // depending on viewport), so reading "the desktop one" here
-            // unconditionally used to silently ignore changes made on the
-            // mobile dropdown. Read whichever select actually fired the
-            // change event, and mirror the value onto its counterpart so
-            // they don't drift out of sync (e.g. after a device rotation).
-            const sidebarSelect = document.getElementById('puzzleSelectDesktop');
-            const mobileSelect = document.getElementById('puzzleSelectMobile');
+        // Tracks the active difficulty scale selection. Both the desktop and
+        // mobile button groups mirror this value via setDifficultyButtons().
+        let currentConfigKey = 'classic';
 
-            let configKey;
-            if (e && e.target && e.target.tagName === 'SELECT') {
-                configKey = e.target.value;
-                if (sidebarSelect) sidebarSelect.value = configKey;
-                if (mobileSelect) mobileSelect.value = configKey;
-            } else {
-                // Triggered by a "New Puzzle" button, not a select - keep
-                // whichever difficulty is currently shown.
-                configKey = 'classic';
-                if (sidebarSelect) configKey = sidebarSelect.value;
-                else if (mobileSelect) configKey = mobileSelect.value;
+        function setDifficultyButtons(configKey) {
+            currentConfigKey = configKey;
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                const isActive = btn.dataset.config === configKey;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+        }
+
+        function loadNewPuzzle(configKey) {
+            // Called both as a "New Puzzle" button click handler (configKey
+            // is a click event, so fall back to the current selection) and
+            // directly with a difficulty key when a difficulty button is
+            // clicked.
+            if (typeof configKey !== 'string') {
+                configKey = currentConfigKey;
             }
+            setDifficultyButtons(configKey);
             gameState = initializeGame(configKey);
             gameHistory = [];
             isPuzzleSolved = false;
@@ -1680,8 +1727,9 @@
             document.getElementById('resetBtnDesktop').addEventListener('click', resetPuzzle);
             document.getElementById('newPuzzleBtn').addEventListener('click', loadNewPuzzle);
             document.getElementById('newPuzzleBtnDesktop').addEventListener('click', loadNewPuzzle);
-            document.getElementById('puzzleSelectMobile').addEventListener('change', loadNewPuzzle);
-            document.getElementById('puzzleSelectDesktop').addEventListener('change', loadNewPuzzle);
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.addEventListener('click', () => loadNewPuzzle(btn.dataset.config));
+            });
             
             setTimeout(() => {
                 const savedGame = loadGameState();
@@ -1697,8 +1745,7 @@
                     
                     document.getElementById('moveCounter').textContent = gameState.moves;
                     document.getElementById('moveCounterMobile').textContent = gameState.moves;
-                    document.getElementById('puzzleSelectMobile').value = gameState.configKey;
-                    document.getElementById('puzzleSelectDesktop').value = gameState.configKey;
+                    setDifficultyButtons(gameState.configKey);
                     updateUndoButton();
                     
                     if (window.innerWidth <= 768) {
@@ -1719,8 +1766,7 @@
                     gameHistory = [];
                     document.getElementById('moveCounter').textContent = '0';
                     document.getElementById('moveCounterMobile').textContent = '0';
-                    document.getElementById('puzzleSelectMobile').value = 'classic';
-                    document.getElementById('puzzleSelectDesktop').value = 'classic';
+                    setDifficultyButtons('classic');
                 }
                 
                 document.getElementById('loading').classList.add('hidden');
