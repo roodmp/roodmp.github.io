@@ -145,6 +145,12 @@
             gap: 8px;
         }
 
+        /* Vertically center the pause button against the hearts, rather
+           than baseline-aligning it like the surrounding text. */
+        .hud-right {
+            align-items: center;
+        }
+
         .hud-center {
             align-items: center;
             gap: 0;
@@ -284,6 +290,51 @@
             border-radius: var(--radius-sm);
             color: var(--text-secondary);
         }
+
+        /* Control hint variants: desktop (keyboard) vs touch (drag/tap) */
+        .touch-only {
+            display: none;
+        }
+
+        @media (hover: none), (pointer: coarse) {
+            .desktop-only {
+                display: none;
+            }
+            .touch-only {
+                display: block;
+            }
+        }
+
+        /* Small pause button in the HUD, touch/coarse-pointer devices only -
+           desktop already has Space for launch/pause. */
+        .pause-btn {
+            display: none;
+            width: 28px;
+            height: 28px;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            background: var(--bg-elevated);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-full);
+            touch-action: manipulation;
+            cursor: pointer;
+        }
+
+        .pause-btn:active {
+            background: var(--bg-hover);
+        }
+
+        .pause-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        @media (hover: none), (pointer: coarse) {
+            .pause-btn {
+                display: flex;
+            }
+        }
     </style>
     <script src="../main.js" defer></script>
 </head>
@@ -333,6 +384,9 @@
                 </div>
                 <div class="hud-right">
                     <span class="hud-lives" id="hudLives">❤ ❤ ❤</span>
+                    <button class="pause-btn" id="pauseBtn" aria-label="Pause game">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                    </button>
                 </div>
             </div>
 
@@ -346,8 +400,10 @@
                 <div class="overlay-subtitle">Break all the bricks to advance through levels.</div>
                 <button class="overlay-btn" id="startBtn">Start Game</button>
                 <div class="overlay-controls">
-                    <div><kbd>&larr;</kbd> <kbd>&rarr;</kbd> to move paddle</div>
-                    <div><kbd>Space</kbd> to launch / pause</div>
+                    <div class="desktop-only"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> to move paddle</div>
+                    <div class="desktop-only"><kbd>Space</kbd> to launch / pause</div>
+                    <div class="touch-only">Drag to move paddle</div>
+                    <div class="touch-only">Touch to launch</div>
                 </div>
             </div>
         </div>
@@ -357,7 +413,7 @@
             <div class="overlay-content">
                 <div class="overlay-title">Paused</div>
                 <button class="overlay-btn" id="resumeBtn">Resume</button>
-                <div class="overlay-hint">Press <kbd>Space</kbd> to resume</div>
+                <div class="overlay-hint desktop-only">Press <kbd>Space</kbd> to resume</div>
             </div>
         </div>
 
@@ -772,29 +828,80 @@
         document.getElementById('restartBtn').addEventListener('click', startGame);
 
         // --- Input handling ---
+        // Shared by the Space key and the touch pause button.
+        function togglePauseOrAdvance() {
+            if (gameState === 'start' || gameState === 'gameOver') {
+                startGame();
+            } else if (gameState === 'levelComplete') {
+                nextLevel();
+            } else if (gameState === 'playing' && balls.some(b => b.attached)) {
+                launchBall();
+            } else if (gameState === 'playing') {
+                gameState = 'paused';
+                showOverlay('paused');
+            } else if (gameState === 'paused') {
+                gameState = 'playing';
+                showOverlay(null);
+            }
+        }
+
         window.addEventListener('keydown', (e) => {
             keys[e.key] = true;
 
             if (e.key === ' ' || e.key === 'Spacebar') {
                 e.preventDefault();
-                if (gameState === 'start' || gameState === 'gameOver') {
-                    startGame();
-                } else if (gameState === 'levelComplete') {
-                    nextLevel();
-                } else if (gameState === 'playing' && balls.some(b => b.attached)) {
-                    launchBall();
-                } else if (gameState === 'playing') {
-                    gameState = 'paused';
-                    showOverlay('paused');
-                } else if (gameState === 'paused') {
-                    gameState = 'playing';
-                    showOverlay(null);
-                }
+                togglePauseOrAdvance();
             }
         });
 
         window.addEventListener('keyup', (e) => {
             keys[e.key] = false;
+        });
+
+        // --- Touch controls ---
+        // Drag anywhere on the canvas to follow the paddle to that x
+        // position (the standard mobile paddle-game control - precise
+        // positioning matters more than it would for a directional-button
+        // scheme). The launch angle is randomized regardless of paddle
+        // position (see launchBall()), so there's no benefit to lining up
+        // before launching: touching the canvas while a ball is attached
+        // launches it immediately, same gesture that starts the drag.
+        function touchXToPaddleTarget(clientX) {
+            const rect = canvas.getBoundingClientRect();
+            const baseX = (clientX - rect.left) / scale;
+            const pw = getPaddleWidth();
+            return Math.max(0, Math.min(BASE_W - pw, baseX - pw / 2));
+        }
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (gameState !== 'playing') return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            paddle.x = touchXToPaddleTarget(touch.clientX);
+            if (balls.some(b => b.attached)) launchBall();
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (gameState !== 'playing') return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            paddle.x = touchXToPaddleTarget(touch.clientX);
+        }, { passive: false });
+
+        document.getElementById('pauseBtn').addEventListener('click', () => {
+            // Deliberately not togglePauseOrAdvance(): that function launches
+            // the ball if one is still attached, which is right for the
+            // overloaded Space key but wrong for a button explicitly
+            // labeled "pause" - tapping it should always pause/resume, even
+            // in the moment right after starting when a ball is waiting to
+            // launch.
+            if (gameState === 'playing') {
+                gameState = 'paused';
+                showOverlay('paused');
+            } else if (gameState === 'paused') {
+                gameState = 'playing';
+                showOverlay(null);
+            }
         });
 
         // --- Update ---
