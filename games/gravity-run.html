@@ -310,6 +310,40 @@
             color: var(--text-secondary);
         }
 
+        .ball-picker {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-3);
+            margin: 0 0 var(--space-6);
+        }
+
+        .ball-swatch {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: 2px solid transparent;
+            border-radius: var(--radius-full);
+            background: var(--swatch);
+            cursor: pointer;
+            box-shadow: inset 0 0 0 2px rgba(255,255,255,.16);
+            transition: transform var(--transition-fast), border-color var(--transition-fast);
+        }
+
+        .ball-swatch:hover { transform: translateY(-2px); }
+        .ball-swatch[aria-pressed="true"] { border-color: var(--text-primary); transform: scale(1.12); }
+        .ball-swatch:focus-visible { outline: 2px solid var(--accent-300); outline-offset: 3px; }
+
+        .phase-banner {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--accent-300);
+            opacity: 0;
+            transition: opacity .25s ease;
+        }
+        .phase-banner.show { opacity: 1; }
+
         /* Control hint variants: desktop (keyboard) vs touch (swipe/tap) */
         .touch-only {
             display: none;
@@ -400,6 +434,7 @@
                         <span class="hud-unit">m</span>
                     </div>
                     <div class="hud-right">
+                        <span class="phase-banner" id="phaseBanner">Tunnel</span>
                         <span class="hud-best" id="hudBest">Best 0 m</span>
                         <button class="pause-btn" id="pauseBtn" aria-label="Pause game">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
@@ -415,7 +450,13 @@
         <div id="startOverlay" class="overlay visible">
             <div class="overlay-content">
                 <div class="overlay-title">Gravity Run</div>
-                <div class="overlay-subtitle">Sprint through a hexagonal space tunnel. Jump the gaps, and strafe onto the walls to rotate gravity beneath you.</div>
+                <div class="overlay-subtitle">Every tunnel face carries the same challenge. At 900 m, the tunnel opens into a flat barrier run.</div>
+                <div class="ball-picker" role="group" aria-label="Ball color">
+                    <button class="ball-swatch" type="button" style="--swatch:#E8845A" data-color="#E8845A" aria-label="Orange ball" aria-pressed="true"></button>
+                    <button class="ball-swatch" type="button" style="--swatch:#67C3D4" data-color="#67C3D4" aria-label="Cyan ball" aria-pressed="false"></button>
+                    <button class="ball-swatch" type="button" style="--swatch:#A78BFA" data-color="#A78BFA" aria-label="Violet ball" aria-pressed="false"></button>
+                    <button class="ball-swatch" type="button" style="--swatch:#B7D772" data-color="#B7D772" aria-label="Lime ball" aria-pressed="false"></button>
+                </div>
                 <button class="overlay-btn" id="startBtn">Start Run</button>
                 <div class="overlay-controls">
                     <div class="desktop-only"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> strafe &nbsp;&middot;&nbsp; <kbd>Space</kbd> jump</div>
@@ -472,9 +513,10 @@
         const BLOB_R = 0.72;
         const FLOOR_REST = -R + TILE_THICK / 2 + BLOB_R;      // blob centre y when grounded
         const DEATH_DROP = -3.2;                              // py below which the run ends
-        const ROW_COUNT = 46;                                 // pooled rows kept alive
+        const ROW_COUNT = 38;                                 // enough depth for fog, with less invisible work
         const SAFE_START_ROWS = 10;                           // guaranteed-solid launch runway
         const RECYCLE_BEHIND = 6;                             // recycle a row this far behind camera
+        const FLAT_START = 900;                               // metres: tunnel opens into the barrier course
 
         // ---- Physics tuning ----
         const RUN_SPEED_MIN = 12, RUN_SPEED_MAX = 30;         // units/s
@@ -487,9 +529,8 @@
         const faceAngle = f => f * (Math.PI * 2 / FACES);
 
         // ---- Procedural generation: hand-authored, tier-tagged chunk patterns ----
-        // Each row is 3 chars = the 3 lanes of the *current floor face* ('1' tile, '0' gap).
-        // Non-floor faces are always solid, so a wall is always a safe escape — no run
-        // can ever be impossible and no path-checking code is required.
+        // Each row is 3 chars = the three lanes. In the tunnel these rows are stamped on
+        // every face, so rotation changes the route but never exposes an easier surface.
         // Every gap runs at least two tiles long (no single-tile nicks), so a hole always
         // reads as a real span to jump or route around.
         const PATTERNS = [
@@ -502,12 +543,25 @@
             { tier: 2, rows: ['111', '000', '000', '000', '111', '111'] },                    // triple gap (jump)
             { tier: 2, rows: ['111', '011', '011', '110', '110', '111'] },                    // staggered → lane change
             { tier: 2, rows: ['111', '000', '000', '111', '111', '000', '000', '111'] },      // two double gaps
-            // Tier 3 — forces a wall transition
-            { tier: 3, rows: ['111', '000', '000', '000', '000', '000', '111'] },             // floor erosion
+            // Tier 3 — sparse, but still traversable on every face
+            { tier: 3, rows: ['111', '000', '000', '000', '111'] },                             // long jump
             { tier: 3, rows: ['111', '000', '000', '110', '110', '000', '000', '111'] },      // gap + shift
             // Tier 4 — tighter combinations
             { tier: 4, rows: ['111', '000', '000', '000', '010', '010', '000', '000', '111'] },
             { tier: 4, rows: ['111', '000', '000', '110', '110', '011', '011', '000', '000', '111'] },
+        ];
+
+        // The open course uses barriers rather than holes. W = jumpable wall; 1 = clear.
+        // Each pattern leaves at least one clear route and hard patterns get recovery rows.
+        const FLAT_PATTERNS = [
+            { tier: 1, rows: ['111', '1W1', '111', '111'] },
+            { tier: 1, rows: ['111', 'W11', '111', '111'] },
+            { tier: 2, rows: ['111', 'W11', '11W', '111'] },
+            { tier: 2, rows: ['111', '1W1', '1W1', '111'] },
+            { tier: 3, rows: ['111', 'W1W', '1W1', 'W1W', '111'] },
+            { tier: 3, rows: ['111', 'WW1', '1WW', '111'] },
+            { tier: 4, rows: ['111', 'W1W', '1WW', 'WW1', '111'] },
+            { tier: 4, rows: ['111', '1W1', 'W1W', '1W1', '111'] },
         ];
 
         function currentTier(dist) {
@@ -516,38 +570,47 @@
 
         // Generator state — produces 18-byte rows for strictly increasing row indices.
         let patternQueue = [];   // [{ row3, startsNewPattern, tier }]
-        let genFace = 0;         // face the current pattern's gaps are authored onto
+        let flatQueue = [];
 
-        function pickPattern(tier) {
-            const pool = PATTERNS.filter(p => p.tier <= tier);
+        function pickPattern(tier, library = PATTERNS) {
+            const pool = library.filter(p => p.tier <= tier);
             // Weight toward the current tier so difficulty actually tracks distance.
             const atTier = pool.filter(p => p.tier === tier);
             const src = (atTier.length && Math.random() < 0.65) ? atTier : pool;
             return src[(Math.random() * src.length) | 0];
         }
 
-        function enqueuePattern(dist) {
-            const p = pickPattern(currentTier(dist));
-            p.rows.forEach((r, i) => patternQueue.push({ row3: r, startsNewPattern: i === 0, tier: p.tier }));
+        function enqueuePattern(dist, flat = false) {
+            const p = pickPattern(currentTier(dist), flat ? FLAT_PATTERNS : PATTERNS);
+            const queue = flat ? flatQueue : patternQueue;
+            p.rows.forEach((r, i) => queue.push({ row3: r, startsNewPattern: i === 0, tier: p.tier }));
             // Always follow a hard pattern with ≥2 fully safe rows so demands never stack.
             if (p.tier >= 3) {
-                patternQueue.push({ row3: '111', startsNewPattern: false, tier: p.tier });
-                patternQueue.push({ row3: '111', startsNewPattern: false, tier: p.tier });
+                queue.push({ row3: '111', startsNewPattern: false, tier: p.tier });
+                queue.push({ row3: '111', startsNewPattern: false, tier: p.tier });
             }
         }
 
         // rowIndex → Uint8Array(18); only the near-player slice is retained.
         const rowDataByIndex = new Map();
+        const flatHazardsByIndex = new Map();
 
         function generateRowData(rowIndex) {
-            const data = new Uint8Array(18).fill(1);
+            const flat = rowIndex * TILE >= FLAT_START;
+            const data = new Uint8Array(18).fill(flat ? 0 : 1);
             if (rowIndex < SAFE_START_ROWS) return data;      // solid launch runway
-            if (patternQueue.length === 0) enqueuePattern(rowIndex * TILE);
-            const item = patternQueue.shift();
-            if (item.startsNewPattern) genFace = player.floorFace; // author gaps under the player
+            const queue = flat ? flatQueue : patternQueue;
+            if (queue.length === 0) enqueuePattern(rowIndex * TILE, flat);
+            const item = queue.shift();
             for (let L = 0; L < LANES; L++) {
-                data[genFace * LANES + L] = item.row3.charCodeAt(L) === 49 ? 1 : 0; // '1' === 49
+                if (flat) {
+                    data[L] = 1;
+                } else {
+                    const solid = item.row3.charCodeAt(L) === 49 ? 1 : 0;
+                    for (let f = 0; f < FACES; f++) data[f * LANES + L] = solid;
+                }
             }
+            if (flat) flatHazardsByIndex.set(rowIndex, item.row3);
             return data;
         }
 
@@ -559,8 +622,12 @@
 
         // ---- Three.js scene ----
         const canvas = document.getElementById('gameCanvas');
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        // This game favors a stable frame cadence over antialiased micro-detail. Asking for
+        // the high-performance adapter and avoiding MSAA keeps software/embedded contexts
+        // from multiplying the cost of every canvas pixel.
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
+        const RENDER_PIXEL_BUDGETS = [1250000, 750000, 450000];
+        const MAX_RENDER_PIXEL_RATIO = 1.25;
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(COLORS.bg);
@@ -606,12 +673,9 @@
         // "empty tile" so it reads as a hollow socket in the tunnel surface rather than a
         // window to space, while still clearly distinct from the lit solid tiles.
         const tileMatGap = new THREE.MeshLambertMaterial({ color: 0x222220 });
-        // A thin accent edge frames every tile; solid tiles get the bright edge, empty
-        // tiles a dim one, so the surface still reads as a continuous grid.
-        const tileEdgeGeo = new THREE.EdgesGeometry(tileGeo);
-        const tileEdgeMat = new THREE.LineBasicMaterial({ color: COLORS.accent, transparent: true, opacity: 0.55 });
-        const tileEdgeMatGap = new THREE.LineBasicMaterial({ color: COLORS.accent, transparent: true, opacity: 0.16 });
         const GAP_RECESS = 0.7;   // how far an empty tile sinks below the walking surface
+        const wallGeo = new THREE.BoxGeometry(LANE_W * 0.72, 2.15, 0.42);
+        const wallMat = new THREE.MeshLambertMaterial({ color: 0x76505b, emissive: 0x4a2630, emissiveIntensity: 0.32 });
 
         // Precompute the fixed local transform of every slot (face×lane): its position on
         // the walking surface, plus a recessed position (pushed radially outward) used when
@@ -630,58 +694,72 @@
             }
         }
 
-        // Pooled rows.
+        // Pooled rows. Each row has just two instanced tile draws (solid + recessed gap),
+        // instead of 18 tile meshes plus 18 edge meshes. This is the primary performance
+        // constraint for the tunnel: the original per-tile draw calls overwhelmed laptops.
         const rows = [];
+        const instanceDummy = new THREE.Object3D();
+        const hiddenInstanceMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
+        function setTileInstance(mesh, index, transform, visible) {
+            if (!visible) {
+                mesh.setMatrixAt(index, hiddenInstanceMatrix);
+                return;
+            }
+            instanceDummy.position.set(transform.x, transform.y, 0);
+            instanceDummy.rotation.set(0, 0, transform.rot);
+            instanceDummy.scale.set(1, 1, 1);
+            instanceDummy.updateMatrix();
+            mesh.setMatrixAt(index, instanceDummy.matrix);
+        }
         for (let i = 0; i < ROW_COUNT; i++) {
             const group = new THREE.Group();
-            const tiles = [];
-            for (let s = 0; s < FACES * LANES; s++) {
-                const mesh = new THREE.Mesh(tileGeo, tileMatA);
-                mesh.position.set(slotXform[s].x, slotXform[s].y, 0);
-                mesh.rotation.z = slotXform[s].rot;
-                const edge = new THREE.LineSegments(tileEdgeGeo, tileEdgeMat);
-                mesh.add(edge);
-                mesh.userData.edge = edge;
-                group.add(mesh);
-                tiles.push(mesh);
+            const walls = [];
+            const solidTiles = new THREE.InstancedMesh(tileGeo, tileMatA, FACES * LANES);
+            const gapTiles = new THREE.InstancedMesh(tileGeo, tileMatGap, FACES * LANES);
+            solidTiles.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+            gapTiles.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+            group.add(solidTiles, gapTiles);
+            for (let L = 0; L < LANES; L++) {
+                const wall = new THREE.Mesh(wallGeo, wallMat);
+                wall.position.set((L - 1) * LANE_W, -R + TILE_THICK / 2 + 1.075, 0);
+                wall.visible = false;
+                group.add(wall);
+                walls.push(wall);
             }
             tunnelGroup.add(group);
-            rows.push({ group, tiles, rowIndex: -1 });
+            rows.push({ group, solidTiles, gapTiles, walls, rowIndex: -1 });
         }
         let maxRowIndex = 0;
 
         function stampRow(row, rowIndex) {
             const data = generateRowData(rowIndex);
+            const flat = rowIndex * TILE >= FLAT_START;
+            const hazards = flatHazardsByIndex.get(rowIndex) || '111';
             rowDataByIndex.set(rowIndex, data);
             row.rowIndex = rowIndex;
             row.group.position.z = -rowIndex * TILE;
-            const mat = (rowIndex & 1) ? tileMatA : tileMatB;
-            for (let s = 0; s < row.tiles.length; s++) {
-                const t = row.tiles[s];
+            row.solidTiles.material = (rowIndex & 1) ? tileMatA : tileMatB;
+            for (let s = 0; s < FACES * LANES; s++) {
                 const x = slotXform[s];
-                if (data[s] === 1) {
-                    t.material = mat;
-                    t.position.set(x.x, x.y, 0);
-                    t.userData.edge.material = tileEdgeMat;
-                } else {
-                    // Empty tile: dark, recessed, dim edge.
-                    t.material = tileMatGap;
-                    t.position.set(x.rx, x.ry, 0);
-                    t.userData.edge.material = tileEdgeMatGap;
-                }
+                const canShow = !flat || s < LANES;
+                setTileInstance(row.solidTiles, s, x, canShow && data[s] === 1);
+                setTileInstance(row.gapTiles, s, { x: x.rx, y: x.ry, rot: x.rot }, canShow && data[s] === 0);
             }
+            row.solidTiles.instanceMatrix.needsUpdate = true;
+            row.gapTiles.instanceMatrix.needsUpdate = true;
+            for (let L = 0; L < LANES; L++) row.walls[L].visible = flat && hazards.charCodeAt(L) === 87; // W
         }
 
         // ---- Blob ----
         // A mottled texture gives the sphere surface detail so its rolling reads as real
         // forward motion (a smooth sphere would look like it's just floating in place).
-        function makeBlobTexture() {
+        function makeBlobTexture(baseColor) {
             const cv = document.createElement('canvas');
             cv.width = cv.height = 128;
             const g = cv.getContext('2d');
-            g.fillStyle = '#E8845A';                     // panda-400 base
+            g.fillStyle = baseColor;
             g.fillRect(0, 0, 128, 128);
-            g.fillStyle = 'rgba(190, 96, 58, 0.9)';      // darker mottling
+            g.fillStyle = 'rgba(0, 0, 0, 0.24)';         // darker mottling
             for (const [x, y, r] of [[30, 40, 17], [86, 30, 13], [58, 82, 20], [104, 96, 11], [18, 96, 10], [96, 64, 9]]) {
                 g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
             }
@@ -692,9 +770,10 @@
         // Pivot carries world position + landing squash (kept upright); the inner mesh
         // carries the rolling/tumble rotation, so a squash never skews mid-roll.
         const blobPivot = new THREE.Group();
+        const blobMaterial = new THREE.MeshStandardMaterial({ map: makeBlobTexture('#E8845A'), color: COLORS.blob, emissive: COLORS.blob, emissiveIntensity: 0.15, roughness: 0.55, metalness: 0.0 });
         const blob = new THREE.Mesh(
             new THREE.SphereGeometry(BLOB_R, 24, 18),
-            new THREE.MeshStandardMaterial({ map: makeBlobTexture(), color: COLORS.blob, emissive: COLORS.blob, emissiveIntensity: 0.15, roughness: 0.55, metalness: 0.0 })
+            blobMaterial
         );
         blobPivot.add(blob);
         scene.add(blobPivot);
@@ -709,6 +788,17 @@
         let finalDistance = 0;
         let deathTimer = 0;
         let highScoreVal = parseInt(localStorage.getItem('gravity_run_high_score')) || 0;
+        let flatMode = false;
+        let selectedBlobColor = '#E8845A';
+
+        function setBlobColor(color) {
+            selectedBlobColor = color;
+            if (blobMaterial.map) blobMaterial.map.dispose();
+            blobMaterial.map = makeBlobTexture(color);
+            blobMaterial.color.set(color);
+            blobMaterial.emissive.set(color);
+            blobMaterial.needsUpdate = true;
+        }
 
         const player = {
             floorFace: 0,
@@ -726,10 +816,17 @@
         // ---- HUD ----
         const hudDistance = document.getElementById('hudDistance');
         const hudBest = document.getElementById('hudBest');
+        const phaseBanner = document.getElementById('phaseBanner');
         hudBest.textContent = 'Best ' + highScoreVal + ' m';
 
         function updateHUD() {
             hudDistance.textContent = distance;
+        }
+
+        function setPhase(flat) {
+            flatMode = flat;
+            phaseBanner.textContent = flat ? 'Open course · walls ahead' : 'Tunnel';
+            phaseBanner.classList.add('show');
         }
 
         // ---- Overlays ----
@@ -750,8 +847,10 @@
             distance = 0;
             deathTimer = 0;
             patternQueue = [];
-            genFace = 0;
+            flatQueue = [];
             rowDataByIndex.clear();
+            flatHazardsByIndex.clear();
+            setPhase(false);
             player.floorFace = 0;
             player.lane = 1;
             player.py = 0;
@@ -816,10 +915,10 @@
             if (gameState !== 'playing') return;
             if (dir > 0) {
                 if (player.lane < LANES - 1) player.lane++;
-                else { player.floorFace = (player.floorFace + 1) % FACES; player.lane = 0; player.targetRot -= Math.PI / 3; }
+                else if (!flatMode) { player.floorFace = (player.floorFace + 1) % FACES; player.lane = 0; player.targetRot -= Math.PI / 3; }
             } else {
                 if (player.lane > 0) player.lane--;
-                else { player.floorFace = (player.floorFace + FACES - 1) % FACES; player.lane = LANES - 1; player.targetRot += Math.PI / 3; }
+                else if (!flatMode) { player.floorFace = (player.floorFace + FACES - 1) % FACES; player.lane = LANES - 1; player.targetRot += Math.PI / 3; }
             }
         }
 
@@ -837,6 +936,12 @@
         document.getElementById('resumeBtn').addEventListener('click', togglePause);
         document.getElementById('pauseBtn').addEventListener('click', () => {
             if (gameState === 'playing' || gameState === 'paused') togglePause();
+        });
+        document.querySelectorAll('.ball-swatch').forEach((swatch) => {
+            swatch.addEventListener('click', () => {
+                setBlobColor(swatch.dataset.color);
+                document.querySelectorAll('.ball-swatch').forEach((item) => item.setAttribute('aria-pressed', String(item === swatch)));
+            });
         });
 
         // ---- Keyboard ----
@@ -918,6 +1023,14 @@
 
             const currentRow = Math.round((scroll - PLAYER_Z) / TILE);
 
+            // At the seam the hex tunnel sheds its walls and becomes a flat barrier course.
+            // Surface rotation is intentionally disabled from this point onward.
+            if (!flatMode && scroll >= FLAT_START) {
+                player.floorFace = 0;
+                player.targetRot = 0;
+                setPhase(true);
+            }
+
             // Vertical physics: a plain 1-D jump/fall against the tile under (row, face, lane).
             if (player.grounded) {
                 if (!tileSolid(currentRow, player.floorFace, player.lane)) {
@@ -943,6 +1056,12 @@
             }
             if (player.squash > 0) player.squash = Math.max(0, player.squash - dt);
 
+            // A wall must be jumped; a lane change alone cannot avoid it after its row arrives.
+            if (flatMode) {
+                const hazards = flatHazardsByIndex.get(currentRow);
+                if (hazards && hazards.charCodeAt(player.lane) === 87 && player.py < 1.7) die();
+            }
+
             // Recycle rows that have scrolled behind the camera.
             for (let i = 0; i < rows.length; i++) {
                 const worldZ = scroll + rows[i].group.position.z;
@@ -955,6 +1074,9 @@
             if (cutoff > 0 && (cutoff & 15) === 0) {
                 for (const key of rowDataByIndex.keys()) {
                     if (key < cutoff) rowDataByIndex.delete(key);
+                }
+                for (const key of flatHazardsByIndex.keys()) {
+                    if (key < cutoff) flatHazardsByIndex.delete(key);
                 }
             }
         }
@@ -993,6 +1115,10 @@
 
         // ---- Main loop (delta-time; movement is in units/second) ----
         let lastFrameTime = null;
+        let fpsFrameCount = 0;
+        let fpsWindowStart = performance.now();
+        let qualityLevel = 0;
+        let slowFrameSamples = 0;
         function loop(now) {
             let dt = 0;
             if (lastFrameTime !== null) {
@@ -1000,11 +1126,35 @@
             }
             lastFrameTime = now;
 
+            // A half-second rolling sample is stable enough to read without adding a
+            // per-frame DOM write to the rendering work.
             if (gameState === 'playing') updatePlaying(dt);
             else if (gameState === 'dying') updateDying(dt);
             updateVisuals(dt);
             updateHUD();
             renderer.render(scene, camera);
+
+            fpsFrameCount++;
+            const fpsElapsed = now - fpsWindowStart;
+            if (fpsElapsed >= 500) {
+                const measuredFps = Math.round(fpsFrameCount * 1000 / fpsElapsed);
+
+                // GPU/compositor stalls are not always reflected in JavaScript work time,
+                // so sustained low presentation rate should lower the framebuffer budget
+                // regardless of where the frame was delayed.
+                if (measuredFps < 35 && document.visibilityState === 'visible') {
+                    slowFrameSamples++;
+                    if (slowFrameSamples >= 2 && qualityLevel < RENDER_PIXEL_BUDGETS.length - 1) {
+                        qualityLevel++;
+                        slowFrameSamples = 0;
+                        resize();
+                    }
+                } else {
+                    slowFrameSamples = 0;
+                }
+                fpsFrameCount = 0;
+                fpsWindowStart = now;
+            }
             requestAnimationFrame(loop);
         }
 
@@ -1017,6 +1167,10 @@
             const padT = parseFloat(style.paddingTop), padB = parseFloat(style.paddingBottom);
             const w = Math.max(1, container.clientWidth - padL - padR);
             const h = Math.max(1, container.clientHeight - padT - padB - hudTop.offsetHeight - 4);
+            // Pixel ratio alone is not a reliable performance guard: a 4K CSS viewport can
+            // still produce a massive framebuffer at DPR 1. Limit the total target pixels.
+            const pixelBudgetRatio = Math.sqrt(RENDER_PIXEL_BUDGETS[qualityLevel] / (w * h));
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_RENDER_PIXEL_RATIO, pixelBudgetRatio));
             renderer.setSize(w, h, false);
             canvas.style.width = w + 'px';
             canvas.style.height = h + 'px';
