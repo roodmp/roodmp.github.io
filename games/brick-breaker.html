@@ -595,7 +595,8 @@
 
         function getPaddleWidth() {
             const multipliers = [1.0, 1.5, 1.8, 2.0];
-            return paddle.baseWidth * multipliers[paddlePowerup.type === 'wide' ? paddlePowerup.level : 0];
+            const wide = paddlePowerups.wide;
+            return paddle.baseWidth * multipliers[wide ? wide.level : 0];
         }
 
         // Shield sits below the paddle so it only saves a ball the paddle
@@ -606,8 +607,9 @@
         }
 
         function getBallSpeedMultiplier() {
-            if (ballPowerup.type !== 'slow') return 1.0;
-            return [1.0, 0.6, 0.4, 0.25][ballPowerup.level];
+            const slow = ballPowerups.slow;
+            if (!slow) return 1.0;
+            return [1.0, 0.6, 0.4, 0.25][slow.level];
         }
 
         // Balls array
@@ -627,11 +629,14 @@
             };
         }
 
-        // Powerup state: one ball powerup + one paddle powerup at a time, with levels.
-        // `timer` counts down (in timeScale units, ~60/sec) for powerups in
-        // TIMED_TYPES; it's unused (stays 0) for persist-until-life-lost ones like `wide`.
-        let ballPowerup = { type: null, level: 0, timer: 0 };
-        let paddlePowerup = { type: null, level: 0, timer: 0 };
+        // Powerup state: powerups stack — each type gets its own independent
+        // slot (keyed by type) so e.g. laser + missile + shield + wide, or
+        // slow + fireball + blast, can all be active at the same time.
+        // Each slot is `{ level, timer }`; `timer` counts down (in timeScale
+        // units, ~60/sec) for powerups in TIMED_TYPES and is unused (stays 0)
+        // for persist-until-life-lost ones like `wide`.
+        let ballPowerups = {};
+        let paddlePowerups = {};
         let fallingCapsule = null;
 
         // "Strong" powerups expire on a clock instead of persisting until the
@@ -678,8 +683,8 @@
         let blastQueue = [];
 
         function clearPowerupState() {
-            ballPowerup = { type: null, level: 0, timer: 0 };
-            paddlePowerup = { type: null, level: 0, timer: 0 };
+            ballPowerups = {};
+            paddlePowerups = {};
             fallingCapsule = null;
             lasers = [];
             laserCooldown = 0;
@@ -854,12 +859,12 @@
                 newBall.dy = Math.sin(angle) * spd;
                 balls.push(newBall);
             } else if (type === 'wide' || type === 'laser' || type === 'missile' || type === 'shield') {
-                if (paddlePowerup.type === type) {
-                    paddlePowerup.level = Math.min(paddlePowerup.level + 1, 3);
+                if (paddlePowerups[type]) {
+                    paddlePowerups[type].level = Math.min(paddlePowerups[type].level + 1, 3);
                 } else {
-                    paddlePowerup = { type: type, level: 1, timer: 0 };
+                    paddlePowerups[type] = { level: 1, timer: 0 };
                 }
-                if (TIMED_TYPES.has(type)) paddlePowerup.timer = TIMED_POWERUP_DURATION;
+                if (TIMED_TYPES.has(type)) paddlePowerups[type].timer = TIMED_POWERUP_DURATION;
                 if (type === 'laser') laserCooldown = 0;
                 if (type === 'missile') missileCooldown = 0;
                 if (type === 'shield') {
@@ -869,12 +874,12 @@
                     shieldState.hitFlashTimer = 0;
                 }
             } else if (type === 'slow' || type === 'fireball' || type === 'blast') {
-                if (ballPowerup.type === type) {
-                    ballPowerup.level = Math.min(ballPowerup.level + 1, 3);
+                if (ballPowerups[type]) {
+                    ballPowerups[type].level = Math.min(ballPowerups[type].level + 1, 3);
                 } else {
-                    ballPowerup = { type: type, level: 1, timer: 0 };
+                    ballPowerups[type] = { level: 1, timer: 0 };
                 }
-                ballPowerup.timer = TIMED_POWERUP_DURATION;
+                ballPowerups[type].timer = TIMED_POWERUP_DURATION;
             }
         }
 
@@ -1056,13 +1061,13 @@
                 if (b.trail.length > maxTrail) b.trail.shift();
 
                 // Fireball ember particles
-                if (ballPowerup.type === 'fireball' && emitFireballEmbers) {
-                    const particleCount = Math.min(ballPowerup.level, 3);
+                if (ballPowerups.fireball && emitFireballEmbers) {
+                    const particleCount = Math.min(ballPowerups.fireball.level, 3);
                     createParticles(b.x, b.y, Math.random() > 0.5 ? '#FF6B35' : '#FFD700', particleCount);
                 }
 
                 // Blast crackling particles
-                if (ballPowerup.type === 'blast' && emitBlastCrackle) {
+                if (ballPowerups.blast && emitBlastCrackle) {
                     createParticles(b.x, b.y, Math.random() > 0.5 ? '#FFA500' : '#FF8C00', 1);
                 }
 
@@ -1091,8 +1096,8 @@
 
                 // Fell off bottom
                 if (b.y + b.radius > BASE_H + 20) {
-                    // Reset paddle powerup when any ball is lost; ball powerup persists
-                    paddlePowerup = { type: null, level: 0, timer: 0 };
+                    // Reset all paddle powerups when any ball is lost; ball powerups persist
+                    paddlePowerups = {};
                     lasers = [];
                     missiles = [];
                     shieldState.active = false;
@@ -1109,7 +1114,7 @@
                         b.dy = -Math.abs(b.dy);
                         shieldState.hitFlashTimer = 10;
                         createParticles(b.x, SHIELD_Y, '#00CED1', 6);
-                        if (paddlePowerup.type === 'shield' && paddlePowerup.level < 3) {
+                        if (paddlePowerups.shield && paddlePowerups.shield.level < 3) {
                             shieldState.broken = true;
                             shieldState.regenTimer = 0;
                         }
@@ -1136,14 +1141,15 @@
                 }
 
                 // Brick collisions
-                const isFireball = ballPowerup.type === 'fireball';
+                const fireball = ballPowerups.fireball;
+                const blast = ballPowerups.blast;
                 for (let i = 0; i < bricks.length; i++) {
                     const br = bricks[i];
                     if (!br.alive) continue;
 
                     if (ballIntersectsBrick(b, br)) {
                         // Fireball level 3: instant-kill
-                        if (isFireball && ballPowerup.level >= 3) {
+                        if (fireball && fireball.level >= 3) {
                             br.hits = 0;
                         } else {
                             br.hits--;
@@ -1154,13 +1160,12 @@
                             trySpawnCapsule(br);
                             // Particles on destroy — more with fireball, scaled by level
                             const brickColor = br.maxHits >= 3 ? COLORS.brickTriple : br.maxHits === 2 ? COLORS.brickDouble : COLORS.brickSingle;
-                            const isBlast = ballPowerup.type === 'blast';
-                            const particleCount = isFireball ? 8 + ballPowerup.level * 4 : isBlast ? 20 + ballPowerup.level * 8 : 8;
+                            const particleCount = fireball ? 8 + fireball.level * 4 : blast ? 20 + blast.level * 8 : 8;
                             createParticles(br.x + br.width / 2, br.y + br.height / 2, brickColor, particleCount);
 
                             // Blast AoE
-                            if (isBlast) {
-                                const blastRadius = [0, 80, 120, 180][ballPowerup.level];
+                            if (blast) {
+                                const blastRadius = [0, 80, 120, 180][blast.level];
                                 const brcx = br.x + br.width / 2;
                                 const brcy = br.y + br.height / 2;
                                 for (const target of bricks) {
@@ -1177,7 +1182,7 @@
                                             const tColor = target.maxHits >= 3 ? COLORS.brickTriple : target.maxHits === 2 ? COLORS.brickDouble : COLORS.brickSingle;
                                             createParticles(tcx, tcy, tColor, 6);
                                             // Lv3 chain reaction
-                                            if (ballPowerup.level >= 3) {
+                                            if (blast.level >= 3) {
                                                 blastQueue.push({ x: tcx, y: tcy, delay: 5, radius: blastRadius * 0.6 });
                                             }
                                         }
@@ -1188,7 +1193,7 @@
                             score += 5;
                         }
 
-                        if (isFireball) {
+                        if (fireball) {
                             // Fireball: pierce through, don't bounce
                             continue;
                         }
@@ -1255,11 +1260,12 @@
             const pw = getPaddleWidth();
 
             // Fire new laser if active
-            if (paddlePowerup.type === 'laser') {
+            const laser = paddlePowerups.laser;
+            if (laser) {
                 laserCooldown -= timeScale;
-                const fireRate = [15, 15, 10, 6][paddlePowerup.level];
+                const fireRate = [15, 15, 10, 6][laser.level];
                 if (laserCooldown <= 0) {
-                    if (paddlePowerup.level >= 3) {
+                    if (laser.level >= 3) {
                         // Dual lasers at level 3
                         lasers.push({ x: paddle.x + pw * 0.33, y: paddle.y, speed: -6 });
                         lasers.push({ x: paddle.x + pw * 0.67, y: paddle.y, speed: -6 });
@@ -1313,7 +1319,7 @@
 
         function updateShield(timeScale) {
             if (shieldState.hitFlashTimer > 0) shieldState.hitFlashTimer -= timeScale;
-            if (paddlePowerup.type === 'shield' && paddlePowerup.level >= 2 && shieldState.broken) {
+            if (paddlePowerups.shield && paddlePowerups.shield.level >= 2 && shieldState.broken) {
                 shieldState.regenTimer += timeScale;
                 if (shieldState.regenTimer >= 300) {
                     shieldState.broken = false;
@@ -1325,20 +1331,22 @@
         }
 
         function updatePowerupTimers(timeScale) {
-            if (ballPowerup.type && TIMED_TYPES.has(ballPowerup.type)) {
-                ballPowerup.timer -= timeScale;
-                if (ballPowerup.timer <= 0) {
-                    ballPowerup = { type: null, level: 0, timer: 0 };
+            for (const type of TIMED_TYPES) {
+                const ballEntry = ballPowerups[type];
+                if (ballEntry) {
+                    ballEntry.timer -= timeScale;
+                    if (ballEntry.timer <= 0) delete ballPowerups[type];
                 }
-            }
-            if (paddlePowerup.type && TIMED_TYPES.has(paddlePowerup.type)) {
-                paddlePowerup.timer -= timeScale;
-                if (paddlePowerup.timer <= 0) {
-                    if (paddlePowerup.type === 'shield') {
-                        shieldState.active = false;
-                        shieldState.broken = false;
+                const paddleEntry = paddlePowerups[type];
+                if (paddleEntry) {
+                    paddleEntry.timer -= timeScale;
+                    if (paddleEntry.timer <= 0) {
+                        if (type === 'shield') {
+                            shieldState.active = false;
+                            shieldState.broken = false;
+                        }
+                        delete paddlePowerups[type];
                     }
-                    paddlePowerup = { type: null, level: 0, timer: 0 };
                 }
             }
         }
@@ -1347,11 +1355,12 @@
             const pw = getPaddleWidth();
 
             // Fire new missiles if active
-            if (paddlePowerup.type === 'missile') {
+            const missile = paddlePowerups.missile;
+            if (missile) {
                 missileCooldown -= timeScale;
-                const fireRate = [20, 20, 12, 8][paddlePowerup.level];
+                const fireRate = [20, 20, 12, 8][missile.level];
                 if (missileCooldown <= 0) {
-                    if (paddlePowerup.level >= 3) {
+                    if (missile.level >= 3) {
                         missiles.push({ x: paddle.x + pw * 0.33, y: paddle.y, dx: 0, dy: -3, speed: 3 });
                         missiles.push({ x: paddle.x + pw * 0.67, y: paddle.y, dx: 0, dy: -3, speed: 3 });
                     } else {
@@ -1492,13 +1501,20 @@
         // Timed-powerup countdown badges shown in the HUD, since offensive
         // powerups (laser/missile/fireball/blast/slow/shield) now expire on a
         // clock (TIMED_TYPES) instead of only clearing on ball loss like the
-        // paddle-width/multiball ones do. Pulses in the last 3s as a mobile-
-        // legible "about to run out" warning.
+        // paddle-width/multiball ones do. Powerups stack — several can be
+        // active at once — so badges are sorted soonest-to-expire first, and
+        // the pulse warning in the last 3s highlights whichever is about to
+        // run out regardless of how many others are active alongside it.
         const POWERUP_WARNING_THRESHOLD = 180; // ~3s
+        let lastPowerupBadgeCount = 0;
         function renderPowerupBadges() {
-            const active = [ballPowerup, paddlePowerup].filter(
-                p => p.type && TIMED_TYPES.has(p.type)
-            );
+            const active = [
+                ...Object.entries(ballPowerups),
+                ...Object.entries(paddlePowerups),
+            ]
+                .filter(([type]) => TIMED_TYPES.has(type))
+                .map(([type, state]) => ({ type, timer: state.timer }))
+                .sort((a, b) => a.timer - b.timer);
 
             hudPowerups.innerHTML = active.map(p => {
                 const color = POWERUP_TYPES[p.type].color;
@@ -1509,6 +1525,16 @@
                     `<span class="powerup-badge-dot" style="background:${color}"></span>` +
                     `${POWERUP_LABELS[p.type]} · ${secondsLeft}s</span>`;
             }).join('');
+
+            // With enough stacked powerups the badge row can wrap onto a
+            // second line, changing hudTop's height — re-run resize() (cheap,
+            // only on count change, not every frame) so the canvas's
+            // computed max-height stays in sync instead of only updating on
+            // the next window resize.
+            if (active.length !== lastPowerupBadgeCount) {
+                lastPowerupBadgeCount = active.length;
+                resize();
+            }
         }
 
         // --- Draw ---
@@ -1607,22 +1633,28 @@
 
         function drawPaddle() {
             const pw = getPaddleWidth();
-            const isLaser = paddlePowerup.type === 'laser';
-            const isWide = paddlePowerup.type === 'wide';
-            const pLevel = paddlePowerup.level;
+            const laser = paddlePowerups.laser;
+            const missile = paddlePowerups.missile;
+            const shield = paddlePowerups.shield;
+            const wide = paddlePowerups.wide;
 
-            // Paddle glow color based on active powerup, intensity scales with level
+            // Paddle powerups stack, but the glow can only show one color at
+            // a time — pick by priority (offensive effects read most
+            // prominently, then defensive, then the passive width boost).
+            // Emitter dots below are independent per-effect, so e.g. laser
+            // and missile dots both show at once even though the glow picks one.
+            const glowSource = laser || missile || shield || wide;
+            const glowType = laser ? 'laser' : missile ? 'missile' : shield ? 'shield' : wide ? 'wide' : null;
+            const pLevel = glowSource ? glowSource.level : 0;
             const glowIntensity = pLevel > 0 ? 0.3 + pLevel * 0.15 : 0.4;
-            const isShield = paddlePowerup.type === 'shield';
-            const isMissileGlow = paddlePowerup.type === 'missile';
-            if (isLaser) {
+            if (glowType === 'laser') {
                 ctx.shadowColor = `rgba(192, 132, 252, ${glowIntensity})`;
-            } else if (isWide) {
-                ctx.shadowColor = `rgba(91, 184, 122, ${glowIntensity})`;
-            } else if (isShield) {
-                ctx.shadowColor = `rgba(0, 206, 209, ${glowIntensity})`;
-            } else if (isMissileGlow) {
+            } else if (glowType === 'missile') {
                 ctx.shadowColor = `rgba(255, 215, 0, ${glowIntensity})`;
+            } else if (glowType === 'shield') {
+                ctx.shadowColor = `rgba(0, 206, 209, ${glowIntensity})`;
+            } else if (glowType === 'wide') {
+                ctx.shadowColor = `rgba(91, 184, 122, ${glowIntensity})`;
             } else {
                 ctx.shadowColor = COLORS.paddleGlow;
             }
@@ -1638,11 +1670,10 @@
             ctx.fill();
 
             // Missile emitter dots on paddle when missile is active
-            const isMissile = paddlePowerup.type === 'missile';
-            if (isMissile) {
+            if (missile) {
                 const pulse = 0.5 + Math.sin(frameCount * 0.2) * 0.5;
                 ctx.fillStyle = `rgba(255, 215, 0, ${pulse})`;
-                if (pLevel >= 3) {
+                if (missile.level >= 3) {
                     ctx.beginPath();
                     ctx.arc(paddle.x + pw * 0.33, paddle.y + 2, 3, 0, Math.PI * 2);
                     ctx.fill();
@@ -1657,10 +1688,10 @@
             }
 
             // Laser emitter dots on paddle when laser is active
-            if (isLaser) {
+            if (laser) {
                 const pulse = 0.5 + Math.sin(frameCount * 0.2) * 0.5;
                 ctx.fillStyle = `rgba(192, 132, 252, ${pulse})`;
-                if (pLevel >= 3) {
+                if (laser.level >= 3) {
                     // Dual emitter dots at level 3
                     ctx.beginPath();
                     ctx.arc(paddle.x + pw * 0.33, paddle.y + 2, 3, 0, Math.PI * 2);
@@ -1678,8 +1709,16 @@
 
         function drawBalls() {
             const glowBlur = 10;
-            const bType = ballPowerup.type;
-            const bLevel = ballPowerup.level;
+            // Ball powerups stack, but the ball's trail/tint can only show
+            // one look at a time — pick by priority (fireball reads most
+            // prominently, then blast, then the subtler slow ripple). The
+            // underlying gameplay effects (pierce, AoE, speed) still all
+            // apply independently regardless of which one wins visually.
+            const fireball = ballPowerups.fireball;
+            const blast = ballPowerups.blast;
+            const slow = ballPowerups.slow;
+            const bType = fireball ? 'fireball' : blast ? 'blast' : slow ? 'slow' : null;
+            const bLevel = fireball ? fireball.level : blast ? blast.level : slow ? slow.level : 0;
             // Visual radius scale by fireball level
             const fireVisualScale = bType === 'fireball' ? [1.0, 1.0, 1.3, 1.6][bLevel] : 1.0;
 
@@ -2066,7 +2105,7 @@
 
             if (shieldState.broken) {
                 // Show fading regen progress for lv2+
-                if (paddlePowerup.type === 'shield' && paddlePowerup.level >= 2) {
+                if (paddlePowerups.shield && paddlePowerups.shield.level >= 2) {
                     const progress = shieldState.regenTimer / 300;
                     ctx.globalAlpha = 0.15 + progress * 0.35;
                     const grad = ctx.createLinearGradient(0, SHIELD_Y, BASE_W, SHIELD_Y);
