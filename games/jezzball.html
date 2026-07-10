@@ -728,11 +728,11 @@
         }
 
         // Axis-separated movement: corners resolve as two independent axis flips.
-        function updateBalls() {
+        function updateBalls(timeScale) {
             for (const b of balls) {
-                const nx = b.x + b.dx;
+                const nx = b.x + b.dx * timeScale;
                 if (ballOverlapsSolid(nx, b.y)) b.dx = -b.dx; else b.x = nx;
-                const ny = b.y + b.dy;
+                const ny = b.y + b.dy * timeScale;
                 if (ballOverlapsSolid(b.x, ny)) b.dy = -b.dy; else b.y = ny;
             }
 
@@ -875,12 +875,12 @@
             return { x: x, y: y, w: half.lengthPx, h: CELL };
         }
 
-        function updateWall() {
+        function updateWall(timeScale) {
             if (!activeWall) return;
             const w = activeWall;
             for (const half of w.halves) {
                 if (half.state !== 'growing') continue;
-                half.lengthPx += WALL_SPEED;
+                half.lengthPx += WALL_SPEED * timeScale;
                 const origin = w.orientation === 'v' ? w.originY : w.originX;
                 const edge = origin + half.dir * half.lengthPx;
                 const edgeCell = Math.floor(edge / CELL);
@@ -976,13 +976,13 @@
             }
         }
 
-        function updateParticles() {
+        function updateParticles(timeScale) {
             for (let i = particles.length - 1; i >= 0; i--) {
                 const p = particles[i];
-                p.x += p.dx;
-                p.y += p.dy;
-                p.dy += 0.05; // slight gravity
-                p.life--;
+                p.x += p.dx * timeScale;
+                p.y += p.dy * timeScale;
+                p.dy += 0.05 * timeScale; // slight gravity
+                p.life -= timeScale;
                 if (p.life <= 0) particles.splice(i, 1);
             }
         }
@@ -1304,12 +1304,32 @@
         }
 
         // --- Game loop ---
-        function loop() {
+        // Ball speed, wall growth, and particle motion are all defined as a
+        // fixed step "per frame". Without normalizing by actual elapsed time,
+        // that step only means a fixed real-world speed on a device that
+        // sustains exactly 60fps - on any device rendering slower (common on
+        // mobile, where this canvas is more expensive to redraw), everything
+        // simply moves slower in real time. timeScale converts each frame's
+        // real elapsed time into "how many 1/60s reference frames' worth of
+        // motion should happen now", so speed stays constant across devices.
+        let lastFrameTime = null;
+
+        function loop(now) {
+            let timeScale = 1;
+            if (lastFrameTime !== null) {
+                const dt = now - lastFrameTime;
+                // Clamp elapsed time so a stutter or returning from a
+                // backgrounded tab can't let a ball tunnel through a
+                // growing wall in one oversized step.
+                timeScale = Math.min(dt, 50) / (1000 / 60);
+            }
+            lastFrameTime = now;
+
             if (gameState === 'playing') {
-                frameCount++;
-                updateWall();
-                updateBalls();
-                updateParticles();
+                frameCount += timeScale;
+                updateWall(timeScale);
+                updateBalls(timeScale);
+                updateParticles(timeScale);
             }
             draw();
             updateHUD();
