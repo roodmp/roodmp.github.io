@@ -1029,7 +1029,7 @@
         // Card rendering
         function createCardElement(card, extraClasses = '', cardContext = '') {
             const cardElement = document.createElement('div');
-            cardElement.className = `card rounded-xl cursor-pointer transition-all shadow-sm ${extraClasses}`;
+            cardElement.className = `card rounded-xl cursor-pointer transition-all shadow-md ${extraClasses}`;
             
             if (!card) {
                 cardElement.className += ' border-2 border-dashed border-white/10 hover:border-white/25';
@@ -1056,7 +1056,7 @@
                 return cardElement;
             }
             
-            cardElement.className += ' bg-surface-elevated border border-white/10 hover:border-white/25';
+            cardElement.className += ' bg-surface-elevated border border-white/20 hover:border-white/25';
             cardElement.draggable = true;
             
             // Add ARIA labels for face-up cards
@@ -2006,11 +2006,11 @@
             const isSmallMobile = window.innerWidth <= 480;
             
             if (isSmallMobile) {
-                return { faceUp: 20, faceDown: 8 };
+                return { faceUp: 26, faceDown: 14 };
             } else if (isMobile) {
-                return { faceUp: 24, faceDown: 10 };
+                return { faceUp: 30, faceDown: 16 };
             } else {
-                return { faceUp: 36, faceDown: 12 };
+                return { faceUp: 36, faceDown: 16 };
             }
         }
 
