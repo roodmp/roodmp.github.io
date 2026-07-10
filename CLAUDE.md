@@ -15,6 +15,7 @@ This is a personal portfolio website for Mark Rood (roodmp.github.io) deployed v
 - Brick Breaker game (games/brick-breaker.html) — canvas-based breakout clone
 - Solitaire game (games/solitaire.html) — classic Klondike solitaire
 - Klotski sliding puzzle (games/klotski.html) — block sliding puzzle game
+- Gravity Run (games/gravity-run.html) — Run 3–inspired 3D endless runner through a hexagonal space tunnel, built with Three.js (the site's first 3D game / first JS library dependency)
 - MCP Server Setup (mcp-server-setup.html) — setup instructions for the About Me MCP server
 - Agent Workflow Visualizer (agent-workflow-visualizer.html) — interactive agent pipeline diagram
 - Design System v2 preview (design-system-v2.html) — living style guide for the site's design tokens
@@ -44,7 +45,9 @@ roodmp.github.io/
 │   ├── brick-breaker.html      # Brick Breaker game
 │   ├── solitaire.html          # Klondike solitaire game
 │   ├── red-panda-flappy.html   # Easter egg Flappy Bird clone
-│   └── klotski.html            # Klotski sliding puzzle
+│   ├── klotski.html            # Klotski sliding puzzle
+│   └── gravity-run.html        # Gravity Run — Three.js 3D endless runner
+├── gravity-run.md              # Gravity Run PRD/dev handoff doc
 ├── main.js                     # Shared JS: nav, mobile menu, easter egg
 ├── design-system.css           # CSS custom properties (design tokens)
 ├── styles.css                  # Additional shared styles
