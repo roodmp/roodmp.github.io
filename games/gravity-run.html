@@ -477,8 +477,8 @@
         const RECYCLE_BEHIND = 6;                             // recycle a row this far behind camera
 
         // ---- Physics tuning ----
-        const RUN_SPEED_MIN = 12, RUN_SPEED_MAX = 26;         // units/s
-        const SPEED_RAMP_DIST = 700;                          // metres to reach top speed
+        const RUN_SPEED_MIN = 12, RUN_SPEED_MAX = 30;         // units/s
+        const SPEED_RAMP_DIST = 1200;                         // metres to reach top speed (slow, steady climb)
         const JUMP_VELOCITY = 14;                             // units/s upward
         const GRAVITY = 42;                                   // units/s²
         const STRAFE_REPEAT_MS = 180;
@@ -490,22 +490,24 @@
         // Each row is 3 chars = the 3 lanes of the *current floor face* ('1' tile, '0' gap).
         // Non-floor faces are always solid, so a wall is always a safe escape — no run
         // can ever be impossible and no path-checking code is required.
+        // Every gap runs at least two tiles long (no single-tile nicks), so a hole always
+        // reads as a real span to jump or route around.
         const PATTERNS = [
             // Tier 1 — gentle
-            { tier: 1, rows: ['111', '111', '111', '111'] },                          // safe straight
-            { tier: 1, rows: ['111', '111', '000', '111', '111'] },                   // single gap (jump)
-            { tier: 1, rows: ['111', '110', '110', '111'] },                          // lane-2 hole
-            { tier: 1, rows: ['111', '011', '011', '111'] },                          // lane-0 hole
+            { tier: 1, rows: ['111', '111', '111', '111'] },                                  // safe straight
+            { tier: 1, rows: ['111', '111', '000', '000', '111', '111'] },                    // double gap (jump)
+            { tier: 1, rows: ['111', '110', '110', '111'] },                                  // lane-2 hole
+            { tier: 1, rows: ['111', '011', '011', '111'] },                                  // lane-0 hole
             // Tier 2 — needs jumps / lane changes
-            { tier: 2, rows: ['111', '111', '000', '000', '111', '111'] },            // double gap (jump)
-            { tier: 2, rows: ['111', '011', '011', '110', '110', '111'] },            // staggered → lane change
-            { tier: 2, rows: ['111', '000', '111', '000', '111'] },                   // hop, hop
+            { tier: 2, rows: ['111', '000', '000', '000', '111', '111'] },                    // triple gap (jump)
+            { tier: 2, rows: ['111', '011', '011', '110', '110', '111'] },                    // staggered → lane change
+            { tier: 2, rows: ['111', '000', '000', '111', '111', '000', '000', '111'] },      // two double gaps
             // Tier 3 — forces a wall transition
-            { tier: 3, rows: ['111', '000', '000', '000', '000', '000', '111'] },     // floor erosion
-            { tier: 3, rows: ['111', '000', '000', '110', '010', '000', '111'] },     // gap + shift
+            { tier: 3, rows: ['111', '000', '000', '000', '000', '000', '111'] },             // floor erosion
+            { tier: 3, rows: ['111', '000', '000', '110', '110', '000', '000', '111'] },      // gap + shift
             // Tier 4 — tighter combinations
-            { tier: 4, rows: ['111', '000', '000', '000', '010', '000', '000', '111'] },
-            { tier: 4, rows: ['111', '000', '110', '000', '011', '000', '111'] },
+            { tier: 4, rows: ['111', '000', '000', '000', '010', '010', '000', '000', '111'] },
+            { tier: 4, rows: ['111', '000', '000', '110', '110', '011', '011', '000', '000', '111'] },
         ];
 
         function currentTier(dist) {
@@ -671,11 +673,31 @@
         }
 
         // ---- Blob ----
+        // A mottled texture gives the sphere surface detail so its rolling reads as real
+        // forward motion (a smooth sphere would look like it's just floating in place).
+        function makeBlobTexture() {
+            const cv = document.createElement('canvas');
+            cv.width = cv.height = 128;
+            const g = cv.getContext('2d');
+            g.fillStyle = '#E8845A';                     // panda-400 base
+            g.fillRect(0, 0, 128, 128);
+            g.fillStyle = 'rgba(190, 96, 58, 0.9)';      // darker mottling
+            for (const [x, y, r] of [[30, 40, 17], [86, 30, 13], [58, 82, 20], [104, 96, 11], [18, 96, 10], [96, 64, 9]]) {
+                g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+            }
+            const tex = new THREE.CanvasTexture(cv);
+            tex.anisotropy = 4;
+            return tex;
+        }
+        // Pivot carries world position + landing squash (kept upright); the inner mesh
+        // carries the rolling/tumble rotation, so a squash never skews mid-roll.
+        const blobPivot = new THREE.Group();
         const blob = new THREE.Mesh(
-            new THREE.SphereGeometry(BLOB_R, 20, 16),
-            new THREE.MeshStandardMaterial({ color: COLORS.blob, emissive: COLORS.blob, emissiveIntensity: 0.18, roughness: 0.5, metalness: 0.0 })
+            new THREE.SphereGeometry(BLOB_R, 24, 18),
+            new THREE.MeshStandardMaterial({ map: makeBlobTexture(), color: COLORS.blob, emissive: COLORS.blob, emissiveIntensity: 0.15, roughness: 0.55, metalness: 0.0 })
         );
-        scene.add(blob);
+        blobPivot.add(blob);
+        scene.add(blobPivot);
 
         const PLAYER_Z = 0;
 
@@ -698,6 +720,7 @@
             displayX: 0,         // eased horizontal position of the blob
             squash: 0,           // landing squash timer (s)
             tumble: 0,           // death tumble angle
+            roll: 0,             // accumulated forward-rolling angle
         };
 
         // ---- HUD ----
@@ -738,9 +761,11 @@
             player.displayX = 0;
             player.squash = 0;
             player.tumble = 0;
+            player.roll = 0;
             tunnelGroup.rotation.z = 0;
             tunnelGroup.position.z = 0;
             blob.rotation.set(0, 0, 0);
+            blobPivot.scale.set(1, 1, 1);
             for (let i = 0; i < rows.length; i++) stampRow(rows[i], i);
             maxRowIndex = rows.length - 1;
             updateHUD();
@@ -950,16 +975,17 @@
             // Ease blob horizontal position (also smooths the lane-wrap on face transitions).
             const targetX = (player.lane - 1) * LANE_W;
             player.displayX += (targetX - player.displayX) * Math.min(1, dt * 14);
-            blob.position.x = player.displayX;
-            blob.position.y = FLOOR_REST + player.py;
-            blob.position.z = PLAYER_Z;
+            blobPivot.position.set(player.displayX, FLOOR_REST + player.py, PLAYER_Z);
 
-            // Landing squash + death tumble.
-            const s = player.squash > 0 ? (1 - player.squash / 0.16) : 1;
-            const squashY = 1 - 0.35 * (player.squash > 0 ? player.squash / 0.16 : 0);
-            blob.scale.set(1 + (1 - squashY) * 0.5, squashY, 1 + (1 - squashY) * 0.5);
-            blob.rotation.z = player.tumble;
-            blob.rotation.x = player.tumble * 0.7;
+            // Roll the blob forward at the rolling speed (v = ωr) so it reads as moving,
+            // not floating. Negative X-rotation rolls the top away down the tunnel (−Z).
+            if (gameState === 'playing') player.roll -= (speed / BLOB_R) * dt;
+
+            // Landing squash lives on the upright pivot so it stays vertical while rolling.
+            const sq = player.squash > 0 ? player.squash / 0.16 : 0;   // 1 → 0 over the squash
+            blobPivot.scale.set(1 + 0.28 * sq, 1 - 0.35 * sq, 1 + 0.28 * sq);
+            // Rolling on the mesh; death tumble layers on top.
+            blob.rotation.set(player.roll + player.tumble * 0.7, 0, player.tumble);
 
             // Drift the starfield.
             starGroup.rotation.z += dt * 0.01;
