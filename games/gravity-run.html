@@ -629,6 +629,7 @@
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
         const RENDER_PIXEL_BUDGETS = [1250000, 750000, 450000];
         const MAX_RENDER_PIXEL_RATIO = 1.25;
+        const profileMode = new URLSearchParams(window.location.search).has('profile');
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(COLORS.bg);
@@ -1133,6 +1134,7 @@
         let fpsWindowStart = performance.now();
         let qualityLevel = 0;
         let slowFrameSamples = 0;
+        window.gravityRunProfile = null;
         function loop(now) {
             let dt = 0;
             if (lastFrameTime !== null) {
@@ -1166,10 +1168,22 @@
                 } else {
                     slowFrameSamples = 0;
                 }
+                if (profileMode) {
+                    window.gravityRunProfile = {
+                        fps: measuredFps,
+                        drawCalls: renderer.info.render.calls,
+                        triangles: renderer.info.render.triangles,
+                        points: renderer.info.render.points,
+                        drawingBuffer: renderer.getDrawingBufferSize(new THREE.Vector2()).toArray(),
+                        pixelRatio: renderer.getPixelRatio(),
+                        qualityLevel: qualityLevel + 1,
+                        timestamp: new Date().toISOString(),
+                    };
+                    console.info('Gravity Run profile', window.gravityRunProfile);
+                }
                 fpsFrameCount = 0;
                 fpsWindowStart = now;
             }
-            requestAnimationFrame(loop);
         }
 
         // ---- Resize ----
@@ -1181,11 +1195,12 @@
             const padT = parseFloat(style.paddingTop), padB = parseFloat(style.paddingBottom);
             const w = Math.max(1, container.clientWidth - padL - padR);
             const h = Math.max(1, container.clientHeight - padT - padB - hudTop.offsetHeight - 4);
-            // Pixel ratio alone is not a reliable performance guard: a 4K CSS viewport can
-            // still produce a massive framebuffer at DPR 1. Limit the total target pixels.
+            // Set the real drawing buffer directly. Three.js recommends this approach over
+            // setPixelRatio() when an app must cap the internal canvas resolution precisely.
             const pixelBudgetRatio = Math.sqrt(RENDER_PIXEL_BUDGETS[qualityLevel] / (w * h));
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_RENDER_PIXEL_RATIO, pixelBudgetRatio));
-            renderer.setSize(w, h, false);
+            const renderRatio = Math.min(window.devicePixelRatio, MAX_RENDER_PIXEL_RATIO, pixelBudgetRatio);
+            renderer.setPixelRatio(1);
+            renderer.setSize(Math.floor(w * renderRatio), Math.floor(h * renderRatio), false);
             canvas.style.width = w + 'px';
             canvas.style.height = h + 'px';
             camera.aspect = w / h;
@@ -1199,7 +1214,8 @@
         gameState = 'start';
         resize();
         showOverlay('start');
-        requestAnimationFrame(loop);
+        // Three.js recommends its animation-loop wrapper for cross-browser compatibility.
+        renderer.setAnimationLoop(loop);
     })();
     </script>
 </body>
