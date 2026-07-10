@@ -513,7 +513,8 @@
         const BLOB_R = 0.72;
         const FLOOR_REST = -R + TILE_THICK / 2 + BLOB_R;      // blob centre y when grounded
         const DEATH_DROP = -3.2;                              // py below which the run ends
-        const ROW_COUNT = 38;                                 // enough depth for fog, with less invisible work
+        const ROW_COUNT = 28;                                 // compact visible runway for low-end GPUs
+        const SLOTS_PER_ROW = FACES * LANES;
         const SAFE_START_ROWS = 10;                           // guaranteed-solid launch runway
         const RECYCLE_BEHIND = 6;                             // recycle a row this far behind camera
         const FLAT_START = 900;                               // metres: tunnel opens into the barrier course
@@ -625,27 +626,22 @@
         // This game favors a stable frame cadence over antialiased micro-detail. Asking for
         // the high-performance adapter and avoiding MSAA keeps software/embedded contexts
         // from multiplying the cost of every canvas pixel.
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
-        const RENDER_PIXEL_BUDGETS = [1250000, 750000, 450000];
-        const MAX_RENDER_PIXEL_RATIO = 1.25;
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance', precision: 'mediump' });
+        const RENDER_PIXEL_BUDGETS = [600000, 400000, 250000];
+        const MAX_RENDER_PIXEL_RATIO = 1;
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(COLORS.bg);
-        scene.fog = new THREE.Fog(COLORS.bg, 18, 68);
+        scene.fog = new THREE.Fog(COLORS.bg, 16, 54);
 
         const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 250);
         camera.position.set(0, -2.35, 8.5);    // raised a touch so the path reads over the blob
         camera.lookAt(0, -5.4, -22);           // fixed: never moves, never rotates
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-        const dir = new THREE.DirectionalLight(0xffffff, 0.9);
-        dir.position.set(4, 6, 10);
-        scene.add(dir);
-
         // Starfield — a single drifting Points cloud outside the tunnel.
         const starGroup = new THREE.Group();
         (function buildStars() {
-            const N = 500;
+            const N = 160;
             const pos = new Float32Array(N * 3);
             for (let i = 0; i < N; i++) {
                 const a = Math.random() * Math.PI * 2;
@@ -665,17 +661,16 @@
         const tunnelGroup = new THREE.Group();
         scene.add(tunnelGroup);
 
-        // Shared geometry + two alternating materials (subtle accent emissive = surface tint).
+        // Unlit materials keep the shader path predictable on older integrated GPUs.
         const tileGeo = new THREE.BoxGeometry(LANE_W * 0.86, TILE_THICK, TILE * 0.9);
-        const tileMatA = new THREE.MeshLambertMaterial({ color: COLORS.tileA, emissive: COLORS.accent, emissiveIntensity: 0.12 });
-        const tileMatB = new THREE.MeshLambertMaterial({ color: COLORS.tileB, emissive: COLORS.accent, emissiveIntensity: 0.12 });
+        const tileMat = new THREE.MeshBasicMaterial({ color: COLORS.tileA, fog: false });
         // A missing cell is not left open to the void — it's filled with a dark, recessed
         // "empty tile" so it reads as a hollow socket in the tunnel surface rather than a
         // window to space, while still clearly distinct from the lit solid tiles.
-        const tileMatGap = new THREE.MeshLambertMaterial({ color: 0x222220 });
+        const tileMatGap = new THREE.MeshBasicMaterial({ color: 0x222220, fog: false });
         const GAP_RECESS = 0.7;   // how far an empty tile sinks below the walking surface
         const wallGeo = new THREE.BoxGeometry(LANE_W * 0.72, 2.15, 0.42);
-        const wallMat = new THREE.MeshLambertMaterial({ color: 0x76505b, emissive: 0x4a2630, emissiveIntensity: 0.32 });
+        const wallMat = new THREE.MeshBasicMaterial({ color: 0x76505b, fog: false });
 
         // Precompute the fixed local transform of every slot (face×lane): its position on
         // the walking surface, plus a recessed position (pushed radially outward) used when
@@ -694,40 +689,50 @@
             }
         }
 
-        // Pooled rows. Each row has just two instanced tile draws (solid + recessed gap),
-        // instead of 18 tile meshes plus 18 edge meshes. This is the primary performance
-        // constraint for the tunnel: the original per-tile draw calls overwhelmed laptops.
+        // The complete tunnel is three instanced draws (solid tiles, gaps, and barriers).
+        // This avoids issuing one draw call per pooled row, which Firefox handles poorly on
+        // older integrated graphics.
         const rows = [];
+        const tileInstanceCount = ROW_COUNT * SLOTS_PER_ROW;
+        const wallInstanceCount = ROW_COUNT * LANES;
         const instanceDummy = new THREE.Object3D();
         const hiddenInstanceMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
-        function setTileInstance(mesh, index, transform, visible) {
+        const solidTiles = new THREE.InstancedMesh(tileGeo, tileMat, tileInstanceCount);
+        const gapTiles = new THREE.InstancedMesh(tileGeo, tileMatGap, tileInstanceCount);
+        const wallTiles = new THREE.InstancedMesh(wallGeo, wallMat, wallInstanceCount);
+        solidTiles.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        gapTiles.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        wallTiles.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+        // Instances are recycled to new Z positions, so skip stale bounding-sphere culling.
+        solidTiles.frustumCulled = gapTiles.frustumCulled = wallTiles.frustumCulled = false;
+        tunnelGroup.add(solidTiles, gapTiles, wallTiles);
+
+        function setTileInstance(mesh, index, transform, z, visible) {
             if (!visible) {
                 mesh.setMatrixAt(index, hiddenInstanceMatrix);
                 return;
             }
-            instanceDummy.position.set(transform.x, transform.y, 0);
+            instanceDummy.position.set(transform.x, transform.y, z);
             instanceDummy.rotation.set(0, 0, transform.rot);
             instanceDummy.scale.set(1, 1, 1);
             instanceDummy.updateMatrix();
             mesh.setMatrixAt(index, instanceDummy.matrix);
         }
-        for (let i = 0; i < ROW_COUNT; i++) {
-            const group = new THREE.Group();
-            const walls = [];
-            const solidTiles = new THREE.InstancedMesh(tileGeo, tileMatA, FACES * LANES);
-            const gapTiles = new THREE.InstancedMesh(tileGeo, tileMatGap, FACES * LANES);
-            solidTiles.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-            gapTiles.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-            group.add(solidTiles, gapTiles);
-            for (let L = 0; L < LANES; L++) {
-                const wall = new THREE.Mesh(wallGeo, wallMat);
-                wall.position.set((L - 1) * LANE_W, -R + TILE_THICK / 2 + 1.075, 0);
-                wall.visible = false;
-                group.add(wall);
-                walls.push(wall);
+
+        function setWallInstance(index, lane, z, visible) {
+            if (!visible) {
+                wallTiles.setMatrixAt(index, hiddenInstanceMatrix);
+                return;
             }
-            tunnelGroup.add(group);
-            rows.push({ group, solidTiles, gapTiles, walls, rowIndex: -1 });
+            instanceDummy.position.set((lane - 1) * LANE_W, -R + TILE_THICK / 2 + 1.075, z);
+            instanceDummy.rotation.set(0, 0, 0);
+            instanceDummy.scale.set(1, 1, 1);
+            instanceDummy.updateMatrix();
+            wallTiles.setMatrixAt(index, instanceDummy.matrix);
+        }
+
+        for (let i = 0; i < ROW_COUNT; i++) {
+            rows.push({ rowIndex: -1, tileOffset: i * SLOTS_PER_ROW, wallOffset: i * LANES });
         }
         let maxRowIndex = 0;
 
@@ -737,17 +742,17 @@
             const hazards = flatHazardsByIndex.get(rowIndex) || '111';
             rowDataByIndex.set(rowIndex, data);
             row.rowIndex = rowIndex;
-            row.group.position.z = -rowIndex * TILE;
-            row.solidTiles.material = (rowIndex & 1) ? tileMatA : tileMatB;
-            for (let s = 0; s < FACES * LANES; s++) {
+            const z = -rowIndex * TILE;
+            for (let s = 0; s < SLOTS_PER_ROW; s++) {
                 const x = slotXform[s];
                 const canShow = !flat || s < LANES;
-                setTileInstance(row.solidTiles, s, x, canShow && data[s] === 1);
-                setTileInstance(row.gapTiles, s, { x: x.rx, y: x.ry, rot: x.rot }, canShow && data[s] === 0);
+                setTileInstance(solidTiles, row.tileOffset + s, x, z, canShow && data[s] === 1);
+                setTileInstance(gapTiles, row.tileOffset + s, { x: x.rx, y: x.ry, rot: x.rot }, z, canShow && data[s] === 0);
             }
-            row.solidTiles.instanceMatrix.needsUpdate = true;
-            row.gapTiles.instanceMatrix.needsUpdate = true;
-            for (let L = 0; L < LANES; L++) row.walls[L].visible = flat && hazards.charCodeAt(L) === 87; // W
+            for (let L = 0; L < LANES; L++) setWallInstance(row.wallOffset + L, L, z, flat && hazards.charCodeAt(L) === 87);
+            solidTiles.instanceMatrix.needsUpdate = true;
+            gapTiles.instanceMatrix.needsUpdate = true;
+            wallTiles.instanceMatrix.needsUpdate = true;
         }
 
         // ---- Blob ----
@@ -764,15 +769,15 @@
                 g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
             }
             const tex = new THREE.CanvasTexture(cv);
-            tex.anisotropy = 4;
+            tex.anisotropy = 1;
             return tex;
         }
         // Pivot carries world position + landing squash (kept upright); the inner mesh
         // carries the rolling/tumble rotation, so a squash never skews mid-roll.
         const blobPivot = new THREE.Group();
-        const blobMaterial = new THREE.MeshStandardMaterial({ map: makeBlobTexture('#E8845A'), color: COLORS.blob, emissive: COLORS.blob, emissiveIntensity: 0.15, roughness: 0.55, metalness: 0.0 });
+        const blobMaterial = new THREE.MeshBasicMaterial({ map: makeBlobTexture('#E8845A'), color: COLORS.blob, fog: false });
         const blob = new THREE.Mesh(
-            new THREE.SphereGeometry(BLOB_R, 24, 18),
+            new THREE.SphereGeometry(BLOB_R, 16, 12),
             blobMaterial
         );
         blobPivot.add(blob);
@@ -1064,7 +1069,7 @@
 
             // Recycle rows that have scrolled behind the camera.
             for (let i = 0; i < rows.length; i++) {
-                const worldZ = scroll + rows[i].group.position.z;
+                const worldZ = scroll - rows[i].rowIndex * TILE;
                 if (worldZ > camera.position.z + RECYCLE_BEHIND) {
                     stampRow(rows[i], ++maxRowIndex);
                 }
