@@ -456,6 +456,12 @@
         let level = 1;
         let highScoreVal = parseInt(localStorage.getItem('brick_breaker_high_score')) || 0;
         let frameCount = 0;
+        // Real-time accumulators driving the fireball/blast particle cadence
+        // below (used instead of "frameCount % N === 0", since frameCount is
+        // now a fractional real-time counter and would rarely land on an
+        // exact multiple of N).
+        let fireballEmberAccum = 0;
+        let blastCrackleAccum = 0;
 
         // Paddle
         const paddle = {
@@ -792,22 +798,22 @@
         });
 
         // --- Update ---
-        function updatePaddle() {
+        function updatePaddle(timeScale) {
             const pw = getPaddleWidth();
             if (keys['ArrowLeft']) {
-                paddle.x -= paddle.speed;
+                paddle.x -= paddle.speed * timeScale;
             }
             if (keys['ArrowRight']) {
-                paddle.x += paddle.speed;
+                paddle.x += paddle.speed * timeScale;
             }
             paddle.x = Math.max(0, Math.min(BASE_W - pw, paddle.x));
             positionAttachedBalls();
         }
 
-        function updateCapsule() {
+        function updateCapsule(timeScale) {
             if (!fallingCapsule) return;
 
-            fallingCapsule.y += fallingCapsule.speed;
+            fallingCapsule.y += fallingCapsule.speed * timeScale;
 
             // Off screen
             if (fallingCapsule.y > BASE_H + 20) {
@@ -832,8 +838,25 @@
             }
         }
 
-        function updateBalls() {
+        function updateBalls(timeScale) {
             const pw = getPaddleWidth();
+
+            // These used to gate on "frameCount % 2/3 === 0", but frameCount
+            // is now a fractional real-time counter (see loop()) that rarely
+            // lands on an exact multiple. Real-time accumulators keep the
+            // same shared, once-per-frame cadence, just measured in elapsed
+            // time instead of frame count.
+            // Tiny epsilon avoids floating-point boundary jitter (e.g.
+            // timeScale landing on 1.9999999999999998 instead of exactly 2)
+            // silently delaying an emission by a whole extra frame.
+            const EPS = 1e-9;
+            fireballEmberAccum += timeScale;
+            const emitFireballEmbers = fireballEmberAccum >= 2 - EPS;
+            if (emitFireballEmbers) fireballEmberAccum -= 2;
+
+            blastCrackleAccum += timeScale;
+            const emitBlastCrackle = blastCrackleAccum >= 3 - EPS;
+            if (emitBlastCrackle) blastCrackleAccum -= 3;
 
             for (let bi = balls.length - 1; bi >= 0; bi--) {
                 const b = balls[bi];
@@ -851,13 +874,13 @@
                 if (b.trail.length > maxTrail) b.trail.shift();
 
                 // Fireball ember particles
-                if (ballPowerup.type === 'fireball' && frameCount % 2 === 0) {
+                if (ballPowerup.type === 'fireball' && emitFireballEmbers) {
                     const particleCount = Math.min(ballPowerup.level, 3);
                     createParticles(b.x, b.y, Math.random() > 0.5 ? '#FF6B35' : '#FFD700', particleCount);
                 }
 
                 // Blast crackling particles
-                if (ballPowerup.type === 'blast' && frameCount % 3 === 0) {
+                if (ballPowerup.type === 'blast' && emitBlastCrackle) {
                     createParticles(b.x, b.y, Math.random() > 0.5 ? '#FFA500' : '#FF8C00', 1);
                 }
 
@@ -865,7 +888,7 @@
                 // Keep direction unit vector, apply current effective speed
                 const mag = Math.sqrt(b.dx * b.dx + b.dy * b.dy);
                 if (mag > 0) {
-                    const effectiveSpeed = baseBallSpeed * speedMult;
+                    const effectiveSpeed = baseBallSpeed * speedMult * timeScale;
                     b.x += (b.dx / mag) * effectiveSpeed;
                     b.y += (b.dy / mag) * effectiveSpeed;
                 }
@@ -1035,23 +1058,23 @@
             return (dx * dx + dy * dy) < (b.radius * b.radius);
         }
 
-        function updateParticles() {
+        function updateParticles(timeScale) {
             for (let i = particles.length - 1; i >= 0; i--) {
                 const p = particles[i];
-                p.x += p.dx;
-                p.y += p.dy;
-                p.dy += 0.05; // slight gravity
-                p.life--;
+                p.x += p.dx * timeScale;
+                p.y += p.dy * timeScale;
+                p.dy += 0.05 * timeScale; // slight gravity
+                p.life -= timeScale;
                 if (p.life <= 0) particles.splice(i, 1);
             }
         }
 
-        function updateLasers() {
+        function updateLasers(timeScale) {
             const pw = getPaddleWidth();
 
             // Fire new laser if active
             if (paddlePowerup.type === 'laser') {
-                laserCooldown--;
+                laserCooldown -= timeScale;
                 const fireRate = [15, 15, 10, 6][paddlePowerup.level];
                 if (laserCooldown <= 0) {
                     if (paddlePowerup.level >= 3) {
@@ -1068,7 +1091,7 @@
             // Update existing lasers
             for (let i = lasers.length - 1; i >= 0; i--) {
                 const l = lasers[i];
-                l.y += l.speed;
+                l.y += l.speed * timeScale;
 
                 // Off screen
                 if (l.y < -20) {
@@ -1106,10 +1129,10 @@
             }
         }
 
-        function updateShield() {
-            if (shieldState.hitFlashTimer > 0) shieldState.hitFlashTimer--;
+        function updateShield(timeScale) {
+            if (shieldState.hitFlashTimer > 0) shieldState.hitFlashTimer -= timeScale;
             if (paddlePowerup.type === 'shield' && paddlePowerup.level >= 2 && shieldState.broken) {
-                shieldState.regenTimer++;
+                shieldState.regenTimer += timeScale;
                 if (shieldState.regenTimer >= 300) {
                     shieldState.broken = false;
                     shieldState.active = true;
@@ -1119,12 +1142,12 @@
             }
         }
 
-        function updateMissiles() {
+        function updateMissiles(timeScale) {
             const pw = getPaddleWidth();
 
             // Fire new missiles if active
             if (paddlePowerup.type === 'missile') {
-                missileCooldown--;
+                missileCooldown -= timeScale;
                 const fireRate = [20, 20, 12, 8][paddlePowerup.level];
                 if (missileCooldown <= 0) {
                     if (paddlePowerup.level >= 3) {
@@ -1160,8 +1183,12 @@
                     const bcy = nearestBrick.y + nearestBrick.height / 2;
                     const targetDx = (bcx - m.x) / nearestDist;
                     const targetDy = (bcy - m.y) / nearestDist;
-                    m.dx = m.dx * 0.85 + targetDx * 0.15;
-                    m.dy = m.dy * 0.85 + targetDy * 0.15;
+                    // Homing turn rate: 0.15 was a fixed per-frame blend
+                    // factor, scaled here so missiles turn at the same real
+                    // rate regardless of frame rate.
+                    const turnFactor = Math.min(1, 0.15 * timeScale);
+                    m.dx = m.dx * (1 - turnFactor) + targetDx * turnFactor;
+                    m.dy = m.dy * (1 - turnFactor) + targetDy * turnFactor;
                     const mag = Math.sqrt(m.dx * m.dx + m.dy * m.dy);
                     if (mag > 0) {
                         m.dx = (m.dx / mag) * m.speed;
@@ -1169,8 +1196,8 @@
                     }
                 }
 
-                m.x += m.dx;
-                m.y += m.dy;
+                m.x += m.dx * timeScale;
+                m.y += m.dy * timeScale;
 
                 // Off screen
                 if (m.y < -20 || m.x < -20 || m.x > BASE_W + 20) {
@@ -1211,10 +1238,10 @@
             }
         }
 
-        function updateBlastQueue() {
+        function updateBlastQueue(timeScale) {
             for (let i = blastQueue.length - 1; i >= 0; i--) {
                 const entry = blastQueue[i];
-                entry.delay--;
+                entry.delay -= timeScale;
                 if (entry.delay <= 0) {
                     for (const target of bricks) {
                         if (!target.alive) continue;
@@ -1905,17 +1932,37 @@
         }
 
         // --- Game loop ---
-        function loop() {
+        // Paddle speed, ball speed, laser/missile cooldowns, particle motion,
+        // and every other "N per frame" constant below only produce a
+        // consistent real-world speed on a device sustaining exactly 60fps -
+        // anything slower (mobile is more likely to drop frames redrawing
+        // this canvas) simply moves everything slower in real time. timeScale
+        // converts each frame's real elapsed time into "how many 1/60s
+        // reference frames' worth of motion should happen now", so speed
+        // stays constant across devices. Same fix as games/jezzball.html.
+        let lastFrameTime = null;
+
+        function loop(now) {
+            let timeScale = 1;
+            if (lastFrameTime !== null) {
+                const dt = now - lastFrameTime;
+                // Clamp elapsed time so a stutter or returning from a
+                // backgrounded tab can't let a ball tunnel through a brick
+                // row in one oversized step.
+                timeScale = Math.min(dt, 50) / (1000 / 60);
+            }
+            lastFrameTime = now;
+
             if (gameState === 'playing') {
-                frameCount++;
-                updatePaddle();
-                updateCapsule();
-                updateBalls();
-                updateBlastQueue();
-                updateParticles();
-                updateLasers();
-                updateShield();
-                updateMissiles();
+                frameCount += timeScale;
+                updatePaddle(timeScale);
+                updateCapsule(timeScale);
+                updateBalls(timeScale);
+                updateBlastQueue(timeScale);
+                updateParticles(timeScale);
+                updateLasers(timeScale);
+                updateShield(timeScale);
+                updateMissiles(timeScale);
 
             }
             draw();
