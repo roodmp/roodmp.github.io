@@ -310,6 +310,48 @@
             color: var(--text-secondary);
         }
 
+        /* Ball colour picker */
+        .swatch-picker {
+            margin-top: var(--space-6);
+        }
+
+        .swatch-label {
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-tertiary);
+            margin-bottom: var(--space-2);
+        }
+
+        .swatch-row {
+            display: flex;
+            gap: var(--space-2);
+            justify-content: center;
+        }
+
+        .swatch {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            border-radius: var(--radius-full);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform var(--transition-fast);
+        }
+
+        .swatch:hover {
+            transform: scale(1.12);
+        }
+
+        .swatch.selected {
+            border-color: var(--text-primary);
+        }
+
+        .swatch:focus-visible {
+            outline: 2px solid var(--accent-300);
+            outline-offset: 2px;
+        }
+
         /* Control hint variants: desktop (keyboard) vs touch (swipe/tap) */
         .touch-only {
             display: none;
@@ -423,6 +465,10 @@
                     <div class="touch-only">Swipe left / right to strafe</div>
                     <div class="touch-only">Tap to jump</div>
                 </div>
+                <div class="swatch-picker">
+                    <div class="swatch-label">Ball color</div>
+                    <div class="swatch-row" role="group" aria-label="Ball color"></div>
+                </div>
             </div>
         </div>
 
@@ -443,6 +489,10 @@
                 <div class="overlay-score" id="finalScore"></div>
                 <div class="overlay-high-score" id="highScore"></div>
                 <button class="overlay-btn" id="restartBtn">Run Again</button>
+                <div class="swatch-picker">
+                    <div class="swatch-label">Ball color</div>
+                    <div class="swatch-row" role="group" aria-label="Ball color"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -487,11 +537,13 @@
         const faceAngle = f => f * (Math.PI * 2 / FACES);
 
         // ---- Procedural generation: hand-authored, tier-tagged chunk patterns ----
-        // Each row is 3 chars = the 3 lanes of the *current floor face* ('1' tile, '0' gap).
-        // Non-floor faces are always solid, so a wall is always a safe escape — no run
-        // can ever be impossible and no path-checking code is required.
-        // Every gap runs at least two tiles long (no single-tile nicks), so a hole always
-        // reads as a real span to jump or route around.
+        // Each row is 3 chars = a lane pattern ('1' tile, '0' gap) that is stamped onto
+        // ALL SIX faces identically, so every surface around the ring carries the same
+        // difficulty — you can't dodge a hard stretch by strafing to an untouched wall.
+        // Because every pattern is authored to be passable on a single face (full-ring
+        // gaps never exceed a jumpable span, lane holes always leave a lane), the run is
+        // guaranteed traversable on whatever face you're on — no path-checking needed.
+        // Every gap runs at least two tiles long (no single-tile nicks).
         const PATTERNS = [
             // Tier 1 — gentle
             { tier: 1, rows: ['111', '111', '111', '111'] },                                  // safe straight
@@ -502,12 +554,12 @@
             { tier: 2, rows: ['111', '000', '000', '000', '111', '111'] },                    // triple gap (jump)
             { tier: 2, rows: ['111', '011', '011', '110', '110', '111'] },                    // staggered → lane change
             { tier: 2, rows: ['111', '000', '000', '111', '111', '000', '000', '111'] },      // two double gaps
-            // Tier 3 — forces a wall transition
-            { tier: 3, rows: ['111', '000', '000', '000', '000', '000', '111'] },             // floor erosion
-            { tier: 3, rows: ['111', '000', '000', '110', '110', '000', '000', '111'] },      // gap + shift
+            // Tier 3 — jump + lane weaving
+            { tier: 3, rows: ['111', '000', '000', '000', '111', '111', '000', '000', '000', '111'] },  // two triple gaps
+            { tier: 3, rows: ['111', '110', '110', '011', '011', '110', '110', '111'] },      // lane weave
             // Tier 4 — tighter combinations
-            { tier: 4, rows: ['111', '000', '000', '000', '010', '010', '000', '000', '111'] },
-            { tier: 4, rows: ['111', '000', '000', '110', '110', '011', '011', '000', '000', '111'] },
+            { tier: 4, rows: ['111', '000', '000', '000', '111', '111', '010', '010', '000', '000', '000', '111'] },
+            { tier: 4, rows: ['111', '010', '010', '101', '101', '010', '010', '101', '101', '111'] },  // hard weave
         ];
 
         function currentTier(dist) {
@@ -515,8 +567,7 @@
         }
 
         // Generator state — produces 18-byte rows for strictly increasing row indices.
-        let patternQueue = [];   // [{ row3, startsNewPattern, tier }]
-        let genFace = 0;         // face the current pattern's gaps are authored onto
+        let patternQueue = [];   // [{ row3, tier }]
 
         function pickPattern(tier) {
             const pool = PATTERNS.filter(p => p.tier <= tier);
@@ -528,11 +579,11 @@
 
         function enqueuePattern(dist) {
             const p = pickPattern(currentTier(dist));
-            p.rows.forEach((r, i) => patternQueue.push({ row3: r, startsNewPattern: i === 0, tier: p.tier }));
+            p.rows.forEach(r => patternQueue.push({ row3: r, tier: p.tier }));
             // Always follow a hard pattern with ≥2 fully safe rows so demands never stack.
             if (p.tier >= 3) {
-                patternQueue.push({ row3: '111', startsNewPattern: false, tier: p.tier });
-                patternQueue.push({ row3: '111', startsNewPattern: false, tier: p.tier });
+                patternQueue.push({ row3: '111', tier: p.tier });
+                patternQueue.push({ row3: '111', tier: p.tier });
             }
         }
 
@@ -544,9 +595,13 @@
             if (rowIndex < SAFE_START_ROWS) return data;      // solid launch runway
             if (patternQueue.length === 0) enqueuePattern(rowIndex * TILE);
             const item = patternQueue.shift();
-            if (item.startsNewPattern) genFace = player.floorFace; // author gaps under the player
-            for (let L = 0; L < LANES; L++) {
-                data[genFace * LANES + L] = item.row3.charCodeAt(L) === 49 ? 1 : 0; // '1' === 49
+            const l0 = item.row3.charCodeAt(0) === 49 ? 1 : 0; // '1' === 49
+            const l1 = item.row3.charCodeAt(1) === 49 ? 1 : 0;
+            const l2 = item.row3.charCodeAt(2) === 49 ? 1 : 0;
+            for (let f = 0; f < FACES; f++) {                  // same pattern on every face
+                data[f * LANES] = l0;
+                data[f * LANES + 1] = l1;
+                data[f * LANES + 2] = l2;
             }
             return data;
         }
@@ -675,13 +730,15 @@
         // ---- Blob ----
         // A mottled texture gives the sphere surface detail so its rolling reads as real
         // forward motion (a smooth sphere would look like it's just floating in place).
+        // Neutral (near-white) base with darker mottling, so material.color can tint the
+        // whole ball any chosen hue while the darker patches keep the roll readable.
         function makeBlobTexture() {
             const cv = document.createElement('canvas');
             cv.width = cv.height = 128;
             const g = cv.getContext('2d');
-            g.fillStyle = '#E8845A';                     // panda-400 base
+            g.fillStyle = '#ffffff';
             g.fillRect(0, 0, 128, 128);
-            g.fillStyle = 'rgba(190, 96, 58, 0.9)';      // darker mottling
+            g.fillStyle = 'rgba(0, 0, 0, 0.17)';         // darker mottling (multiplies the tint)
             for (const [x, y, r] of [[30, 40, 17], [86, 30, 13], [58, 82, 20], [104, 96, 11], [18, 96, 10], [96, 64, 9]]) {
                 g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
             }
@@ -698,6 +755,46 @@
         );
         blobPivot.add(blob);
         scene.add(blobPivot);
+
+        // ---- Ball colour (player choice, persisted) ----
+        const BALL_COLORS = [
+            { name: 'Panda', hex: '#E8845A' },
+            { name: 'Sky',   hex: '#5B8CB8' },
+            { name: 'Mint',  hex: '#5BB87A' },
+            { name: 'Grape', hex: '#C084FC' },
+            { name: 'Rose',  hex: '#E86A9C' },
+            { name: 'Snow',  hex: '#F5F5F4' },
+        ];
+        let ballColor = localStorage.getItem('gravity_run_ball_color') || BALL_COLORS[0].hex;
+
+        function applyBallColor(hex) {
+            ballColor = hex;
+            blob.material.color.set(hex);
+            blob.material.emissive.set(hex);
+            localStorage.setItem('gravity_run_ball_color', hex);
+            document.querySelectorAll('.swatch').forEach(s => {
+                const on = s.dataset.hex.toLowerCase() === hex.toLowerCase();
+                s.classList.toggle('selected', on);
+                s.setAttribute('aria-pressed', on ? 'true' : 'false');
+            });
+        }
+
+        // Populate every swatch row (start + game-over overlays share the same picker).
+        function buildSwatches() {
+            document.querySelectorAll('.swatch-row').forEach(row => {
+                row.innerHTML = '';
+                for (const c of BALL_COLORS) {
+                    const b = document.createElement('button');
+                    b.className = 'swatch';
+                    b.style.background = c.hex;
+                    b.dataset.hex = c.hex;
+                    b.setAttribute('aria-label', c.name + ' ball');
+                    b.addEventListener('click', () => applyBallColor(c.hex));
+                    row.appendChild(b);
+                }
+            });
+            applyBallColor(ballColor);
+        }
 
         const PLAYER_Z = 0;
 
@@ -750,7 +847,6 @@
             distance = 0;
             deathTimer = 0;
             patternQueue = [];
-            genFace = 0;
             rowDataByIndex.clear();
             player.floorFace = 0;
             player.lane = 1;
@@ -1027,6 +1123,7 @@
         window.addEventListener('resize', resize);
 
         // ---- Boot ----
+        buildSwatches();
         initRun();
         gameState = 'start';
         resize();
