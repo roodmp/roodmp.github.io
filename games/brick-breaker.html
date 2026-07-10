@@ -150,27 +150,26 @@
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            min-height: 22px;
+            min-height: 26px;
             padding-top: 4px;
         }
 
         .powerup-badge {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            padding: 2px 9px;
+            gap: 4px;
+            padding: 3px 9px 3px 5px;
             border-radius: var(--radius-full);
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 500;
             color: var(--text-secondary);
             white-space: nowrap;
         }
 
-        .powerup-badge-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
+        .powerup-badge-icon {
+            width: 18px;
+            height: 18px;
             flex-shrink: 0;
         }
 
@@ -551,16 +550,6 @@
             shield:    { color: '#00CED1' },
 
             missile:   { color: '#FFD700' },
-        };
-
-        // Short display names for the HUD badges of timed powerups (see TIMED_TYPES)
-        const POWERUP_LABELS = {
-            slow: 'Slow',
-            fireball: 'Fireball',
-            laser: 'Laser',
-            blast: 'Blast',
-            shield: 'Shield',
-            missile: 'Missile',
         };
 
         function hexToRgba(hex, alpha) {
@@ -1506,6 +1495,23 @@
         // the pulse warning in the last 3s highlights whichever is about to
         // run out regardless of how many others are active alongside it.
         const POWERUP_WARNING_THRESHOLD = 180; // ~3s
+        // Renders each powerup's existing canvas icon (see POWERUP_ICON_DRAWERS,
+        // used for the falling capsules) to a small offscreen canvas once per
+        // type and caches the data URL, so the HUD badges can show the same
+        // icon instead of a text label without redrawing every frame.
+        const POWERUP_ICON_CACHE = {};
+        function getPowerupIconDataUrl(type) {
+            if (POWERUP_ICON_CACHE[type]) return POWERUP_ICON_CACHE[type];
+            const size = 32;
+            const iconCanvas = document.createElement('canvas');
+            iconCanvas.width = size;
+            iconCanvas.height = size;
+            POWERUP_ICON_DRAWERS[type](iconCanvas.getContext('2d'), size / 2, size / 2, POWERUP_TYPES[type].color);
+            const url = iconCanvas.toDataURL();
+            POWERUP_ICON_CACHE[type] = url;
+            return url;
+        }
+
         let lastPowerupBadgeCount = 0;
         function renderPowerupBadges() {
             const active = [
@@ -1522,8 +1528,8 @@
                 const warningClass = p.timer <= POWERUP_WARNING_THRESHOLD ? ' powerup-badge--warning' : '';
                 const style = `background:${hexToRgba(color, 0.15)};border:1px solid ${hexToRgba(color, 0.45)}`;
                 return `<span class="powerup-badge${warningClass}" style="${style}">` +
-                    `<span class="powerup-badge-dot" style="background:${color}"></span>` +
-                    `${POWERUP_LABELS[p.type]} · ${secondsLeft}s</span>`;
+                    `<img class="powerup-badge-icon" src="${getPowerupIconDataUrl(p.type)}" alt="" />` +
+                    `${secondsLeft}s</span>`;
             }).join('');
 
             // With enough stacked powerups the badge row can wrap onto a
