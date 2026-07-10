@@ -596,10 +596,16 @@
         const tunnelGroup = new THREE.Group();
         scene.add(tunnelGroup);
 
-        // Shared geometry + two alternating materials (subtle accent emissive = edge tint).
+        // Shared geometry + two alternating materials (subtle accent emissive = surface tint).
         const tileGeo = new THREE.BoxGeometry(LANE_W * 0.86, TILE_THICK, TILE * 0.9);
-        const tileMatA = new THREE.MeshLambertMaterial({ color: COLORS.tileA, emissive: COLORS.accent, emissiveIntensity: 0.06 });
-        const tileMatB = new THREE.MeshLambertMaterial({ color: COLORS.tileB, emissive: COLORS.accent, emissiveIntensity: 0.06 });
+        const tileMatA = new THREE.MeshLambertMaterial({ color: COLORS.tileA, emissive: COLORS.accent, emissiveIntensity: 0.12 });
+        const tileMatB = new THREE.MeshLambertMaterial({ color: COLORS.tileB, emissive: COLORS.accent, emissiveIntensity: 0.12 });
+        // A thin accent edge frames every tile, so a missing tile reads as an obvious
+        // dark rectangle bordered by its lit neighbours (spec: tile edge accent glow).
+        // Parenting the outline to each tile means it inherits the tile's visibility,
+        // so a gap's own edges vanish and the hole is framed by the surrounding tiles.
+        const tileEdgeGeo = new THREE.EdgesGeometry(tileGeo);
+        const tileEdgeMat = new THREE.LineBasicMaterial({ color: COLORS.accent, transparent: true, opacity: 0.55 });
 
         // Precompute the fixed local transform of every slot (face×lane); only a row's
         // z and each tile's visibility ever change → zero per-frame allocation.
@@ -626,6 +632,7 @@
                 const mesh = new THREE.Mesh(tileGeo, tileMatA);
                 mesh.position.set(slotXform[s].x, slotXform[s].y, 0);
                 mesh.rotation.z = slotXform[s].rot;
+                mesh.add(new THREE.LineSegments(tileEdgeGeo, tileEdgeMat));
                 group.add(mesh);
                 tiles.push(mesh);
             }
