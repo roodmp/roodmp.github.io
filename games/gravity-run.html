@@ -600,26 +600,31 @@
         const tileGeo = new THREE.BoxGeometry(LANE_W * 0.86, TILE_THICK, TILE * 0.9);
         const tileMatA = new THREE.MeshLambertMaterial({ color: COLORS.tileA, emissive: COLORS.accent, emissiveIntensity: 0.12 });
         const tileMatB = new THREE.MeshLambertMaterial({ color: COLORS.tileB, emissive: COLORS.accent, emissiveIntensity: 0.12 });
-        // A thin accent edge frames every tile, so a missing tile reads as an obvious
-        // dark rectangle bordered by its lit neighbours (spec: tile edge accent glow).
-        // Parenting the outline to each tile means it inherits the tile's visibility,
-        // so a gap's own edges vanish and the hole is framed by the surrounding tiles.
+        // A missing cell is not left open to the void — it's filled with a dark, recessed
+        // "empty tile" so it reads as a hollow socket in the tunnel surface rather than a
+        // window to space, while still clearly distinct from the lit solid tiles.
+        const tileMatGap = new THREE.MeshLambertMaterial({ color: 0x222220 });
+        // A thin accent edge frames every tile; solid tiles get the bright edge, empty
+        // tiles a dim one, so the surface still reads as a continuous grid.
         const tileEdgeGeo = new THREE.EdgesGeometry(tileGeo);
         const tileEdgeMat = new THREE.LineBasicMaterial({ color: COLORS.accent, transparent: true, opacity: 0.55 });
+        const tileEdgeMatGap = new THREE.LineBasicMaterial({ color: COLORS.accent, transparent: true, opacity: 0.16 });
+        const GAP_RECESS = 0.7;   // how far an empty tile sinks below the walking surface
 
-        // Precompute the fixed local transform of every slot (face×lane); only a row's
-        // z and each tile's visibility ever change → zero per-frame allocation.
+        // Precompute the fixed local transform of every slot (face×lane): its position on
+        // the walking surface, plus a recessed position (pushed radially outward) used when
+        // the cell is an empty tile. Only a row's z and per-tile material/position toggle
+        // at stamp time → zero per-frame allocation.
         const slotXform = [];
         for (let f = 0; f < FACES; f++) {
             for (let L = 0; L < LANES; L++) {
                 const x0 = (L - 1) * LANE_W;
                 const y0 = -R;
                 const a = faceAngle(f);
-                slotXform.push({
-                    x: x0 * Math.cos(a) - y0 * Math.sin(a),
-                    y: x0 * Math.sin(a) + y0 * Math.cos(a),
-                    rot: a,
-                });
+                const x = x0 * Math.cos(a) - y0 * Math.sin(a);
+                const y = x0 * Math.sin(a) + y0 * Math.cos(a);
+                const k = (R + GAP_RECESS) / R;   // scale radius outward, keeping direction
+                slotXform.push({ x, y, rot: a, rx: x * k, ry: y * k });
             }
         }
 
@@ -632,7 +637,9 @@
                 const mesh = new THREE.Mesh(tileGeo, tileMatA);
                 mesh.position.set(slotXform[s].x, slotXform[s].y, 0);
                 mesh.rotation.z = slotXform[s].rot;
-                mesh.add(new THREE.LineSegments(tileEdgeGeo, tileEdgeMat));
+                const edge = new THREE.LineSegments(tileEdgeGeo, tileEdgeMat);
+                mesh.add(edge);
+                mesh.userData.edge = edge;
                 group.add(mesh);
                 tiles.push(mesh);
             }
@@ -649,8 +656,17 @@
             const mat = (rowIndex & 1) ? tileMatA : tileMatB;
             for (let s = 0; s < row.tiles.length; s++) {
                 const t = row.tiles[s];
-                t.visible = data[s] === 1;
-                t.material = mat;
+                const x = slotXform[s];
+                if (data[s] === 1) {
+                    t.material = mat;
+                    t.position.set(x.x, x.y, 0);
+                    t.userData.edge.material = tileEdgeMat;
+                } else {
+                    // Empty tile: dark, recessed, dim edge.
+                    t.material = tileMatGap;
+                    t.position.set(x.rx, x.ry, 0);
+                    t.userData.edge.material = tileEdgeMatGap;
+                }
             }
         }
 
