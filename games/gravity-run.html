@@ -182,8 +182,9 @@
             display: block;
             border-radius: var(--radius-lg);
             touch-action: none;
-            border: 1px solid rgba(74, 103, 133, 0.2);
-            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 0, 0, 0.2);
+            background: #070b12;
+            border: 1px solid rgba(108, 204, 245, 0.26);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.42), 0 0 32px rgba(46, 142, 197, 0.08);
         }
 
         /* Overlays */
@@ -496,12 +497,15 @@
 
         // ---- Design tokens mirrored for in-scene materials (see design-system.css) ----
         const COLORS = {
-            bg:        0x1A1A18, // --bg-primary  (also fog)
-            tileA:     0x2A2A27, // --bg-tertiary
-            tileB:     0x32322F, // --bg-elevated
-            accent:    0x4A6785, // --accent-500 (tile edge tint)
+            bg:        0x070B12,
+            tileA:     0x173653,
+            tileB:     0x214966,
+            gap:       0x09121D,
+            accent:    0x6CCCF5,
+            horizon:   0x2E8EC5,
+            hazard:    0x9B4E6A,
             blob:      0xE8845A, // --panda-400  (rationed panda-orange, blob only)
-            star:      0xF5F5F4,
+            star:      0xBFE8FF,
         };
 
         // ---- Tunnel geometry ----
@@ -623,9 +627,8 @@
 
         // ---- Three.js scene ----
         const canvas = document.getElementById('gameCanvas');
-        // This game favors a stable frame cadence over antialiased micro-detail. Asking for
-        // the high-performance adapter and avoiding MSAA keeps software/embedded contexts
-        // from multiplying the cost of every canvas pixel.
+        // Preserve the polished edge quality, but cap the actual framebuffer below so older
+        // integrated GPUs never have to fill an unbounded full-window canvas.
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
         const RENDER_PIXEL_BUDGETS = [1250000, 750000, 450000];
         const MAX_RENDER_PIXEL_RATIO = 1.25;
@@ -639,46 +642,72 @@
         camera.position.set(0, -2.35, 8.5);    // raised a touch so the path reads over the blob
         camera.lookAt(0, -5.4, -22);           // fixed: never moves, never rotates
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-        const dir = new THREE.DirectionalLight(0xffffff, 0.9);
-        dir.position.set(4, 6, 10);
+        scene.add(new THREE.HemisphereLight(0xB9E8FF, 0x07101A, 1.15));
+        const dir = new THREE.DirectionalLight(0xCFEFFF, 0.75);
+        dir.position.set(-3, 4, 10);
         scene.add(dir);
 
         // Starfield — a single drifting Points cloud outside the tunnel.
         const starGroup = new THREE.Group();
         (function buildStars() {
-            const N = 500;
+            const N = 220;
             const pos = new Float32Array(N * 3);
             for (let i = 0; i < N; i++) {
                 const a = Math.random() * Math.PI * 2;
-                const rad = 24 + Math.random() * 90;
+                const rad = 34 + Math.random() * 80;
                 pos[i * 3]     = Math.cos(a) * rad;
                 pos[i * 3 + 1] = Math.sin(a) * rad;
                 pos[i * 3 + 2] = -160 + Math.random() * 200;
             }
             const g = new THREE.BufferGeometry();
             g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            const m = new THREE.PointsMaterial({ color: COLORS.star, size: 0.55, sizeAttenuation: true, transparent: true, opacity: 0.7, fog: false });
+            const m = new THREE.PointsMaterial({ color: COLORS.star, size: 0.38, sizeAttenuation: true, transparent: true, opacity: 0.58, fog: false });
             starGroup.add(new THREE.Points(g, m));
         })();
         scene.add(starGroup);
+
+        // A restrained horizon bloom gives the tunnel a clear destination without adding
+        // another dynamic light or per-panel effect.
+        function makeGlowTexture() {
+            const glowCanvas = document.createElement('canvas');
+            glowCanvas.width = glowCanvas.height = 128;
+            const glowContext = glowCanvas.getContext('2d');
+            const gradient = glowContext.createRadialGradient(64, 64, 0, 64, 64, 64);
+            gradient.addColorStop(0, 'rgba(187, 236, 255, 0.9)');
+            gradient.addColorStop(0.18, 'rgba(89, 190, 244, 0.52)');
+            gradient.addColorStop(0.55, 'rgba(34, 109, 170, 0.12)');
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            glowContext.fillStyle = gradient;
+            glowContext.fillRect(0, 0, 128, 128);
+            return new THREE.CanvasTexture(glowCanvas);
+        }
+        const horizonGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+            map: makeGlowTexture(),
+            color: COLORS.horizon,
+            transparent: true,
+            opacity: 0.62,
+            depthWrite: false,
+        }));
+        horizonGlow.position.set(0, 0, -52);
+        horizonGlow.scale.set(17, 17, 1);
+        scene.add(horizonGlow);
 
         // Tunnel group — rotation.z is gravity, position.z is scroll.
         const tunnelGroup = new THREE.Group();
         scene.add(tunnelGroup);
 
         // The tunnel stays richly lit; global instancing carries the performance work.
-        const tileGeo = new THREE.BoxGeometry(LANE_W * 0.86, TILE_THICK, TILE * 0.9);
-        const tileMat = new THREE.MeshLambertMaterial({ color: 0xffffff, vertexColors: true, emissive: COLORS.accent, emissiveIntensity: 0.12 });
+        const tileGeo = new THREE.BoxGeometry(LANE_W * 0.965, TILE_THICK, TILE * 0.97);
+        const tileMat = new THREE.MeshLambertMaterial({ color: 0xffffff, vertexColors: true, emissive: COLORS.accent, emissiveIntensity: 0.20 });
         const tileColorA = new THREE.Color(COLORS.tileA);
         const tileColorB = new THREE.Color(COLORS.tileB);
         // A missing cell is not left open to the void — it's filled with a dark, recessed
         // "empty tile" so it reads as a hollow socket in the tunnel surface rather than a
         // window to space, while still clearly distinct from the lit solid tiles.
-        const tileMatGap = new THREE.MeshLambertMaterial({ color: 0x222220 });
-        const GAP_RECESS = 0.7;   // how far an empty tile sinks below the walking surface
+        const tileMatGap = new THREE.MeshLambertMaterial({ color: COLORS.gap, emissive: 0x06101a, emissiveIntensity: 0.45 });
+        const GAP_RECESS = 0.42;  // a shadowed socket, not a cavernous black trench
         const wallGeo = new THREE.BoxGeometry(LANE_W * 0.72, 2.15, 0.42);
-        const wallMat = new THREE.MeshLambertMaterial({ color: 0x76505b, emissive: 0x4a2630, emissiveIntensity: 0.32 });
+        const wallMat = new THREE.MeshLambertMaterial({ color: COLORS.hazard, emissive: 0x541d36, emissiveIntensity: 0.48 });
 
         // Precompute the fixed local transform of every slot (face×lane): its position on
         // the walking surface, plus a recessed position (pushed radially outward) used when
@@ -792,6 +821,20 @@
         );
         blobPivot.add(blob);
         scene.add(blobPivot);
+
+        // A small contact shadow makes the runner feel planted on the active face. It is a
+        // single transparent disc, so it costs one draw while doing more for depth than a
+        // full shadow-map pass on older integrated GPUs.
+        const blobShadowMaterial = new THREE.MeshBasicMaterial({
+            color: 0x010307,
+            transparent: true,
+            opacity: 0.28,
+            depthWrite: false,
+        });
+        const blobShadow = new THREE.Mesh(new THREE.CircleGeometry(BLOB_R * 0.88, 24), blobShadowMaterial);
+        blobShadow.rotation.x = -Math.PI / 2;
+        blobShadow.renderOrder = 1;
+        scene.add(blobShadow);
 
         const PLAYER_Z = 0;
 
@@ -1113,6 +1156,10 @@
             const targetX = (player.lane - 1) * LANE_W;
             player.displayX += (targetX - player.displayX) * Math.min(1, dt * 14);
             blobPivot.position.set(player.displayX, FLOOR_REST + player.py, PLAYER_Z);
+            const airborne = Math.max(0, player.py);
+            blobShadow.position.set(player.displayX, -R + TILE_THICK / 2 + 0.012, PLAYER_Z + 0.035);
+            blobShadow.scale.setScalar(Math.max(0.38, 1 - airborne * 0.17));
+            blobShadowMaterial.opacity = Math.max(0.06, 0.28 - airborne * 0.06);
 
             // Roll the blob forward at the rolling speed (v = ωr) so it reads as moving,
             // not floating. Negative X-rotation rolls the top away down the tunnel (−Z).
@@ -1126,6 +1173,12 @@
 
             // Drift the starfield.
             starGroup.rotation.z += dt * 0.01;
+
+            // Keep the distant bloom alive enough to give the run a destination, while
+            // avoiding any extra scene geometry or post-processing pass.
+            const glowPulse = Math.sin(performance.now() * 0.00115);
+            horizonGlow.material.opacity = 0.56 + glowPulse * 0.08;
+            horizonGlow.scale.setScalar(16.7 + glowPulse * 0.45);
         }
 
         // ---- Main loop (delta-time; movement is in units/second) ----
@@ -1193,8 +1246,20 @@
             const hudTop = document.getElementById('hudTop');
             const padL = parseFloat(style.paddingLeft), padR = parseFloat(style.paddingRight);
             const padT = parseFloat(style.paddingTop), padB = parseFloat(style.paddingBottom);
-            const w = Math.max(1, container.clientWidth - padL - padR);
-            const h = Math.max(1, container.clientHeight - padT - padB - hudTop.offsetHeight - 4);
+            const availableW = Math.max(1, container.clientWidth - padL - padR);
+            const availableH = Math.max(1, container.clientHeight - padT - padB - hudTop.offsetHeight - 4);
+            // A deliberate 16:9 stage gives the tunnel a cinematic composition rather
+            // than letting it expand into an uncomfortably tall, unframed debug canvas.
+            // The width cap also prevents an ultrawide display from spending pixels the
+            // player cannot meaningfully see.
+            const GAME_ASPECT = 16 / 9;
+            const MAX_GAME_WIDTH = 1280;
+            let w = Math.min(availableW, MAX_GAME_WIDTH);
+            let h = w / GAME_ASPECT;
+            if (h > availableH) {
+                h = availableH;
+                w = h * GAME_ASPECT;
+            }
             // Set the real drawing buffer directly. Three.js recommends this approach over
             // setPixelRatio() when an app must cap the internal canvas resolution precisely.
             const pixelBudgetRatio = Math.sqrt(RENDER_PIXEL_BUDGETS[qualityLevel] / (w * h));
