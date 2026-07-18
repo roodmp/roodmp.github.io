@@ -857,6 +857,31 @@ pre {
 }
 
 
+/* === INLINE COMMAND PROMPT === */
+.cmd-inline {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    padding: var(--space-1) var(--space-2);
+    background: var(--bg-secondary);
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+/* Prompt prefix — panda accent, not selectable so copy grabs only the command */
+.cmd-inline::before {
+    content: 'C:\\> ';
+    color: var(--panda-400);
+    user-select: none;
+}
+
+/* PowerShell variant */
+.cmd-inline.cmd-ps::before {
+    content: 'PS C:\\> ';
+}
+
+
 /* === FORM ELEMENTS === */
 .input {
     width: 100%;
