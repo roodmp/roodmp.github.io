@@ -611,7 +611,7 @@
           <h1 id="introName" class="hero-name">Mark Rood</h1>
           <p class="hero-role">Product Manager · PDQ</p>
           <p class="hero-bio">
-            After 10+ years in IT and systems engineering, I spend my days on AI, MCP and API.. basically all the acronyms. When I'm not doing that, you'll find me in the woodshop, watching hockey, or out exploring Colorado.
+            After 10+ years in IT and systems engineering, I now build AI products for IT teams, including the PDQ Connect MCP and Package Assistant. When I'm not doing that, you'll find me in the woodshop, watching hockey, or out exploring Colorado.
           </p>
           <div class="hero-links">
             <a href="mailto:Me@MarkRood.io" class="hero-link" aria-label="Email Mark">
@@ -695,6 +695,26 @@
   <script>
     // ── Project Data ──
     const projects = [
+      {
+        id: 'MR-028',
+        name: 'PDQ Connect MCP',
+        status: 'shipped',
+        type: 'tool',
+        tags: ['AI', 'MCP', 'product'],
+        description: 'A secure, permission-aware MCP server that connects AI assistants to live PDQ Connect data. IT admins can investigate devices and vulnerabilities, build groups and automations, deploy packages, and remediate CVEs through natural-language requests, with changes recorded in audit logs.',
+        link: 'https://connect.pdq.com/hc/en-us/articles/52178140613659-PDQ-Connect-MCP',
+        image: null
+      },
+      {
+        id: 'MR-027',
+        name: 'PDQ Connect Package Assistant',
+        status: 'shipped',
+        type: 'tool',
+        tags: ['AI', 'packages', 'product'],
+        description: 'An AI assistant built into PDQ Connect that helps IT admins understand, create, and improve custom Windows packages. It evaluates existing packages, researches dependencies and silent install parameters, and helps turn deployment intent into a reliable package.',
+        link: 'https://connect.pdq.com/hc/en-us/articles/53124693692571-Package-assistant',
+        image: null
+      },
       {
         id: 'MR-026',
         name: 'Gravity Run',
