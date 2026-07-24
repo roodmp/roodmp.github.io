@@ -187,6 +187,10 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.42), 0 0 32px rgba(46, 142, 197, 0.08);
         }
 
+        /* A run is keyboard/touch driven, so the pointer is only ever in the way. Scoped to
+           the canvas: sliding off it to the nav or the pause button brings the cursor back. */
+        canvas.running { cursor: none; }
+
         /* Overlays */
         .overlay {
             position: fixed;
@@ -451,7 +455,7 @@
         <div id="startOverlay" class="overlay visible">
             <div class="overlay-content">
                 <div class="overlay-title">Gravity Run</div>
-                <div class="overlay-subtitle">Every tunnel face carries the same challenge. At 900 m, the tunnel opens into a flat barrier run.</div>
+                <div class="overlay-subtitle">Mind the gap(s).</div>
                 <div class="ball-picker" role="group" aria-label="Ball color">
                     <button class="ball-swatch" type="button" style="--swatch:#E8845A" data-color="#E8845A" aria-label="Orange ball" aria-pressed="true"></button>
                     <button class="ball-swatch" type="button" style="--swatch:#67C3D4" data-color="#67C3D4" aria-label="Cyan ball" aria-pressed="false"></button>
@@ -500,7 +504,6 @@
             bg:        0x070B12,
             tileA:     0x173653,
             tileB:     0x214966,
-            gap:       0x09121D,
             accent:    0x6CCCF5,
             horizon:   0x2E8EC5,
             hazard:    0x9B4E6A,
@@ -526,20 +529,32 @@
         // ---- Physics tuning ----
         const RUN_SPEED_MIN = 12, RUN_SPEED_MAX = 30;         // units/s
         const SPEED_RAMP_DIST = 1200;                         // metres to reach top speed (slow, steady climb)
-        const JUMP_VELOCITY = 14;                             // units/s upward
-        const GRAVITY = 42;                                   // units/s²
+        // The jump is defined by the arc it draws through the tunnel, not by a fixed impulse.
+        // A fixed impulse would carry further and further as the run speeds up — by 300 m a
+        // jump covered 5.5 rows instead of 4, overshooting the landing strips the patterns
+        // are authored around and dropping the player into the *next* hole. Deriving vy and
+        // gravity from the current speed keeps the arc identical in world space at every
+        // speed: same height, same 4 rows of reach. Only the airtime shortens.
+        const JUMP_SPAN = 4 * TILE;                           // forward reach of a jump (units)
+        const JUMP_APEX = 2.333;                              // apex height above the floor (units)
+        const jumpVelocity = v => 4 * v * JUMP_APEX / JUMP_SPAN;
+        const jumpGravity = v => { const u = jumpVelocity(v); return u * u / (2 * JUMP_APEX); };
         const STRAFE_REPEAT_MS = 180;
         const ROT_EASE = 12;                                  // tunnel rotation ease rate
 
         const faceAngle = f => f * (Math.PI * 2 / FACES);
 
         // ---- Procedural generation: hand-authored, tier-tagged chunk patterns ----
-        // Each row is 3 chars = the three lanes. In the tunnel these rows are stamped on
-        // every face, so rotation changes the route but never exposes an easier surface.
+        // Each row is 3 chars = the three lanes. By default a row is stamped on every face,
+        // so the hole is a full ring and the only answer is a jump. Patterns tagged
+        // `safeArc: n` instead leave n adjacent faces fully solid — the ring is broken, and
+        // the answer is to strafe around the tunnel onto the surface that still has floor.
+        // Those chunks are the reason to rotate at all; without them the six faces are
+        // interchangeable. Gaps render as open space, so the intact arc is visible ahead.
         // Every gap runs at least two tiles long (no single-tile nicks), so a hole always
         // reads as a real span to jump or route around.
         const PATTERNS = [
-            // Tier 1 — gentle
+            // Tier 1 — gentle, full-ring holes the player can simply jump
             { tier: 1, rows: ['111', '111', '111', '111'] },                                  // safe straight
             { tier: 1, rows: ['111', '111', '000', '000', '111', '111'] },                    // double gap (jump)
             { tier: 1, rows: ['111', '110', '110', '111'] },                                  // lane-2 hole
@@ -548,9 +563,14 @@
             { tier: 2, rows: ['111', '000', '000', '000', '111', '111'] },                    // triple gap (jump)
             { tier: 2, rows: ['111', '011', '011', '110', '110', '111'] },                    // staggered → lane change
             { tier: 2, rows: ['111', '000', '000', '111', '111', '000', '000', '111'] },      // two double gaps
-            // Tier 3 — sparse, but still traversable on every face
-            { tier: 3, rows: ['111', '000', '000', '000', '111'] },                             // long jump
+            // Tier 2 — first taste of rotation: jumpable, but rotating is the easy line
+            { tier: 2, rows: ['111', '000', '000', '000', '000', '111'], safeArc: 3 },
+            // Tier 3 — sparse full-ring spans
+            { tier: 3, rows: ['111', '000', '000', '000', '111'] },                           // long jump
             { tier: 3, rows: ['111', '000', '000', '110', '110', '000', '000', '111'] },      // gap + shift
+            // Tier 3 — spans too long to clear in one jump: rotate onto the intact arc
+            { tier: 3, rows: ['111', '000', '000', '000', '000', '000', '000', '000', '000', '000', '111'], safeArc: 2 },
+            { tier: 3, rows: ['111', '000', '000', '000', '000', '000', '000', '010', '010', '111'], safeArc: 2 },
             // Tier 4 — tighter combinations
             { tier: 4, rows: ['111', '000', '000', '000', '010', '010', '000', '000', '111'] },
             { tier: 4, rows: ['111', '000', '000', '110', '110', '011', '011', '000', '000', '111'] },
@@ -570,7 +590,10 @@
         ];
 
         function currentTier(dist) {
-            return Math.min(4, 1 + Math.floor(dist / 400));
+            // The tunnel is only FLAT_START long, so it ramps on a faster clock — otherwise
+            // the rotation chunks (tier 2+) would barely appear before the seam. The flat
+            // course past the seam keeps its original slower ramp.
+            return Math.min(4, 1 + Math.floor(dist / (dist < FLAT_START ? 250 : 400)));
         }
 
         // Generator state — produces 18-byte rows for strictly increasing row indices.
@@ -585,14 +608,31 @@
             return src[(Math.random() * src.length) | 0];
         }
 
+        // Bitmask of the faces a rotation chunk leaves solid. The arc is placed one or two
+        // faces around from wherever the player is standing when the chunk is queued (a
+        // couple of rows ahead of the fog), so it always costs a rotation to reach but is
+        // never more than two face-steps — about four strafes — away.
+        function safeArcMask(safeFaces) {
+            const dir = Math.random() < 0.5 ? 1 : -1;
+            const away = 1 + ((Math.random() * 2) | 0);   // nearest intact face is 1–2 steps around
+            let mask = 0;
+            // The arc runs away from the player, so their own face is never part of it.
+            for (let i = 0; i < safeFaces; i++) {
+                mask |= 1 << (((player.floorFace + dir * (away + i)) % FACES + FACES) % FACES);
+            }
+            return mask;
+        }
+
         function enqueuePattern(dist, flat = false) {
             const p = pickPattern(currentTier(dist), flat ? FLAT_PATTERNS : PATTERNS);
             const queue = flat ? flatQueue : patternQueue;
-            p.rows.forEach((r, i) => queue.push({ row3: r, startsNewPattern: i === 0, tier: p.tier }));
+            // One mask for the whole chunk — the intact arc must not shift mid-hole.
+            const safeMask = p.safeArc ? safeArcMask(p.safeArc) : 0;
+            p.rows.forEach((r, i) => queue.push({ row3: r, startsNewPattern: i === 0, tier: p.tier, safeMask }));
             // Always follow a hard pattern with ≥2 fully safe rows so demands never stack.
             if (p.tier >= 3) {
-                queue.push({ row3: '111', startsNewPattern: false, tier: p.tier });
-                queue.push({ row3: '111', startsNewPattern: false, tier: p.tier });
+                queue.push({ row3: '111', startsNewPattern: false, tier: p.tier, safeMask: 0 });
+                queue.push({ row3: '111', startsNewPattern: false, tier: p.tier, safeMask: 0 });
             }
         }
 
@@ -607,12 +647,15 @@
             const queue = flat ? flatQueue : patternQueue;
             if (queue.length === 0) enqueuePattern(rowIndex * TILE, flat);
             const item = queue.shift();
-            for (let L = 0; L < LANES; L++) {
-                if (flat) {
-                    data[L] = 1;
-                } else {
-                    const solid = item.row3.charCodeAt(L) === 49 ? 1 : 0;
-                    for (let f = 0; f < FACES; f++) data[f * LANES + L] = solid;
+            if (flat) {
+                for (let L = 0; L < LANES; L++) data[L] = 1;
+            } else {
+                for (let f = 0; f < FACES; f++) {
+                    // Faces inside the chunk's safe arc keep their floor; the rest take the hole.
+                    const intact = (item.safeMask & (1 << f)) !== 0;
+                    for (let L = 0; L < LANES; L++) {
+                        data[f * LANES + L] = (intact || item.row3.charCodeAt(L) === 49) ? 1 : 0;
+                    }
                 }
             }
             if (flat) flatHazardsByIndex.set(rowIndex, item.row3);
@@ -701,59 +744,55 @@
         const tileMat = new THREE.MeshLambertMaterial({ color: 0xffffff, vertexColors: true, emissive: COLORS.accent, emissiveIntensity: 0.20 });
         const tileColorA = new THREE.Color(COLORS.tileA);
         const tileColorB = new THREE.Color(COLORS.tileB);
-        // A missing cell is not left open to the void — it's filled with a dark, recessed
-        // "empty tile" so it reads as a hollow socket in the tunnel surface rather than a
-        // window to space, while still clearly distinct from the lit solid tiles.
-        const tileMatGap = new THREE.MeshLambertMaterial({ color: COLORS.gap, emissive: 0x06101a, emissiveIntensity: 0.45 });
-        const GAP_RECESS = 0.42;  // a shadowed socket, not a cavernous black trench
+        // A missing cell renders nothing at all — the hole opens straight onto the starfield.
+        // Nothing is drawn there, which is both the clearest read of "this is a hole" and the
+        // cheapest thing the tunnel can do with roughly a third of its cells.
         const wallGeo = new THREE.BoxGeometry(LANE_W * 0.72, 2.15, 0.42);
         const wallMat = new THREE.MeshLambertMaterial({ color: COLORS.hazard, emissive: 0x541d36, emissiveIntensity: 0.48 });
 
         // Precompute the fixed local transform of every slot (face×lane): its position on
-        // the walking surface, plus a recessed position (pushed radially outward) used when
-        // the cell is an empty tile. Only a row's z and per-tile material/position toggle
-        // at stamp time → zero per-frame allocation.
+        // the walking surface. Only a row's z and per-tile visibility change at stamp time
+        // → zero per-frame allocation.
         const slotXform = [];
         for (let f = 0; f < FACES; f++) {
             for (let L = 0; L < LANES; L++) {
                 const x0 = (L - 1) * LANE_W;
                 const y0 = -R;
                 const a = faceAngle(f);
-                const x = x0 * Math.cos(a) - y0 * Math.sin(a);
-                const y = x0 * Math.sin(a) + y0 * Math.cos(a);
-                const k = (R + GAP_RECESS) / R;   // scale radius outward, keeping direction
-                slotXform.push({ x, y, rot: a, rx: x * k, ry: y * k });
+                slotXform.push({
+                    x: x0 * Math.cos(a) - y0 * Math.sin(a),
+                    y: x0 * Math.sin(a) + y0 * Math.cos(a),
+                    rot: a,
+                });
             }
         }
 
-        // The complete tunnel is three instanced draws (solid tiles, gaps, and barriers).
-        // This avoids issuing one draw call per pooled row, which Firefox handles poorly on
-        // older integrated graphics.
+        // The complete tunnel is two instanced draws (solid tiles and barriers). This avoids
+        // issuing one draw call per pooled row, which Firefox handles poorly on older
+        // integrated graphics.
         const rows = [];
         const tileInstanceCount = ROW_COUNT * SLOTS_PER_ROW;
         const wallInstanceCount = ROW_COUNT * LANES;
         const instanceDummy = new THREE.Object3D();
         const hiddenInstanceMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
         const solidTiles = new THREE.InstancedMesh(tileGeo, tileMat, tileInstanceCount);
-        const gapTiles = new THREE.InstancedMesh(tileGeo, tileMatGap, tileInstanceCount);
         const wallTiles = new THREE.InstancedMesh(wallGeo, wallMat, wallInstanceCount);
         solidTiles.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-        gapTiles.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
         wallTiles.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
         // Instances are recycled to new Z positions, so skip stale bounding-sphere culling.
-        solidTiles.frustumCulled = gapTiles.frustumCulled = wallTiles.frustumCulled = false;
-        tunnelGroup.add(solidTiles, gapTiles, wallTiles);
+        solidTiles.frustumCulled = wallTiles.frustumCulled = false;
+        tunnelGroup.add(solidTiles, wallTiles);
 
-        function setTileInstance(mesh, index, transform, z, visible) {
+        function setTileInstance(index, transform, z, visible) {
             if (!visible) {
-                mesh.setMatrixAt(index, hiddenInstanceMatrix);
+                solidTiles.setMatrixAt(index, hiddenInstanceMatrix);
                 return;
             }
             instanceDummy.position.set(transform.x, transform.y, z);
             instanceDummy.rotation.set(0, 0, transform.rot);
             instanceDummy.scale.set(1, 1, 1);
             instanceDummy.updateMatrix();
-            mesh.setMatrixAt(index, instanceDummy.matrix);
+            solidTiles.setMatrixAt(index, instanceDummy.matrix);
         }
 
         function setWallInstance(index, lane, z, visible) {
@@ -781,16 +820,13 @@
             row.rowIndex = rowIndex;
             const z = -rowIndex * TILE;
             for (let s = 0; s < SLOTS_PER_ROW; s++) {
-                const x = slotXform[s];
-                const canShow = !flat || s < LANES;
-                setTileInstance(solidTiles, row.tileOffset + s, x, z, canShow && data[s] === 1);
-                setTileInstance(gapTiles, row.tileOffset + s, { x: x.rx, y: x.ry, rot: x.rot }, z, canShow && data[s] === 0);
-                if (canShow && data[s] === 1) solidTiles.setColorAt(row.tileOffset + s, (rowIndex & 1) ? tileColorA : tileColorB);
+                const solid = data[s] === 1 && (!flat || s < LANES);
+                setTileInstance(row.tileOffset + s, slotXform[s], z, solid);
+                if (solid) solidTiles.setColorAt(row.tileOffset + s, (rowIndex & 1) ? tileColorA : tileColorB);
             }
             for (let L = 0; L < LANES; L++) setWallInstance(row.wallOffset + L, L, z, flat && hazards.charCodeAt(L) === 87);
             solidTiles.instanceMatrix.needsUpdate = true;
             if (solidTiles.instanceColor) solidTiles.instanceColor.needsUpdate = true;
-            gapTiles.instanceMatrix.needsUpdate = true;
             wallTiles.instanceMatrix.needsUpdate = true;
         }
 
@@ -896,6 +932,9 @@
         function showOverlay(name) {
             Object.values(overlays).forEach(o => o.classList.remove('visible'));
             if (name && overlays[name]) overlays[name].classList.add('visible');
+            // No overlay up means a run is live — this is the one chokepoint every state
+            // transition passes through, so hide the cursor from here.
+            canvas.classList.toggle('running', !name);
         }
 
         // ---- Run lifecycle ----
@@ -983,7 +1022,7 @@
         function jump() {
             if (gameState !== 'playing') return;
             if (player.grounded) {
-                player.vy = JUMP_VELOCITY;
+                player.vy = jumpVelocity(speed);
                 player.grounded = false;
             }
         }
@@ -1097,7 +1136,7 @@
                 }
             } else {
                 const prevPy = player.py;
-                player.vy -= GRAVITY * dt;
+                player.vy -= jumpGravity(speed) * dt;
                 player.py += player.vy * dt;
                 // Landing only happens on the frame the blob crosses the floor plane
                 // going down (prevPy ≥ 0 → py ≤ 0). Once below the plane over a gap,
@@ -1140,7 +1179,7 @@
         }
 
         function updateDying(dt) {
-            player.vy -= GRAVITY * dt;
+            player.vy -= jumpGravity(speed) * dt;
             player.py += player.vy * dt;
             player.tumble += dt * 6;
             deathTimer += dt;
