@@ -52,10 +52,12 @@ const SUGGESTED_QUESTIONS: Record<string, { label: string; questions: string[] }
  * Extracted so both stdio (local) and HTTP (Vercel) entry points can share it.
  */
 export function createServer(): McpServer {
-  const server = new McpServer({
-    name: "mark-rood-portfolio",
-    version: "2.0.0",
-  });
+  const server = new McpServer(
+    { name: "mark-rood-portfolio", version: "2.0.0" },
+    // Tools accept only a handful of scalar arguments. Bound traversal before
+    // schema validation, including unknown nested arguments supplied by clients.
+    { maxToolInputElements: 64 }
+  );
 
   // ── Tool: get_bio ─────────────────────────────────────────────────────────
   server.registerTool(
@@ -123,6 +125,7 @@ export function createServer(): McpServer {
       inputSchema: {
         company: z
           .string()
+          .max(256)
           .optional()
           .describe("Filter to a specific company name (partial match)"),
       },
@@ -196,12 +199,14 @@ export function createServer(): McpServer {
           .describe("Filter by project status"),
         type: z
           .string()
+          .max(64)
           .optional()
           .describe(
             "Filter by project type (tool, game, app, design, bot, extension)"
           ),
         search: z
           .string()
+          .max(256)
           .optional()
           .describe("Search project names and descriptions"),
       },
@@ -257,6 +262,7 @@ export function createServer(): McpServer {
       inputSchema: {
         category: z
           .string()
+          .max(256)
           .optional()
           .describe(
             "Filter by category (e.g. 'Development', 'macOS', 'Mobile Apps', 'Daily Drivers')"
@@ -315,6 +321,7 @@ export function createServer(): McpServer {
       inputSchema: {
         question: z
           .string()
+          .max(4 * 1024)
           .describe("The question to answer about Mark Rood"),
       },
       annotations: READ_ONLY_ANNOTATIONS,
@@ -401,6 +408,7 @@ export function createServer(): McpServer {
       inputSchema: {
         jobDescription: z
           .string()
+          .max(32 * 1024)
           .describe(
             "The full text of a job description to evaluate Mark's fit against"
           ),
@@ -425,6 +433,7 @@ export function createServer(): McpServer {
       inputSchema: {
         topic: z
           .string()
+          .max(64)
           .optional()
           .describe(
             "Filter to a topic: 'getting-started', 'product-ai', 'fit-assessment', or 'deep-dives'"

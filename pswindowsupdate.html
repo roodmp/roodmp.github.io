@@ -1011,6 +1011,11 @@
       });
     }
 
+    // Single-quoted PowerShell literals preserve $, backticks, and embedded quotes.
+    function quotePowerShell(value) {
+      return "'" + value.replace(/'/g, "''") + "'";
+    }
+
     // ── Build Command String ──
     function buildCommand() {
       if (!currentCmdlet) return '';
@@ -1022,9 +1027,9 @@
         if (ptype === 'switch' && el.checked) {
           parts.push('-' + name);
         } else if (ptype === 'text' && el.value.trim()) {
-          parts.push('-' + name + ' "' + el.value.trim() + '"');
+          parts.push('-' + name + ' ' + quotePowerShell(el.value.trim()));
         } else if (ptype === 'select' && el.value) {
-          parts.push('-' + name + ' "' + el.value + '"');
+          parts.push('-' + name + ' ' + quotePowerShell(el.value));
         }
       });
       return parts.join(' ');
@@ -1041,9 +1046,9 @@
         if (ptype === 'switch' && el.checked) {
           html += ' <span class="cmd-param">-' + name + '</span>';
         } else if (ptype === 'text' && el.value.trim()) {
-          html += ' <span class="cmd-param">-' + name + '</span> <span class="cmd-value">"' + escapeHtml(el.value.trim()) + '"</span>';
+          html += ' <span class="cmd-param">-' + name + '</span> <span class="cmd-value">' + escapeHtml(quotePowerShell(el.value.trim())) + '</span>';
         } else if (ptype === 'select' && el.value) {
-          html += ' <span class="cmd-param">-' + name + '</span> <span class="cmd-value">"' + escapeHtml(el.value) + '"</span>';
+          html += ' <span class="cmd-param">-' + name + '</span> <span class="cmd-value">' + escapeHtml(quotePowerShell(el.value)) + '</span>';
         }
       });
       return html;

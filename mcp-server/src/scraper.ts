@@ -8,6 +8,8 @@ let cache: { data: PortfolioData | null; timestamp: number } = {
   timestamp: 0,
 };
 const CACHE_TTL = 5 * 60 * 1000;
+const FETCH_TIMEOUT_MS = 10_000;
+let refreshInFlight: Promise<PortfolioData> | null = null;
 
 export interface Job {
   title: string;
@@ -68,7 +70,8 @@ export interface PortfolioData {
 
 async function fetchPage(path: string): Promise<cheerio.CheerioAPI> {
   const url = `${BASE_URL}${path}`;
-  const response = await fetch(url);
+  // The signal also bounds reading the response body, not just receiving headers.
+  const response = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
   if (!response.ok) {
     throw new Error(`Failed to fetch ${url}: ${response.status}`);
   }
@@ -266,6 +269,16 @@ export async function getPortfolioData(): Promise<PortfolioData> {
     return cache.data;
   }
 
+  // Share one refresh across concurrent tools, resources, and HTTP requests.
+  if (!refreshInFlight) {
+    refreshInFlight = refreshPortfolioData().finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
+}
+
+async function refreshPortfolioData(): Promise<PortfolioData> {
   const [$resume, $about, $resources] = await Promise.all([
     fetchPage("/index.html"),
     fetchPage("/about.html"),

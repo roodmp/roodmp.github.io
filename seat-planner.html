@@ -1657,6 +1657,13 @@
       }
     }
 
+    // Guest names are plain text, including when restored from local storage.
+    function escapeHtml(value) {
+      return value.replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[char]);
+    }
+
     // Wizard helper functions (global for inline oninput/onchange handlers)
     function wizardUpdateSummary() {
       let totalTables = 0;
@@ -2079,7 +2086,7 @@
             const guestId = Array.from(this.selectedGuestIds)[index];
             const tag = document.createElement('span');
             tag.className = 'selected-guest-tag';
-            tag.innerHTML = `${name}<button type="button" onclick="seatPlanner.toggleGuestSelection('${guestId}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>`;
+            tag.innerHTML = `${escapeHtml(name)}<button type="button" onclick="seatPlanner.toggleGuestSelection('${guestId}')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>`;
             selectedContainer.appendChild(tag);
           });
         }
@@ -2225,7 +2232,7 @@
           const tag = t ? `Table ${t.number}` : 'Unassigned';
           return `<div class="guest-item" draggable="true" data-guest-id="${guest.id}">
             <div class="guest-info">
-              <span class="guest-name">${guest.name}</span>
+              <span class="guest-name">${escapeHtml(guest.name)}</span>
               <span class="guest-table-tag">${tag}</span>
             </div>
             <button class="guest-remove" onclick="seatPlanner.removeGuest('${guest.id}')" title="Remove">
@@ -2257,7 +2264,7 @@
             const content = guest ? guest.name.split(' ').map(n => n[0]).join('') : (i + 1);
             const title = guest ? guest.name : `Seat ${i + 1}`;
             const pos = this.calculateSeatPosition(i, table.capacity, shape);
-            return `<div class="seat ${cls}" style="top:${pos.top};left:${pos.left};" data-table-id="${table.id}" data-seat-index="${i}" title="${title}">${content}</div>`;
+            return `<div class="seat ${cls}" style="top:${pos.top};left:${pos.left};" data-table-id="${table.id}" data-seat-index="${i}" title="${escapeHtml(title)}">${escapeHtml(String(content))}</div>`;
           }).join('');
           const occ = table.guests.filter(g => g !== null).length;
           return `<div class="table-wrapper">
@@ -2312,7 +2319,7 @@
           const cls = c.type === 'must_sit_together' ? 'constraint-together' : 'constraint-apart';
           return `<div class="constraint-item">
             <div style="min-width: 0; flex: 1;">
-              <div class="constraint-names">${g1.name} &amp; ${g2.name}</div>
+              <div class="constraint-names">${escapeHtml(g1.name)} &amp; ${escapeHtml(g2.name)}</div>
               <div class="constraint-type ${cls}">${label}</div>
             </div>
             <button class="guest-remove" onclick="seatPlanner.removeConstraint('${c.id}')" title="Remove rule">
@@ -2331,7 +2338,7 @@
         dropdown.innerHTML = this.guests.map(guest =>
           `<div class="multi-select-option" onclick="seatPlanner.toggleGuestSelection('${guest.id}')">
             <input type="checkbox" value="${guest.id}" ${this.selectedGuestIds.has(guest.id) ? 'checked' : ''} onclick="event.stopPropagation()">
-            <span>${guest.name}</span>
+            <span>${escapeHtml(guest.name)}</span>
           </div>`
         ).join('');
         this.updateMultiSelectUI();
@@ -2393,8 +2400,8 @@
               <div class="table-detail-drag-handle" title="Drag to reorder">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
               </div>
-              <div class="table-detail-seat-num filled">${initials}</div>
-              <span class="table-detail-seat-name">${guest.name}</span>
+              <div class="table-detail-seat-num filled">${escapeHtml(initials)}</div>
+              <span class="table-detail-seat-name">${escapeHtml(guest.name)}</span>
               <button class="table-detail-remove-btn" data-action="remove" data-seat-index="${i}" title="Remove guest">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
               </button>
@@ -2428,7 +2435,7 @@
           return '<div class="table-detail-assign-empty">No unassigned guests</div>';
         }
         return unassigned.map(g =>
-          `<button class="table-detail-assign-item" data-action="assign-guest" data-guest-id="${g.id}" data-seat-index="${seatIndex}">${g.name}</button>`
+          `<button class="table-detail-assign-item" data-action="assign-guest" data-guest-id="${g.id}" data-seat-index="${seatIndex}">${escapeHtml(g.name)}</button>`
         ).join('');
       }
 
